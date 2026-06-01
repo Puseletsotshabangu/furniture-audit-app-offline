@@ -1,0 +1,15 @@
+# Ignore OS metadata
+.DS_Store
+Thumbs.db
+
+# Ignore editor folders
+.vscode/
+
+# Ignore node dependencies
+node_modules/
+
+# Ignore logs and env files
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
