@@ -1,0 +1,29 @@
+name: Deploy GitHub Pages
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Determine publish directory
+        id: publish_dir
+        run: |
+          if [ -d docs ]; then
+            echo "publish_dir=docs" >> "$GITHUB_OUTPUT"
+          else
+            echo "publish_dir=./" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v5
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ${{ steps.publish_dir.outputs.publish_dir }}
