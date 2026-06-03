@@ -30,11 +30,60 @@ const NAV = [
 // DBE FURNITURE
 // ─────────────────────────────────────────────
 const DBE_FURNITURE = [
-  "Learner Desk – Size 1 (Grade R)","Learner Desk – Size 2 (Grade 1–3)","Learner Desk – Size 3 (Grade 4–6)",
-  "Learner Desk – Size 4 (Grade 7–9)","Learner Desk – Size 5 (Grade 10–12)",
-  "Learner Chair – Size 1 (Grade R)","Learner Chair – Size 2 (Grade 1–3)","Learner Chair – Size 3 (Grade 4–6)",
-  "Learner Chair – Size 4 (Grade 7–9)","Learner Chair – Size 5 (Grade 10–12)",
-  "Double Learner Desk – Size 2 (Grade 1–3)","Double Learner Desk – Size 3 (Grade 4–6)","Double Learner Desk – Size 4 (Grade 7–9)",
+  // ── Learner Single Desks / Tables (SANS 660:2012) ──
+  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Supawood Top",
+  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Saligna Top",
+  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Melamine Top",
+  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
+  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
+  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
+  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
+  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
+  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
+  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Supawood Top",
+  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Saligna Top",
+  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Melamine Top",
+  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Supawood Top",
+  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Saligna Top",
+  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Melamine Top",
+  // ── Double / Dual Desks (DBE standard procurement Sizes 2 & 3 only) ──
+  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
+  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
+  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
+  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
+  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
+  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
+  // ── Combination Desk & Chair Units ──
+  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top",
+  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top",
+  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
+  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top",
+  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top",
+  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
+  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top",
+  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top",
+  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
+  // ── Learner Chairs — Penny 1 Wooden (Foundation Phase) ──
+  "Penny 1 Wooden Chair – Size 1 (Grade R, seat height 260mm)",
+  "Penny 1 Wooden Chair – Size 2 (Grade 1–3, seat height 310mm)",
+  "Penny 1 Wooden Chair – Size 3 (Grade 4–6, seat height 350mm)",
+  // ── Learner Chairs — Penny 1 Plastic (Foundation Phase) ──
+  "Penny 1 Plastic Chair – Size 1 (Grade R, seat height 260mm)",
+  "Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",
+  "Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",
+  // ── Learner Chairs — Penny 4 Wooden (Senior & FET Phase) ──
+  "Penny 4 Wooden Chair – Size 4 (Grade 7–9, seat height 380mm)",
+  "Penny 4 Wooden Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
+  // ── Learner Chairs — Penny 4 Plastic (Senior & FET Phase) ──
+  "Penny 4 Plastic Chair – Size 4 (Grade 7–9, seat height 380mm)",
+  "Penny 4 Plastic Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
+  // ── Utility Chairs ──
+  "Utility Chair – Size 3 (Grade 4–6, steel frame)",
+  "Utility Chair – Size 4 (Grade 7–9, steel frame)",
+  "Utility Chair – Size 5 (Grade 10–12, steel frame)",
+  // ── ECD / Grade R specific ──
+  "ECD Activity Table – Grade R (Height 460mm)",
+  "ECD Stackable Chair – Grade R (Seat height 260mm)",
   "Teacher's Desk (Single Pedestal)","Teacher's Desk (Double Pedestal)","Teacher's Chair (Typist)","Teacher's Chair (Visitor)",
   "Teacher's Cupboard – Steel (Double Door)","Teacher's Cupboard – Steel (Single Door)",
   "Teacher's Bookcase (Open Shelf)","Teacher's Bookcase (Glazed Door)","Teacher's Table (Rectangular)",
@@ -331,7 +380,7 @@ function FurnitureForm({ classrooms, schools, onSave, onClose }) {
       <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
       <Field label="DBE Furniture type"><select style={sel} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
       {f.ftype === "Other" && <Field label="Specify type"><input style={inp} value={f.otherType} onChange={s("otherType")} placeholder="Describe furniture item"/></Field>}
-      <Row2><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wood","Plastic","Utility","Lab Stool"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Row2><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field>      <Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Available"><input style={inp} type="number" value={f.available} onChange={s("available")}/></Field><Field label="Damaged"><input style={inp} type="number" value={f.damaged} onChange={s("damaged")}/></Field><Field label="Repairable"><input style={inp} type="number" value={f.repairable} onChange={s("repairable")}/></Field></Row3>
       <Row2><Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
     </Modal>
