@@ -1,68 +1,120 @@
-# Furniture Audit App
+# 🏫 SchoolAudit — Northern Cape Furniture & Infrastructure Audit System
 
-A small offline-capable React app for validating school furniture data.
+A web-based audit management system built for the **Northern Cape Department of Education — Physical Resources Planning** directorate.
 
-## Files included
+---
 
-- `index.html` — main HTML entry point
-- `style.css` — app styling
-- `app.js` — React application code
-- `validate_emis_import.js` — EMIS import validation helper
-- `schools.csv` — sample data file
-- `vendor/` — local React, ReactDOM, and Babel bundles for offline use
+## 🌐 Live App
 
-## Run locally
+👉 **[https://puseletsotshabangu.github.io/furniture-audit-app-offline/](https://puseletsotshabangu.github.io/furniture-audit-app-offline/)**
 
-### Option 1: Open directly
-1. Copy the entire folder to the device or tablet.
-2. Open `index.html` in the browser.
+No installation required. Works in any modern browser on desktop, tablet, or mobile.
 
-> If the browser blocks local script access, use a simple local server instead.
+---
 
-### Option 2: Run a local server
-From the project folder, run a local server such as:
+## 📋 Features
 
-```bash
-python -m http.server 8000
+### Core Audit Modules
+| Module | Description |
+|---|---|
+| 📊 Dashboard | Summary stats — schools, shortage, risk level, warehouse status |
+| 🗃️ EMIS Database | Search, filter and import NC schools from uploaded EMIS master list |
+| 🏫 Audit Schools | Manage schools with capacity, enrolment, teachers and risk |
+| 📋 Audits | Record yearly school audits with risk ratings and recommendations |
+| 🚪 Classrooms | Track rooms by grade, type, learner count and mobile status |
+| 🪑 Furniture | DBE-approved furniture inventory with damage and repair tracking |
+| 🔍 Conditions | Infrastructure assessments (flooring, windows, locks, electricity) |
+| 🔧 Repairs | Log and track repair jobs sent to warehouse or labour department |
+| 🏭 Warehouse | Track new furniture deliveries — stock, reserved, and dispatched |
+| 🚚 Distribution | Record furniture deliveries and collections with official sign-off |
+| 📦 Storage | Manage school storage rooms and stored furniture |
+| 📐 Capacity Analysis | Visual capacity vs enrolment with mobile classroom calculations |
+| 👩‍🏫 Ratio Analysis | Teacher-to-learner ratio per school with 1:35 benchmark |
+| 📤 Export / Reports | Download any section as a CSV file |
+
+### EPMDS / KPA Modules
+| Module | KPA | Weight |
+|---|---|---|
+| 🖥️ Data Uploads | KPA 1 — NEIMS / EFMS / GOVERP upload tracking | 30% |
+| 📈 Learner Data | KPA 2 — Learner number verification & variance | 20% |
+| 🚌 Mobile Audit | KPA 3 — Mobile classroom condition assessment | 20% |
+| 🏗️ School Requests | KPA 4 — District infrastructure request tracking | 15% |
+| 🗂️ Admin & Payments | KPA 5 — Payment verification, filing, stakeholder enquiries | 15% |
+
+---
+
+## 🗃️ Loading the Full EMIS School List
+
+1. Open the app → click **🗃️ EMIS Database** in the sidebar
+2. Click **"Choose file"** in the blue upload panel
+3. Select your EMIS master list (`.csv` or `.txt`, tab-separated)
+4. All NC schools load instantly — filtered to `Province = NC` only
+
+### Expected EMIS file columns:
+```
+EmisCode | PROVINCE | Institution name | District | Legal Status |
+Practical Status of the institution | Sector | Institution Type |
+Institution Phase | LandOwnership | Circuit | City/Town |
+TelCode1 | Telephone1 | EMail | EmailAlt | LONGITUDE | LATITUDE |
+ExamCentreNumber | ExamCentre
 ```
 
-Then open:
+---
 
-```text
-http://localhost:8000/
+## 📤 Exporting Data
+
+- Every section has a **⬇ CSV** button to download that section's data
+- The **📤 Export / Reports** page provides 11 individual exports
+
+---
+
+## 🗂️ File Structure
+
+```
+furniture-audit-app-offline/
+├── index.html      # App entry point
+├── style.css       # Base layout and reset styles
+├── app.js          # Full React application (all logic, UI, forms, pages)
+└── README.md       # This file
 ```
 
-## Offline behavior
+---
 
-The app loads React and Babel from the local `vendor/` folder. No internet connection is required once the files are copied.
+## 🛠️ Technology
 
-## GitHub Pages deployment
+- **React 18** (production CDN build — no npm/node required)
+- **Babel Standalone** (JSX compiled in-browser)
+- **Vanilla CSS** (no framework dependencies)
+- Runs fully in the browser — **no server, no database, no backend**
 
-This app can be hosted on GitHub Pages as a static site.
+> **For production at scale:** replace Babel CDN with a Vite or CRA build for faster load times.
 
-### Publish from the repository
-1. Push the repository to GitHub.
-2. In GitHub, go to `Settings` → `Pages`.
-3. Choose the branch to publish from (for example `main`).
-4. Use the root folder as the publishing source.
+---
 
-If the repo is published on GitHub Pages, the app will load from the same relative file paths used in `index.html`.
+## 🚀 Deployment
 
-### Optional docs/ folder
+### GitHub Pages
+1. Push all 4 files to the repo root
+2. Go to **Settings → Pages → Deploy from branch: main / root**
+3. App is live at `https://puseletsotshabangu.github.io/furniture-audit-app-offline/`
 
-To keep GitHub Pages content cleaner, you can publish from `docs/` instead of the repository root.
+### Vercel
+1. Go to [vercel.com](https://vercel.com) → **Add New Project**
+2. Import your GitHub repo
+3. No build settings needed — deploy as static site
+4. App is live at a Vercel URL instantly
 
-- Copy `index.html`, `style.css`, `app.js`, `validate_emis_import.js`, `schools.csv`, and `vendor/` into `docs/`
-- Set GitHub Pages source to `docs/`
-- Add an empty `.nojekyll` file to `docs/` if needed
+---
 
-If you want automatic deployment, use the GitHub Actions workflow in `.github/workflows/gh-pages.yml` to publish `docs/` to the `gh-pages` branch.
+## 🏛️ Built For
 
-If you prefer publishing from the repository root instead of `docs/`, change `publish_dir: ./docs` to `publish_dir: ./` in `.github/workflows/gh-pages.yml` and use the repository root as the Pages source.
+**Northern Cape Department of Education**  
+Directorate: Infrastructure — Physical Resources Planning  
+Officer: PY Tshabangu · Senior Administration Officer  
+Performance Cycle: 2026/2027
 
-See `docs/README.md` for more details.
+---
 
-## Notes
+## 📞 Support
 
-- Keep the full folder structure together so `index.html` can find `vendor/`, `app.js`, and `style.css`.
-- The app is designed for offline use, so it does not require external CDN resources.
+For issues or feature requests, open a [GitHub Issue](https://github.com/Puseletsotshabangu/furniture-audit-app-offline/issues).

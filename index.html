@@ -3,16 +3,19 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SchoolAudit — Northern Cape</title>
+  <title>SchoolAudit — Northern Cape Department of Education</title>
+  <meta name="description" content="School Furniture & Infrastructure Audit System for the Northern Cape Department of Education" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="root"></div>
 
-  <!-- React + Babel local offline bundle -->
-  <script src="vendor/react.development.js"></script>
-  <script src="vendor/react-dom.development.js"></script>
-  <script src="vendor/babel.min.js"></script>
+  <!-- React 18 -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+
+  <!-- Babel (compiles JSX in-browser — replace with a build tool for large deployments) -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <script type="text/babel" src="app.js"></script>
 </body>
