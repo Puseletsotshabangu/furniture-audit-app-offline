@@ -1,57 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SchoolAudit — Northern Cape Department of Education</title>
-  <meta name="description" content="School Furniture & Infrastructure Audit System — Northern Cape Department of Education" />
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SchoolAudit — Northern Cape</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <div id="root"></div>
-  <script>
-    function loadScript(localSrc, cdnSrc, onload) {
-      var s = document.createElement('script');
-      s.src = localSrc;
-      s.onload = onload;
-      s.onerror = function () {
-        var s2 = document.createElement('script');
-        s2.src = cdnSrc;
-        s2.onload = onload;
-        s2.onerror = function () {
-          document.getElementById('root').innerHTML =
-            '<div style="font-family:sans-serif;padding:2rem;color:#DC2626;">' +
-            '<h2>Cannot load app</h2>' +
-            '<p style="margin-top:8px">For offline use, download the 3 library files and place them in the same folder as index.html.</p>' +
-            '<p style="margin-top:8px">For online use, check your internet connection.</p>' +
-            '</div>';
-        };
-        document.head.appendChild(s2);
-      };
-      document.head.appendChild(s);
-    }
-    loadScript(
-      'react.production.min.js',
-      'https://unpkg.com/react@18/umd/react.production.min.js',
-      function () {
-        loadScript(
-          'react-dom.production.min.js',
-          'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
-          function () {
-            loadScript(
-              'babel.min.js',
-              'https://unpkg.com/@babel/standalone/babel.min.js',
-              function () {
-                var app = document.createElement('script');
-                app.type = 'text/babel';
-                app.src = 'app.js';
-                document.head.appendChild(app);
-              }
-            );
-          }
-        );
-      }
-    );
-  </script>
+
+  <!-- Step 1: Load React -->
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <!-- Step 2: Load ReactDOM -->
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <!-- Step 3: Load Babel to compile JSX -->
+  <script src="https://unpkg.com/@babel/standalone@7.23.3/babel.min.js"></script>
+  <!-- Step 4: Load app with JSX support -->
+  <script type="text/babel" data-presets="react" src="app.js"></script>
 </body>
 </html>
