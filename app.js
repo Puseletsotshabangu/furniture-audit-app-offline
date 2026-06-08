@@ -1228,7 +1228,21 @@ function App() {
   );
 }
 
-const root = document.getElementById("root");
-if (root) {
-  ReactDOM.createRoot(root).render(<App/>);
-}
+// ─── Mount App ───
+(function mount() {
+  var container = document.getElementById("root");
+  if (!container) {
+    setTimeout(mount, 100);
+    return;
+  }
+  try {
+    ReactDOM.createRoot(container).render(React.createElement(App));
+  } catch(e) {
+    console.error("Mount error:", e);
+    container.innerHTML =
+      '<div style="padding:2rem;font-family:sans-serif;color:#DC2626">' +
+      '<h2>App failed to start</h2>' +
+      '<p style="margin-top:8px">Error: ' + e.message + '</p>' +
+      '</div>';
+  }
+})();
