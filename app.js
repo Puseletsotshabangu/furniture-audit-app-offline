@@ -1,8 +1,5 @@
 const { useState, useMemo } = React;
 
-// ─────────────────────────────────────────────
-// NAV
-// ─────────────────────────────────────────────
 const NAV = [
   { id:"dashboard",    label:"Dashboard",          icon:"📊" },
   { id:"emis",         label:"EMIS Database",      icon:"🗃️" },
@@ -23,58 +20,55 @@ const NAV = [
   { id:"kpa2",         label:"  Learner Data",     icon:"📈" },
   { id:"kpa3",         label:"  Mobile Audit",     icon:"🚌" },
   { id:"kpa4",         label:"  School Requests",  icon:"🏗️" },
-  { id:"kpa5",         label:"  Admin & Payments", icon:"🗂️" },
+  { id:"kpa5",         label:"  Admin Payments",   icon:"🗂️" },
 ];
 
-// ─────────────────────────────────────────────
-// DBE FURNITURE
-// ─────────────────────────────────────────────
 const DBE_FURNITURE = [
-  "Single Learner Desk Size 1 (Grade R, seat 260mm) Supawood Top",
-  "Single Learner Desk Size 1 (Grade R, seat 260mm) Saligna Top",
-  "Single Learner Desk Size 1 (Grade R, seat 260mm) Melamine Top",
-  "Single Learner Desk Size 2 (Grade 1-3, seat 310mm) Supawood Top",
-  "Single Learner Desk Size 2 (Grade 1-3, seat 310mm) Saligna Top",
-  "Single Learner Desk Size 2 (Grade 1-3, seat 310mm) Melamine Top",
-  "Single Learner Desk Size 3 (Grade 4-6, seat 350mm) Supawood Top",
-  "Single Learner Desk Size 3 (Grade 4-6, seat 350mm) Saligna Top",
-  "Single Learner Desk Size 3 (Grade 4-6, seat 350mm) Melamine Top",
-  "Single Learner Desk Size 4 (Grade 7-9 Senior Phase, seat 380mm) Supawood Top",
-  "Single Learner Desk Size 4 (Grade 7-9 Senior Phase, seat 380mm) Saligna Top",
-  "Single Learner Desk Size 4 (Grade 7-9 Senior Phase, seat 380mm) Melamine Top",
-  "Single Learner Desk Size 5 (Grade 10-12 FET Phase, seat 430mm) Supawood Top",
-  "Single Learner Desk Size 5 (Grade 10-12 FET Phase, seat 430mm) Saligna Top",
-  "Single Learner Desk Size 5 (Grade 10-12 FET Phase, seat 430mm) Melamine Top",
-  "Double Learner Desk Size 2 (Grade 1-3, seat 310mm) Supawood Top",
-  "Double Learner Desk Size 2 (Grade 1-3, seat 310mm) Saligna Top",
-  "Double Learner Desk Size 2 (Grade 1-3, seat 310mm) Melamine Top",
-  "Double Learner Desk Size 3 (Grade 4-6, seat 350mm) Supawood Top",
-  "Double Learner Desk Size 3 (Grade 4-6, seat 350mm) Saligna Top",
-  "Double Learner Desk Size 3 (Grade 4-6, seat 350mm) Melamine Top",
-  "Combination Desk and Chair Size 3 (Grade 4-6) Supawood Top",
-  "Combination Desk and Chair Size 3 (Grade 4-6) Saligna Top",
-  "Combination Desk and Chair Size 3 (Grade 4-6) Melamine Top",
-  "Combination Desk and Chair Size 4 (Grade 7-9) Supawood Top",
-  "Combination Desk and Chair Size 4 (Grade 7-9) Saligna Top",
-  "Combination Desk and Chair Size 4 (Grade 7-9) Melamine Top",
-  "Combination Desk and Chair Size 5 (Grade 10-12 FET) Supawood Top",
-  "Combination Desk and Chair Size 5 (Grade 10-12 FET) Saligna Top",
-  "Combination Desk and Chair Size 5 (Grade 10-12 FET) Melamine Top",
-  "Penny 1 Wooden Chair Size 1 (Grade R, seat 260mm)",
-  "Penny 1 Wooden Chair Size 2 (Grade 1-3, seat 310mm)",
-  "Penny 1 Wooden Chair Size 3 (Grade 4-6, seat 350mm)",
-  "Penny 1 Plastic Chair Size 1 (Grade R, seat 260mm)",
-  "Penny 1 Plastic Chair Size 2 (Grade 1-3, seat 310mm)",
-  "Penny 1 Plastic Chair Size 3 (Grade 4-6, seat 350mm)",
-  "Penny 4 Wooden Chair Size 4 (Grade 7-9, seat 380mm)",
-  "Penny 4 Wooden Chair Size 5 (Grade 10-12 FET, seat 430mm)",
-  "Penny 4 Plastic Chair Size 4 (Grade 7-9, seat 380mm)",
-  "Penny 4 Plastic Chair Size 5 (Grade 10-12 FET, seat 430mm)",
-  "Utility Chair Size 3 (Grade 4-6, steel frame)",
-  "Utility Chair Size 4 (Grade 7-9, steel frame)",
-  "Utility Chair Size 5 (Grade 10-12, steel frame)",
-  "ECD Activity Table Grade R (Height 460mm)",
-  "ECD Stackable Chair Grade R (Seat height 260mm)",
+  "Single Learner Desk Size 1 Grade R seat 260mm Supawood Top",
+  "Single Learner Desk Size 1 Grade R seat 260mm Saligna Top",
+  "Single Learner Desk Size 1 Grade R seat 260mm Melamine Top",
+  "Single Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top",
+  "Single Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top",
+  "Single Learner Desk Size 2 Grade 1-3 seat 310mm Melamine Top",
+  "Single Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top",
+  "Single Learner Desk Size 3 Grade 4-6 seat 350mm Saligna Top",
+  "Single Learner Desk Size 3 Grade 4-6 seat 350mm Melamine Top",
+  "Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Supawood Top",
+  "Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Saligna Top",
+  "Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Melamine Top",
+  "Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Supawood Top",
+  "Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Saligna Top",
+  "Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Melamine Top",
+  "Double Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top",
+  "Double Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top",
+  "Double Learner Desk Size 2 Grade 1-3 seat 310mm Melamine Top",
+  "Double Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top",
+  "Double Learner Desk Size 3 Grade 4-6 seat 350mm Saligna Top",
+  "Double Learner Desk Size 3 Grade 4-6 seat 350mm Melamine Top",
+  "Combination Desk and Chair Size 3 Grade 4-6 Supawood Top",
+  "Combination Desk and Chair Size 3 Grade 4-6 Saligna Top",
+  "Combination Desk and Chair Size 3 Grade 4-6 Melamine Top",
+  "Combination Desk and Chair Size 4 Grade 7-9 Supawood Top",
+  "Combination Desk and Chair Size 4 Grade 7-9 Saligna Top",
+  "Combination Desk and Chair Size 4 Grade 7-9 Melamine Top",
+  "Combination Desk and Chair Size 5 Grade 10-12 FET Supawood Top",
+  "Combination Desk and Chair Size 5 Grade 10-12 FET Saligna Top",
+  "Combination Desk and Chair Size 5 Grade 10-12 FET Melamine Top",
+  "Penny 1 Wooden Chair Size 1 Grade R seat 260mm",
+  "Penny 1 Wooden Chair Size 2 Grade 1-3 seat 310mm",
+  "Penny 1 Wooden Chair Size 3 Grade 4-6 seat 350mm",
+  "Penny 1 Plastic Chair Size 1 Grade R seat 260mm",
+  "Penny 1 Plastic Chair Size 2 Grade 1-3 seat 310mm",
+  "Penny 1 Plastic Chair Size 3 Grade 4-6 seat 350mm",
+  "Penny 4 Wooden Chair Size 4 Grade 7-9 seat 380mm",
+  "Penny 4 Wooden Chair Size 5 Grade 10-12 FET seat 430mm",
+  "Penny 4 Plastic Chair Size 4 Grade 7-9 seat 380mm",
+  "Penny 4 Plastic Chair Size 5 Grade 10-12 FET seat 430mm",
+  "Utility Chair Size 3 Grade 4-6 steel frame",
+  "Utility Chair Size 4 Grade 7-9 steel frame",
+  "Utility Chair Size 5 Grade 10-12 steel frame",
+  "ECD Activity Table Grade R Height 460mm",
+  "ECD Stackable Chair Grade R Seat height 260mm",
   "Teachers Desk Single Pedestal",
   "Teachers Desk Double Pedestal",
   "Teachers Chair Typist",
@@ -129,327 +123,39 @@ const DBE_FURNITURE = [
   "Notice Board",
   "Whiteboard Mobile",
 ];
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Supawood Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Saligna Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Melamine Top",
-  "Single Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Supawood Top",
-  "Single Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Saligna Top",
-  "Single Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Melamine Top",
-  "Single Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Supawood Top",
-  "Single Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Saligna Top",
-  "Single Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Melamine Top",
-  "Single Learner Desk – Size 4 (Grade 7-9 Senior Phase, seat 380mm) – Supawood Top",
-  "Single Learner Desk – Size 4 (Grade 7-9 Senior Phase, seat 380mm) – Saligna Top",
-  "Single Learner Desk – Size 4 (Grade 7-9 Senior Phase, seat 380mm) – Melamine Top",
-  "Single Learner Desk – Size 5 (Grade 10-12 FET Phase, seat 430mm) – Supawood Top",
-  "Single Learner Desk – Size 5 (Grade 10-12 FET Phase, seat 430mm) – Saligna Top",
-  "Single Learner Desk – Size 5 (Grade 10-12 FET Phase, seat 430mm) – Melamine Top",
-  "Double Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Supawood Top",
-  "Double Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Saligna Top",
-  "Double Learner Desk – Size 2 (Grade 1-3, seat 310mm) – Melamine Top",
-  "Double Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Supawood Top",
-  "Double Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Saligna Top",
-  "Double Learner Desk – Size 3 (Grade 4-6, seat 350mm) – Melamine Top",
-  "Single Combination Desk and Chair – Size 3 (Grade 4-6) – Supawood Top",
-  "Single Combination Desk and Chair – Size 3 (Grade 4-6) – Saligna Top",
-  "Single Combination Desk and Chair – Size 3 (Grade 4-6) – Melamine Top",
-  "Single Combination Desk and Chair – Size 4 (Grade 7-9) – Supawood Top",
-  "Single Combination Desk and Chair – Size 4 (Grade 7-9) – Saligna Top",
-  "Single Combination Desk and Chair – Size 4 (Grade 7-9) – Melamine Top",
-  "Single Combination Desk and Chair – Size 5 (Grade 10-12 FET) – Supawood Top",
-  "Single Combination Desk and Chair – Size 5 (Grade 10-12 FET) – Saligna Top",
-  "Single Combination Desk and Chair – Size 5 (Grade 10-12 FET) – Melamine Top",
-  "Penny 1 Wooden Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Wooden Chair – Size 2 (Grade 1-3, seat height 310mm)",
-  "Penny 1 Wooden Chair – Size 3 (Grade 4-6, seat height 350mm)",
-  "Penny 1 Plastic Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Plastic Chair – Size 2 (Grade 1-3, seat height 310mm)",
-  "Penny 1 Plastic Chair – Size 3 (Grade 4-6, seat height 350mm)",
-  "Penny 4 Wooden Chair – Size 4 (Grade 7-9, seat height 380mm)",
-  "Penny 4 Wooden Chair – Size 5 (Grade 10-12 FET, seat height 430mm)",
-  "Penny 4 Plastic Chair – Size 4 (Grade 7-9, seat height 380mm)",
-  "Penny 4 Plastic Chair – Size 5 (Grade 10-12 FET, seat height 430mm)",
-  "Utility Chair – Size 3 (Grade 4-6, steel frame)",
-  "Utility Chair – Size 4 (Grade 7-9, steel frame)",
-  "Utility Chair – Size 5 (Grade 10-12, steel frame)",
-  "ECD Activity Table – Grade R (Height 460mm)",
-  "ECD Stackable Chair – Grade R (Seat height 260mm)",
-  "Teacher's Desk (Single Pedestal)",
-  "Teacher's Desk (Double Pedestal)",
-  "Teacher's Chair (Typist)",
-  "Teacher's Chair (Visitor)",
-  "Teacher's Cupboard – Steel (Double Door)",
-  "Teacher's Cupboard – Steel (Single Door)",
-  "Teacher's Bookcase (Open Shelf)",
-  "Teacher's Bookcase (Glazed Door)",
-  "Teacher's Table (Rectangular)",
-  "Teacher's Locker (Single Door)",
-  "Teacher's Locker (Double Door)",
-  "Stationery Cupboard",
-  "Map/Chart Cabinet",
-  "Principal's Desk (Double Pedestal)",
-  "Principal's Chair (High Back)",
-  "Principal's Visitor Chair",
-  "Principal's Credenza",
-  "Principal's Bookcase",
-  "Deputy Principal's Desk",
-  "Deputy Principal's Chair",
-  "HOD Desk",
-  "HOD Chair",
-  "Admin Clerk Desk",
-  "Admin Clerk Chair (Typist)",
-  "Reception Desk",
-  "Reception Chair",
-  "Boardroom Table",
-  "Boardroom Chair",
-  "Filing Cabinet – Steel (2-Drawer)",
-  "Filing Cabinet – Steel (4-Drawer)",
-  "Lateral Filing Cabinet",
-  "Safe (Small – Cash Box)",
-  "Safe (Medium – Fireproof)",
-  "Steel Stationery Cupboard (Admin)",
-  "Compactus / Mobile Shelving",
-  "Waiting Area Bench (2-Seater)",
-  "Waiting Area Bench (3-Seater)",
-  "Staff Room Table",
-  "Staff Room Chair",
-  "Staff Room Couch / Sofa",
-  "Staff Locker (Single Door)",
-  "Staff Locker (Double Door)",
-  "Science Lab Table",
-  "Lab Stool",
-  "Computer Lab Table",
-  "Library Table",
-  "Library Chair",
-  "Multipurpose Table",
-  "Steel Shelf Unit",
-  "Storeroom Shelf",
-  "Display Cabinet",
-  "Notice Board",
-  "Whiteboard (Mobile)",
-];
-  // ── Single Learner Desks (SANS 660:2012) ──
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Supawood Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Saligna Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Melamine Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Supawood Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Saligna Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Melamine Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Supawood Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Saligna Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Melamine Top",
-  // ── Double Learner Desks (DBE procurement Sizes 2 & 3 only) ──
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
-  // ── Combination Desk & Chair Units ──
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top",
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top",
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
-  // ── Learner Chairs — Penny 1 Wooden (Foundation & Intermediate Phase) ──
-  "Penny 1 Wooden Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Wooden Chair – Size 2 (Grade 1–3, seat height 310mm)",
-  "Penny 1 Wooden Chair – Size 3 (Grade 4–6, seat height 350mm)",
-  // ── Learner Chairs — Penny 1 Plastic (Foundation & Intermediate Phase) ──
-  "Penny 1 Plastic Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",
-  "Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",
-  // ── Learner Chairs — Penny 4 Wooden (Senior & FET Phase) ──
-  "Penny 4 Wooden Chair – Size 4 (Grade 7–9, seat height 380mm)",
-  "Penny 4 Wooden Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
-  // ── Learner Chairs — Penny 4 Plastic (Senior & FET Phase) ──
-  "Penny 4 Plastic Chair – Size 4 (Grade 7–9, seat height 380mm)",
-  "Penny 4 Plastic Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
-  // ── Utility Chairs ──
-  "Utility Chair – Size 3 (Grade 4–6, steel frame)",
-  "Utility Chair – Size 4 (Grade 7–9, steel frame)",
-  "Utility Chair – Size 5 (Grade 10–12, steel frame)",
-  // ── ECD / Grade R ──
-  "ECD Activity Table – Grade R (Height 460mm)",
-  "ECD Stackable Chair – Grade R (Seat height 260mm)",
-  // ── Teacher & Admin Furniture ──
-  "Teacher's Desk (Single Pedestal)",
-  "Teacher's Desk (Double Pedestal)",
-  "Teacher's Chair (Typist)",
-  "Teacher's Chair (Visitor)",
-  "Teacher's Cupboard – Steel (Double Door)",
-  "Teacher's Cupboard – Steel (Single Door)",
-  "Teacher's Bookcase (Open Shelf)",
-  "Teacher's Bookcase (Glazed Door)",
-  "Teacher's Table (Rectangular)",
-  "Teacher's Locker (Single Door)",
-  "Teacher's Locker (Double Door)",
-  "Stationery Cupboard",
-  "Map/Chart Cabinet",
-  "Principal's Desk (Double Pedestal)",
-  "Principal's Chair (High Back)",
-  "Principal's Visitor Chair",
-  "Principal's Credenza",
-  "Principal's Bookcase",
-  "Deputy Principal's Desk",
-  "Deputy Principal's Chair",
-  "HOD Desk",
-  "HOD Chair",
-  "Admin Clerk Desk",
-  "Admin Clerk Chair (Typist)",
-  "Reception Desk",
-  "Reception Chair",
-  "Boardroom Table",
-  "Boardroom Chair",
-  "Filing Cabinet – Steel (2-Drawer)",
-  "Filing Cabinet – Steel (4-Drawer)",
-  "Lateral Filing Cabinet",
-  "Safe (Small – Cash Box)",
-  "Safe (Medium – Fireproof)",
-  "Steel Stationery Cupboard (Admin)",
-  "Compactus / Mobile Shelving",
-  "Waiting Area Bench (2-Seater)",
-  "Waiting Area Bench (3-Seater)",
-  "Staff Room Table",
-  "Staff Room Chair",
-  "Staff Room Couch / Sofa",
-  "Staff Locker (Single Door)",
-  "Staff Locker (Double Door)",
-  // ── Specialised / Lab ──
-  "Science Lab Table",
-  "Lab Stool",
-  "Computer Lab Table",
-  "Library Table",
-  "Library Chair",
-  "Multipurpose Table",
-  // ── Storage & Display ──
-  "Steel Shelf Unit",
-  "Storeroom Shelf",
-  "Display Cabinet",
-  "Notice Board",
-  "Whiteboard (Mobile)",
-];
-  // ── Learner Single Desks / Tables (SANS 660:2012) ──
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Supawood Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Saligna Top",
-  "Single Learner Desk – Size 1 (Grade R, seat 260mm) – Melamine Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
-  "Single Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
-  "Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Supawood Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Saligna Top",
-  "Single Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Melamine Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Supawood Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Saligna Top",
-  "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Melamine Top",
-  // ── Double / Dual Desks (DBE standard procurement Sizes 2 & 3 only) ──
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top",
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top",
-  "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top",
-  "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
-  // ── Combination Desk & Chair Units ──
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top",
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top",
-  "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top",
-  "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top",
-  "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
-  // ── Learner Chairs — Penny 1 Wooden (Foundation Phase) ──
-  "Penny 1 Wooden Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Wooden Chair – Size 2 (Grade 1–3, seat height 310mm)",
-  "Penny 1 Wooden Chair – Size 3 (Grade 4–6, seat height 350mm)",
-  // ── Learner Chairs — Penny 1 Plastic (Foundation Phase) ──
-  "Penny 1 Plastic Chair – Size 1 (Grade R, seat height 260mm)",
-  "Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",
-  "Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",
-  // ── Learner Chairs — Penny 4 Wooden (Senior & FET Phase) ──
-  "Penny 4 Wooden Chair – Size 4 (Grade 7–9, seat height 380mm)",
-  "Penny 4 Wooden Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
-  // ── Learner Chairs — Penny 4 Plastic (Senior & FET Phase) ──
-  "Penny 4 Plastic Chair – Size 4 (Grade 7–9, seat height 380mm)",
-  "Penny 4 Plastic Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
-  // ── Utility Chairs ──
-  "Utility Chair – Size 3 (Grade 4–6, steel frame)",
-  "Utility Chair – Size 4 (Grade 7–9, steel frame)",
-  "Utility Chair – Size 5 (Grade 10–12, steel frame)",
-  // ── ECD / Grade R specific ──
-  "ECD Activity Table – Grade R (Height 460mm)",
-  "ECD Stackable Chair – Grade R (Seat height 260mm)",
-  "Teacher's Desk (Single Pedestal)","Teacher's Desk (Double Pedestal)","Teacher's Chair (Typist)","Teacher's Chair (Visitor)",
-  "Teacher's Cupboard – Steel (Double Door)","Teacher's Cupboard – Steel (Single Door)",
-  "Teacher's Bookcase (Open Shelf)","Teacher's Bookcase (Glazed Door)","Teacher's Table (Rectangular)",
-  "Teacher's Locker (Single Door)","Teacher's Locker (Double Door)","Stationery Cupboard","Map/Chart Cabinet",
-  "Principal's Desk (Double Pedestal)","Principal's Chair (High Back)","Principal's Visitor Chair",
-  "Principal's Credenza","Principal's Bookcase","Deputy Principal's Desk","Deputy Principal's Chair",
-  "HOD Desk","HOD Chair","Admin Clerk Desk","Admin Clerk Chair (Typist)","Reception Desk","Reception Chair",
-  "Boardroom Table","Boardroom Chair","Filing Cabinet – Steel (2-Drawer)","Filing Cabinet – Steel (4-Drawer)",
-  "Lateral Filing Cabinet","Safe (Small – Cash Box)","Safe (Medium – Fireproof)","Steel Stationery Cupboard (Admin)",
-  "Compactus / Mobile Shelving","Waiting Area Bench (2-Seater)","Waiting Area Bench (3-Seater)",
-  "Staff Room Table","Staff Room Chair","Staff Room Couch / Sofa","Staff Locker (Single Door)","Staff Locker (Double Door)",
-  "Science Lab Table","Lab Stool","Computer Lab Table","Library Table","Library Chair",
-  "ECD Activity Table (Grade R)","ECD Chair (Grade R)","Multipurpose Table",
-  "Steel Shelf Unit","Storeroom Shelf","Display Cabinet","Notice Board","Whiteboard (Mobile)",
-];
 
-// ─────────────────────────────────────────────
-// EMIS SAMPLE
-// ─────────────────────────────────────────────
 const EMIS_SAMPLE = [
-  { emis:"300010701", name:"BOITUMELO SPECIALSCHOOL",       district:"FRANCES BAARD",       phase:"Primary",   sector:"Public",      city:"Kimberley", province:"NC", lat:-28.716032, lng:24.702023, email:"boitumeloss@ncdoe.school.za",    tel:"0783955182", circuit:"F8",  landOwnership:"Govt",    examCentre:"",        emailAlt:"", telCode:"078", type:"Special Needs Education", status:"Operational" },
-  { emis:"300022301", name:"HOPETOWN GEKOMBINEERDE SKOOL",   district:"PIXLEY-KA-SEME",     phase:"Combined",  sector:"Public",      city:"HOPETOWN",  province:"NC", lat:-29.623935, lng:24.087122, email:"admin@hshopetown.co.za",          tel:"2030053",    circuit:"P2",  landOwnership:"Govt",    examCentre:"",        emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300011305", name:"HOËRSKOOL DOUGLAS GEKOMBINEERD", district:"PIXLEY-KA-SEME",     phase:"Combined",  sector:"Public",      city:"DOUGLAS",   province:"NC", lat:-29.055940, lng:23.769850, email:"hsd@douglas.co.za",               tel:"2981041",    circuit:"P5",  landOwnership:"Govt",    examCentre:"2011305", emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300015401", name:"HOËRSKOOL DIAMANTVELD",          district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.750580, lng:24.772060, email:"admin@diamantveld.co.za",          tel:"8331528",    circuit:"F3",  landOwnership:"Govt",    examCentre:"2015401", emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300015403", name:"KIMBERLEY BOYS' HIGH SCHOOL",    district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.749380, lng:24.768600, email:"headmaster@kbhs.co.za",           tel:"8332684",    circuit:"F8",  landOwnership:"Govt",    examCentre:"2015403", emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300011403", name:"KIMBERLEY GIRLS HIGH SCHOOL",    district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.747840, lng:24.778210, email:"admin@kimberleygirlshigh.org.za", tel:"8321275",    circuit:"F7",  landOwnership:"Govt",    examCentre:"2011403", emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300041403", name:"HOËRSKOOL UPINGTON",             district:"ZF MGCAWU",           phase:"Secondary", sector:"Public",      city:"UPINGTON",  province:"NC", lat:-28.456870, lng:21.243610, email:"skoolhoof@uppies1.co.za",          tel:"3321491",    circuit:"S1",  landOwnership:"Govt",    examCentre:"2041403", emailAlt:"", telCode:"054", type:"Ordinary School",         status:"Operational" },
-  { emis:"300044402", name:"HOËRSKOOL KATHU",                district:"JOHN TAOLO GAETSEWE", phase:"Secondary", sector:"Public",      city:"KATHU",     province:"NC", lat:-27.693660, lng:23.047700, email:"hskathunc@gmail.com",             tel:"7231561",    circuit:"K1",  landOwnership:"Govt",    examCentre:"2044402", emailAlt:"", telCode:"053", type:"Ordinary School",         status:"Operational" },
-  { emis:"300053201", name:"CURRO KATHU",                    district:"JOHN TAOLO GAETSEWE", phase:"Combined",  sector:"Independent", city:"KATHU",     province:"NC", lat:-27.706974, lng:23.044356, email:"antoinette.v1@curro.co.za",       tel:"2854755",    circuit:"K3",  landOwnership:"Private", examCentre:"",        emailAlt:"", telCode:"087", type:"Ordinary School",         status:"Operational" },
-  { emis:"300033401", name:"HANTAM SEKONDERE SKOOL",         district:"NAMAKWA",             phase:"Secondary", sector:"Public",      city:"Calvinia",  province:"NC", lat:-31.464160, lng:19.759684, email:"hantamhigh@gmail.com",             tel:"3411295",    circuit:"N4",  landOwnership:"Govt",    examCentre:"2033401", emailAlt:"", telCode:"027", type:"Ordinary School",         status:"Operational" },
+  { emis:"300010701", name:"BOITUMELO SPECIALSCHOOL",       district:"FRANCES BAARD",       phase:"Primary",   sector:"Public",      city:"Kimberley", province:"NC", lat:-28.716, lng:24.702, email:"boitumeloss@ncdoe.school.za", tel:"0783955182", circuit:"F8",  landOwnership:"Govt",    examCentre:"",       emailAlt:"", telCode:"078", status:"Operational" },
+  { emis:"300022301", name:"HOPETOWN GEKOMBINEERDE SKOOL",   district:"PIXLEY-KA-SEME",     phase:"Combined",  sector:"Public",      city:"HOPETOWN",  province:"NC", lat:-29.623, lng:24.087, email:"admin@hshopetown.co.za",          tel:"2030053",   circuit:"P2",  landOwnership:"Govt",    examCentre:"",       emailAlt:"", telCode:"053", status:"Operational" },
+  { emis:"300015401", name:"HOERSKOOL DIAMANTVELD",          district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.750, lng:24.772, email:"admin@diamantveld.co.za",          tel:"8331528",   circuit:"F3",  landOwnership:"Govt",    examCentre:"2015401",emailAlt:"", telCode:"053", status:"Operational" },
+  { emis:"300015403", name:"KIMBERLEY BOYS HIGH SCHOOL",     district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.749, lng:24.768, email:"headmaster@kbhs.co.za",           tel:"8332684",   circuit:"F8",  landOwnership:"Govt",    examCentre:"2015403",emailAlt:"", telCode:"053", status:"Operational" },
+  { emis:"300011403", name:"KIMBERLEY GIRLS HIGH SCHOOL",    district:"FRANCES BAARD",       phase:"Secondary", sector:"Public",      city:"Kimberley", province:"NC", lat:-28.747, lng:24.778, email:"admin@kimberleygirlshigh.org.za", tel:"8321275",   circuit:"F7",  landOwnership:"Govt",    examCentre:"2011403",emailAlt:"", telCode:"053", status:"Operational" },
+  { emis:"300041403", name:"HOERSKOOL UPINGTON",             district:"ZF MGCAWU",           phase:"Secondary", sector:"Public",      city:"UPINGTON",  province:"NC", lat:-28.456, lng:21.243, email:"skoolhoof@uppies1.co.za",          tel:"3321491",   circuit:"S1",  landOwnership:"Govt",    examCentre:"2041403",emailAlt:"", telCode:"054", status:"Operational" },
+  { emis:"300044402", name:"HOERSKOOL KATHU",                district:"JOHN TAOLO GAETSEWE", phase:"Secondary", sector:"Public",      city:"KATHU",     province:"NC", lat:-27.693, lng:23.047, email:"hskathunc@gmail.com",             tel:"7231561",   circuit:"K1",  landOwnership:"Govt",    examCentre:"2044402",emailAlt:"", telCode:"053", status:"Operational" },
+  { emis:"300053201", name:"CURRO KATHU",                    district:"JOHN TAOLO GAETSEWE", phase:"Combined",  sector:"Independent", city:"KATHU",     province:"NC", lat:-27.706, lng:23.044, email:"antoinette.v1@curro.co.za",       tel:"2854755",   circuit:"K3",  landOwnership:"Private", examCentre:"",       emailAlt:"", telCode:"087", status:"Operational" },
+  { emis:"300033401", name:"HANTAM SEKONDERE SKOOL",         district:"NAMAKWA",             phase:"Secondary", sector:"Public",      city:"Calvinia",  province:"NC", lat:-31.464, lng:19.759, email:"hantamhigh@gmail.com",             tel:"3411295",   circuit:"N4",  landOwnership:"Govt",    examCentre:"2033401",emailAlt:"", telCode:"027", status:"Operational" },
+  { emis:"300044209", name:"LAERSKOOL KATHU PRIMARY",        district:"JOHN TAOLO GAETSEWE", phase:"Primary",   sector:"Public",      city:"KATHU",     province:"NC", lat:-27.704, lng:23.045, email:"hoof@kathulaerskool.co.za",        tel:"7231121",   circuit:"K4",  landOwnership:"Govt",    examCentre:"244209", emailAlt:"", telCode:"053", status:"Operational" },
 ];
-
-// ─────────────────────────────────────────────
-// SEED DATA
-// ─────────────────────────────────────────────
-const S = (id, name, emis, province, district, capacity, mobiles, mobileCap, enrolment, teachers, risk) =>
-  ({ id, name, emis, province, district, circuit:"", capacity, mobiles, mobileCap, enrolment, teachers, risk });
 
 const initSchools = [
-  S(1,"Soweto Primary School","700112345","Gauteng","Johannesburg South",980,4,35,1200,32,"High"),
-  S(2,"Pretoria North High","700223456","Gauteng","Tshwane North",900,2,35,850,28,"Low"),
-  S(3,"Alexandra Combined","700334567","Gauteng","Johannesburg East",950,3,35,1050,30,"Medium"),
+  { id:1, name:"Soweto Primary School",  emis:"700112345", province:"Gauteng", district:"Johannesburg South", circuit:"", capacity:980,  mobiles:4, mobileCap:35, enrolment:1200, teachers:32, risk:"High"   },
+  { id:2, name:"Pretoria North High",    emis:"700223456", province:"Gauteng", district:"Tshwane North",      circuit:"", capacity:900,  mobiles:2, mobileCap:35, enrolment:850,  teachers:28, risk:"Low"    },
+  { id:3, name:"Alexandra Combined",     emis:"700334567", province:"Gauteng", district:"Johannesburg East",  circuit:"", capacity:950,  mobiles:3, mobileCap:35, enrolment:1050, teachers:30, risk:"Medium" },
 ];
 const initAudits = [
-  { id:1, schoolId:1, year:2024, date:"2024-03-15", risk:"High",   capWith:1120, capWithout:980,  overcapacity:"Yes", recommendations:"Urgent furniture replacement needed",  comments:"" },
-  { id:2, schoolId:2, year:2024, date:"2024-04-02", risk:"Low",    capWith:970,  capWithout:900,  overcapacity:"No",  recommendations:"Minor repairs to lab furniture",        comments:"" },
-  { id:3, schoolId:3, year:2024, date:"2024-05-10", risk:"Medium", capWith:1055, capWithout:950,  overcapacity:"Yes", recommendations:"Mobile classroom upgrade required",     comments:"" },
+  { id:1, schoolId:1, year:2024, date:"2024-03-15", risk:"High",   capWith:1120, capWithout:980,  overcapacity:"Yes", recommendations:"Urgent furniture replacement needed", comments:"" },
+  { id:2, schoolId:2, year:2024, date:"2024-04-02", risk:"Low",    capWith:970,  capWithout:900,  overcapacity:"No",  recommendations:"Minor repairs to lab furniture",       comments:"" },
+  { id:3, schoolId:3, year:2024, date:"2024-05-10", risk:"Medium", capWith:1055, capWithout:950,  overcapacity:"Yes", recommendations:"Mobile classroom upgrade required",    comments:"" },
 ];
 const initClassrooms = [
   { id:1, schoolId:1, room:"1A",    type:"Classroom", grade:"4",  spec:"4E1",     learners:42, isMobile:"No" },
   { id:2, schoolId:2, room:"Lab 1", type:"Lab",       grade:"11", spec:"Science", learners:30, isMobile:"No" },
 ];
 const initFurniture = [
-  { id:1, classroomId:1, category:"Learner",     ftype:"Learner Desk – Size 3 (Grade 4–6)", spec:"Grade 4–6",   chairType:"Plastic",  available:30, damaged:8, repairable:5, otherType:"", otherQty:0, condition:"Fair" },
-  { id:2, classroomId:2, category:"Specialised", ftype:"Science Lab Table",                  spec:"Science Lab", chairType:"Lab Stool", available:20, damaged:3, repairable:3, otherType:"", otherQty:0, condition:"Good" },
+  { id:1, classroomId:1, category:"Learner",     ftype:"Single Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top", spec:"Grade 4-6",   chairType:"Penny 1 Wooden", available:30, damaged:8, repairable:5, otherType:"", otherQty:0, condition:"Fair" },
+  { id:2, classroomId:2, category:"Specialised", ftype:"Science Lab Table",                                            spec:"Science Lab", chairType:"Lab Stool",      available:20, damaged:3, repairable:3, otherType:"", otherQty:0, condition:"Good" },
 ];
-const initRepairs = [
+const initRepairs      = [
   { id:1, furnitureId:1, repairType:"Minor", destination:"Warehouse",   qty:5, status:"Completed",  allocated:"2024-03-20", completed:"2024-04-01" },
   { id:2, furnitureId:2, repairType:"Major", destination:"Labour Dept", qty:3, status:"In Progress", allocated:"2024-04-10", completed:"" },
 ];
@@ -457,14 +163,12 @@ const initStorage      = [{ id:1, schoolId:1, room:"Store 1", condition:"Fair", 
 const initDistribution = [{ id:1, schoolId:1, destination:"Warehouse", desc:"Double Desks", qty:10, source:"School", official:"T. Mokoena", position:"Principal", receiver:"S. Dlamini", role:"Store Manager", date:"2024-04-05", purpose:"Repair", ref:"REF-001" }];
 const initConditions   = [{ id:1, classroomId:1, flooring:"Fair", flooringIssues:"Cracks", windows:"Poor", windowIssues:"Broken", locks:"Good", electricity:"Yes", mobile:"N/A", comments:"" }];
 const initWarehouse    = [
-  { id:1, date:"2024-03-01", supplier:"Edu Furniture Co.",  ftype:"Double Learner Desk – Size 3 (Grade 4–6)", spec:"Grade 4–6", qty:50, condition:"Good", receivedBy:"S. Dlamini", ref:"WH-001", status:"In Stock",   notes:"New batch" },
-  { id:2, date:"2024-04-15", supplier:"SA School Supplies", ftype:"Learner Chair – Size 2 (Grade 1–3)",       spec:"Grade 1–3", qty:80, condition:"Good", receivedBy:"S. Dlamini", ref:"WH-002", status:"Dispatched", notes:"Dispatched to Alexandra" },
+  { id:1, date:"2024-03-01", supplier:"Edu Furniture Co.",  ftype:"Double Learner Desk Size 3 Grade 4-6 Supawood Top", spec:"Grade 4-6", qty:50, condition:"Good", receivedBy:"S. Dlamini", ref:"WH-001", status:"In Stock",   notes:"New batch" },
+  { id:2, date:"2024-04-15", supplier:"SA School Supplies", ftype:"Penny 1 Wooden Chair Size 2 Grade 1-3 seat 310mm",  spec:"Grade 1-3", qty:80, condition:"Good", receivedBy:"S. Dlamini", ref:"WH-002", status:"Dispatched", notes:"Dispatched to Alexandra" },
 ];
-
-// KPA seed
 const initUploads = [
-  { id:1, system:"NEIMS",  date:"2026-04-01", status:"Completed",  records:342, verifiedBy:"PY Tshabangu", notes:"Aligned with EFMS data" },
-  { id:2, system:"EFMS",   date:"2026-04-03", status:"Completed",  records:298, verifiedBy:"PY Tshabangu", notes:"Cross-checked against GOVERP" },
+  { id:1, system:"NEIMS",  date:"2026-04-01", status:"Completed",   records:342, verifiedBy:"PY Tshabangu", notes:"Aligned with EFMS data" },
+  { id:2, system:"EFMS",   date:"2026-04-03", status:"Completed",   records:298, verifiedBy:"PY Tshabangu", notes:"Cross-checked against GOVERP" },
   { id:3, system:"GOVERP", date:"2026-04-05", status:"In Progress", records:180, verifiedBy:"PY Tshabangu", notes:"Pending district confirmation" },
 ];
 const initLearnerData = [
@@ -473,24 +177,21 @@ const initLearnerData = [
   { id:3, school:"Alexandra Comb.", district:"Johannesburg East",  source:"Google Forms",         date:"2026-04-15", enrolment:1050, verified:1010, variance:40, status:"Queried"   },
 ];
 const initMobileAudit = [
-  { id:1, schoolId:1, mobileCount:4, condition:"Fair", structuralIssues:"Roof leaks",   electricityAvail:"Yes", ablutions:"No",  recommendation:"Repair roof",   auditDate:"2026-04-20", auditedBy:"PY Tshabangu" },
-  { id:2, schoolId:3, mobileCount:3, condition:"Poor", structuralIssues:"Floor damage", electricityAvail:"No",  ablutions:"No",  recommendation:"Replace unit",  auditDate:"2026-04-22", auditedBy:"PY Tshabangu" },
+  { id:1, schoolId:1, mobileCount:4, condition:"Fair", structuralIssues:"Roof leaks",   electricityAvail:"Yes", ablutions:"No", recommendation:"Repair roof",  auditDate:"2026-04-20", auditedBy:"PY Tshabangu", receivedDate:"2022-01-15" },
+  { id:2, schoolId:3, mobileCount:3, condition:"Poor", structuralIssues:"Floor damage", electricityAvail:"No",  ablutions:"No", recommendation:"Replace unit", auditDate:"2026-04-22", auditedBy:"PY Tshabangu", receivedDate:"2021-07-10" },
 ];
 const initSchoolRequests = [
   { id:1, schoolId:1, district:"Johannesburg South", requestType:"Furniture",   priority:"High",   dateReceived:"2026-04-05", status:"In Progress", assignedTo:"PY Tshabangu", dueDate:"2026-06-30", notes:"220 desks needed urgently" },
-  { id:2, schoolId:2, district:"Tshwane North",      requestType:"Mobile Unit", priority:"Medium", dateReceived:"2026-04-10", status:"Pending",     assignedTo:"PY Tshabangu", dueDate:"2026-07-31", notes:"Request for 2 additional mobiles" },
+  { id:2, schoolId:2, district:"Tshwane North",      requestType:"Mobile Unit", priority:"Medium", dateReceived:"2026-04-10", status:"Pending",     assignedTo:"PY Tshabangu", dueDate:"2026-07-31", notes:"2 additional mobiles requested" },
   { id:3, schoolId:3, district:"Johannesburg East",  requestType:"Repairs",     priority:"Low",    dateReceived:"2026-04-15", status:"Completed",   assignedTo:"PY Tshabangu", dueDate:"2026-05-31", notes:"Classroom door repairs done" },
 ];
 const initAdminTasks = [
-  { id:1, type:"Payment Verification", ref:"PAY-2026-001", date:"2026-04-08", amount:"R 45,000", supplier:"Edu Furniture Co.",  status:"Verified",  notes:"All docs checked and signed" },
-  { id:2, type:"Stakeholder Enquiry",  ref:"ENQ-2026-012", date:"2026-04-10", amount:"—",        supplier:"—",                  status:"Resolved",  notes:"Principal query re: delivery date" },
-  { id:3, type:"Filing / Scanning",    ref:"FILE-2026-003",date:"2026-04-12", amount:"—",        supplier:"—",                  status:"Completed", notes:"Q1 project docs scanned and filed" },
-  { id:4, type:"Payment Verification", ref:"PAY-2026-002", date:"2026-04-18", amount:"R 12,500", supplier:"SA School Supplies", status:"Pending",   notes:"Awaiting supporting documents" },
+  { id:1, type:"Payment Verification", ref:"PAY-2026-001", date:"2026-04-08", amount:"R 45000", supplier:"Edu Furniture Co.",  status:"Verified",  notes:"All docs checked and signed" },
+  { id:2, type:"Stakeholder Enquiry",  ref:"ENQ-2026-012", date:"2026-04-10", amount:"",        supplier:"",                   status:"Resolved",  notes:"Principal query re delivery date" },
+  { id:3, type:"Filing Scanning",      ref:"FILE-2026-003",date:"2026-04-12", amount:"",        supplier:"",                   status:"Completed", notes:"Q1 project docs scanned and filed" },
+  { id:4, type:"Payment Verification", ref:"PAY-2026-002", date:"2026-04-18", amount:"R 12500", supplier:"SA School Supplies", status:"Pending",   notes:"Awaiting supporting documents" },
 ];
 
-// ─────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────
 const uid = () => Date.now() + Math.random();
 
 const BADGE_STYLES = {
@@ -508,8 +209,6 @@ const BADGE_STYLES = {
   Pending:["linear-gradient(135deg,#F3F4F6,#E5E7EB)","#374151"],
   Queried:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
   Declined:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
-  Failed:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
-  Rejected:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
   Yes:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
   No:["linear-gradient(135deg,#D1FAE5,#A7F3D0)","#065F46"],
   "In Stock":["linear-gradient(135deg,#D1FAE5,#A7F3D0)","#065F46"],
@@ -529,7 +228,7 @@ const Badge = ({ val }) => {
 };
 
 const toCSV = (cols, rows) => {
-  const esc = v => `"${String(v ?? "").replace(/"/g,'""')}"`;
+  const esc = v => '"' + String(v == null ? "" : v).replace(/"/g, '""') + '"';
   return [cols.join(","), ...rows.map(r => r.map(esc).join(","))].join("\n");
 };
 const downloadCSV = (filename, csv) => {
@@ -548,17 +247,14 @@ const STAT_GRADS = {
   "#D97706":"linear-gradient(135deg,#FFFBEB,#FEF3C7)",
 };
 
-// ─────────────────────────────────────────────
-// UI PRIMITIVES
-// ─────────────────────────────────────────────
-const Card = ({ children, style = {} }) => (
+const Card = ({ children, style={} }) => (
   <div style={{ background:"linear-gradient(145deg,#ffffff,#f3f6fb)", border:"0.5px solid #E0E7EF", borderRadius:14, padding:"1.25rem", boxShadow:"0 2px 8px rgba(37,99,235,0.06)", ...style }}>
     {children}
   </div>
 );
 
-const StatCard = ({ label, value, sub, color = "#2563EB" }) => (
-  <div style={{ background: STAT_GRADS[color] || "#F9FAFB", borderRadius:12, padding:"1rem 1.25rem", border:`0.5px solid ${color}22`, boxShadow:`0 2px 8px ${color}14` }}>
+const StatCard = ({ label, value, sub, color="#2563EB" }) => (
+  <div style={{ background:STAT_GRADS[color]||"#F9FAFB", borderRadius:12, padding:"1rem 1.25rem", border:"0.5px solid " + color + "22", boxShadow:"0 2px 8px " + color + "14" }}>
     <p style={{ fontSize:12, color:"#6B7280", margin:"0 0 6px" }}>{label}</p>
     <p style={{ fontSize:24, fontWeight:600, color, margin:"0 0 2px" }}>{value}</p>
     {sub && <p style={{ fontSize:12, color:"#9CA3AF", margin:0 }}>{sub}</p>}
@@ -599,19 +295,16 @@ const DataTable = ({ cols, rows, renderRow }) => (
 const ExportBtn = ({ label, cols, rows, filename }) => (
   <button onClick={() => downloadCSV(filename, toCSV(cols, rows))}
     style={{ fontSize:12, color:"#059669", background:"#F0FDF4", border:"0.5px solid #A7F3D0", borderRadius:8, padding:"5px 12px", cursor:"pointer" }}>
-    ⬇ {label}
+    Download {label}
   </button>
 );
 
 const KpaNote = ({ weight, target, description }) => (
   <div style={{ background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)", border:"0.5px solid #BFDBFE", borderRadius:10, padding:"10px 14px", marginBottom:"1.25rem", fontSize:13, color:"#1E40AF" }}>
-    <strong>Weight: {weight}</strong> · Target: {target} · {description}
+    <strong>Weight: {weight}</strong> - Target: {target} - {description}
   </div>
 );
 
-// ─────────────────────────────────────────────
-// FORM HELPERS
-// ─────────────────────────────────────────────
 const inp  = { width:"100%", padding:"7px 10px", border:"0.5px solid #D1D5DB", borderRadius:8, fontSize:13, boxSizing:"border-box", background:"#fff", color:"#111827" };
 const sel  = { ...inp };
 const flbl = { fontSize:12, color:"#6B7280", marginBottom:4, display:"block" };
@@ -625,7 +318,7 @@ const Modal = ({ title, onClose, onSave, children }) => (
     <div style={{ background:"#fff", borderRadius:14, padding:"1.5rem", width:580, maxHeight:"90vh", overflowY:"auto", boxSizing:"border-box", boxShadow:"0 20px 60px rgba(0,0,0,0.2)" }}>
       <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1.25rem" }}>
         <h3 style={{ margin:0, fontSize:16, fontWeight:600, color:"#111827" }}>{title}</h3>
-        <button onClick={onClose} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#9CA3AF", lineHeight:1 }}>✕</button>
+        <button onClick={onClose} style={{ background:"none", border:"none", fontSize:20, cursor:"pointer", color:"#9CA3AF", lineHeight:1 }}>x</button>
       </div>
       {children}
       <div style={{ display:"flex", gap:8, marginTop:"1.5rem", justifyContent:"flex-end" }}>
@@ -636,9 +329,6 @@ const Modal = ({ title, onClose, onSave, children }) => (
   </div>
 );
 
-// ─────────────────────────────────────────────
-// FORMS — CORE
-// ─────────────────────────────────────────────
 function SchoolForm({ initial, onSave, onClose }) {
   const [f,setF] = useState(initial || { name:"", emis:"", province:"NC", district:"", circuit:"", capacity:"", mobiles:"", mobileCap:"35", enrolment:"", teachers:"", risk:"Low" });
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
@@ -660,7 +350,7 @@ function AuditForm({ schools, onSave, onClose }) {
     <Modal title="New audit" onClose={onClose} onSave={() => onSave(f)}>
       <Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select school</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Year"><input style={inp} type="number" value={f.year} onChange={s("year")}/></Field></Row2>
       <Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Risk level"><select style={sel} value={f.risk} onChange={s("risk")}>{["Low","Medium","High"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row3><Field label="Cap. with mobiles"><input style={inp} type="number" value={f.capWith} onChange={s("capWith")}/></Field><Field label="Cap. without mobiles"><input style={inp} type="number" value={f.capWithout} onChange={s("capWithout")}/></Field><Field label="Overcapacity"><select style={sel} value={f.overcapacity} onChange={s("overcapacity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
+      <Row3><Field label="Cap with mobiles"><input style={inp} type="number" value={f.capWith} onChange={s("capWith")}/></Field><Field label="Cap without mobiles"><input style={inp} type="number" value={f.capWithout} onChange={s("capWithout")}/></Field><Field label="Overcapacity"><select style={sel} value={f.overcapacity} onChange={s("overcapacity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
       <Field label="Recommendations"><textarea style={{...inp,minHeight:60,resize:"vertical"}} value={f.recommendations} onChange={s("recommendations")}/></Field>
       <Field label="Comments"><textarea style={{...inp,minHeight:40,resize:"vertical"}} value={f.comments} onChange={s("comments")}/></Field>
     </Modal>
@@ -674,22 +364,22 @@ function ClassroomForm({ schools, onSave, onClose }) {
     <Modal title="Add classroom" onClose={onClose} onSave={() => onSave(f)}>
       <Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Room number"><input style={inp} value={f.room} onChange={s("room")}/></Field></Row2>
       <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row3><Field label="Grade (R–12)"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
+      <Row3><Field label="Grade R-12"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec e.g. 4E1"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
     </Modal>
   );
 }
 
 function FurnitureForm({ classrooms, schools, onSave, onClose }) {
-  const [f,setF] = useState({ classroomId:"", category:"Learner", ftype:"", spec:"", chairType:"Plastic", available:"", damaged:"", repairable:"", otherType:"", otherQty:"", condition:"Good" });
+  const [f,setF] = useState({ classroomId:"", category:"Learner", ftype:"", spec:"", chairType:"Penny 1 Wooden", available:"", damaged:"", repairable:"", otherType:"", otherQty:"", condition:"Good" });
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
-  const roomLabel = c => { const sc = schools.find(x => x.id === c.schoolId); return `${sc?.name||"?"} — Room ${c.room}`; };
+  const roomLabel = c => { const sc = schools.find(x => x.id === c.schoolId); return (sc ? sc.name : "?") + " Room " + c.room; };
   return (
     <Modal title="Add furniture" onClose={onClose} onSave={() => onSave(f)}>
       <Field label="Classroom"><select style={sel} value={f.classroomId} onChange={s("classroomId")}><option value="">Select classroom</option>{classrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field>
       <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
-      <Field label="DBE Furniture type"><select style={sel} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
+      <Field label="DBE Furniture type"><select style={sel} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other specify below</option></select></Field></Row2>
       {f.ftype === "Other" && <Field label="Specify type"><input style={inp} value={f.otherType} onChange={s("otherType")} placeholder="Describe furniture item"/></Field>}
-      <Row2><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field>      <Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Row2><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4-6"/></Field><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility Steel Frame","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Available"><input style={inp} type="number" value={f.available} onChange={s("available")}/></Field><Field label="Damaged"><input style={inp} type="number" value={f.damaged} onChange={s("damaged")}/></Field><Field label="Repairable"><input style={inp} type="number" value={f.repairable} onChange={s("repairable")}/></Field></Row3>
       <Row2><Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
     </Modal>
@@ -699,12 +389,12 @@ function FurnitureForm({ classrooms, schools, onSave, onClose }) {
 function ConditionForm({ classrooms, schools, onSave, onClose }) {
   const [f,setF] = useState({ classroomId:"", flooring:"Good", flooringIssues:"", windows:"Good", windowIssues:"", locks:"Good", electricity:"Yes", mobile:"N/A", comments:"" });
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
-  const roomLabel = c => { const sc = schools.find(x => x.id === c.schoolId); return `${sc?.name||"?"} — Room ${c.room}`; };
+  const roomLabel = c => { const sc = schools.find(x => x.id === c.schoolId); return (sc ? sc.name : "?") + " Room " + c.room; };
   return (
     <Modal title="Condition assessment" onClose={onClose} onSave={() => onSave(f)}>
       <Field label="Classroom"><select style={sel} value={f.classroomId} onChange={s("classroomId")}><option value="">Select</option>{classrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field>
-      <Row2><Field label="Flooring condition"><select style={sel} value={f.flooring} onChange={s("flooring")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={f.flooringIssues} onChange={s("flooringIssues")} placeholder="e.g. Cracks, Holes"/></Field></Row2>
-      <Row2><Field label="Windows condition"><select style={sel} value={f.windows} onChange={s("windows")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={f.windowIssues} onChange={s("windowIssues")} placeholder="e.g. Broken, Missing"/></Field></Row2>
+      <Row2><Field label="Flooring condition"><select style={sel} value={f.flooring} onChange={s("flooring")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={f.flooringIssues} onChange={s("flooringIssues")} placeholder="e.g. Cracks Holes"/></Field></Row2>
+      <Row2><Field label="Windows condition"><select style={sel} value={f.windows} onChange={s("windows")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={f.windowIssues} onChange={s("windowIssues")} placeholder="e.g. Broken Missing"/></Field></Row2>
       <Row3><Field label="Lock condition"><select style={sel} value={f.locks} onChange={s("locks")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={f.electricity} onChange={s("electricity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Mobile condition"><input style={inp} value={f.mobile} onChange={s("mobile")} placeholder="N/A or condition"/></Field></Row3>
       <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.comments} onChange={s("comments")}/></Field>
     </Modal>
@@ -716,7 +406,7 @@ function RepairForm({ furniture, onSave, onClose }) {
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
   return (
     <Modal title="Log repair" onClose={onClose} onSave={() => onSave(f)}>
-      <Field label="Furniture item"><select style={sel} value={f.furnitureId} onChange={s("furnitureId")}><option value="">Select</option>{furniture.map(fu=><option key={fu.id} value={fu.id}>{fu.ftype} — {fu.spec}</option>)}</select></Field>
+      <Field label="Furniture item"><select style={sel} value={f.furnitureId} onChange={s("furnitureId")}><option value="">Select</option>{furniture.map(fu=><option key={fu.id} value={fu.id}>{fu.ftype} {fu.spec}</option>)}</select></Field>
       <Row2><Field label="Repair type"><select style={sel} value={f.repairType} onChange={s("repairType")}>{["Minor","Major"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Destination"><select style={sel} value={f.destination} onChange={s("destination")}>{["Warehouse","Labour Dept"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row2><Field label="Quantity"><input style={inp} type="number" value={f.qty} onChange={s("qty")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row2><Field label="Date allocated"><input style={inp} type="date" value={f.allocated} onChange={s("allocated")}/></Field><Field label="Date completed"><input style={inp} type="date" value={f.completed} onChange={s("completed")}/></Field></Row2>
@@ -766,9 +456,6 @@ function WarehouseForm({ onSave, onClose }) {
   );
 }
 
-// ─────────────────────────────────────────────
-// FORMS — KPA
-// ─────────────────────────────────────────────
 function UploadForm({ onSave, onClose }) {
   const [f,setF] = useState({ system:"NEIMS", date:"", status:"Completed", records:"", verifiedBy:"PY Tshabangu", notes:"" });
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
@@ -777,7 +464,7 @@ function UploadForm({ onSave, onClose }) {
       <Row2><Field label="System"><select style={sel} value={f.system} onChange={s("system")}>{["NEIMS","EFMS","GOVERP","HRMS","Google Forms","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Date uploaded"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field></Row2>
       <Row2><Field label="Records uploaded"><input style={inp} type="number" value={f.records} onChange={s("records")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Completed","In Progress","Pending","Failed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Field label="Verified by"><input style={inp} value={f.verifiedBy} onChange={s("verifiedBy")}/></Field>
-      <Field label="Notes / evidence"><textarea style={{...inp,minHeight:60,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
+      <Field label="Notes evidence"><textarea style={{...inp,minHeight:60,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
     </Modal>
   );
 }
@@ -790,22 +477,23 @@ function LearnerDataForm({ onSave, onClose }) {
     <Modal title="Log learner data verification" onClose={onClose} onSave={() => onSave(f)}>
       <Row2><Field label="School name"><input style={inp} value={f.school} onChange={s("school")}/></Field><Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field></Row2>
       <Row2><Field label="Data source"><select style={sel} value={f.source} onChange={s("source")}>{["10th Day Snap Survey","GOVERP","HRMS","Google Forms","NEIMS","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Date collected"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field></Row2>
-      <Row3><Field label="Reported enrolment"><input style={inp} type="number" value={f.enrolment} onChange={s("enrolment")} onBlur={calcVar}/></Field><Field label="Verified figure"><input style={inp} type="number" value={f.verified} onChange={s("verified")} onBlur={calcVar}/></Field><Field label="Variance (auto)"><input style={{...inp,background:"#F9FAFB",color:"#6B7280"}} value={f.variance} readOnly/></Field></Row3>
+      <Row3><Field label="Reported enrolment"><input style={inp} type="number" value={f.enrolment} onChange={s("enrolment")} onBlur={calcVar}/></Field><Field label="Verified figure"><input style={inp} type="number" value={f.verified} onChange={s("verified")} onBlur={calcVar}/></Field><Field label="Variance auto"><input style={{...inp,background:"#F9FAFB",color:"#6B7280"}} value={f.variance} readOnly/></Field></Row3>
       <Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Validated","Queried","Pending","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field>
     </Modal>
   );
 }
 
 function MobileAuditForm({ schools, onSave, onClose }) {
-  const [f,setF] = useState({ schoolId:"", mobileCount:"", condition:"Good", structuralIssues:"", electricityAvail:"Yes", ablutions:"Yes", recommendation:"", auditDate:"", auditedBy:"PY Tshabangu" });
+  const [f,setF] = useState({ schoolId:"", mobileCount:"", condition:"Good", structuralIssues:"", electricityAvail:"Yes", ablutions:"Yes", recommendation:"", auditDate:"", auditedBy:"PY Tshabangu", receivedDate:"" });
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
   return (
     <Modal title="Mobile classroom audit" onClose={onClose} onSave={() => onSave(f)}>
       <Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Number of mobiles"><input style={inp} type="number" value={f.mobileCount} onChange={s("mobileCount")}/></Field></Row2>
       <Row3><Field label="Overall condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={f.electricityAvail} onChange={s("electricityAvail")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Ablutions?"><select style={sel} value={f.ablutions} onChange={s("ablutions")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
-      <Field label="Structural issues"><input style={inp} value={f.structuralIssues} onChange={s("structuralIssues")} placeholder="e.g. Roof leaks, floor damage"/></Field>
-      <Field label="Recommendation"><input style={inp} value={f.recommendation} onChange={s("recommendation")} placeholder="e.g. Repair, Replace, Monitor"/></Field>
+      <Field label="Structural issues"><input style={inp} value={f.structuralIssues} onChange={s("structuralIssues")} placeholder="e.g. Roof leaks floor damage"/></Field>
+      <Field label="Recommendation"><input style={inp} value={f.recommendation} onChange={s("recommendation")} placeholder="e.g. Repair Replace Monitor"/></Field>
       <Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Audited by"><input style={inp} value={f.auditedBy} onChange={s("auditedBy")}/></Field></Row2>
+      <Field label="Date mobile received at school"><input style={inp} type="date" value={f.receivedDate} onChange={s("receivedDate")}/></Field>
     </Modal>
   );
 }
@@ -829,28 +517,25 @@ function AdminTaskForm({ onSave, onClose }) {
   const s = k => e => setF(p => ({ ...p,[k]:e.target.value }));
   return (
     <Modal title="Log admin task" onClose={onClose} onSave={() => onSave(f)}>
-      <Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing / Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2>
+      <Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2>
       <Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Verified","Completed","Resolved"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row2><Field label="Amount (if payment)"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45,000"/></Field><Field label="Supplier / party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2>
-      <Field label="Notes / evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
+      <Row2><Field label="Amount if payment"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45000"/></Field><Field label="Supplier party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2>
+      <Field label="Notes evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
     </Modal>
   );
 }
 
-// ─────────────────────────────────────────────
-// EMIS PAGE
-// ─────────────────────────────────────────────
 function EmisPage({ onImport }) {
-  const [search,       setSearch]       = useState("");
-  const [distFilter,   setDistFilter]   = useState("All");
-  const [phaseFilter,  setPhaseFilter]  = useState("All");
-  const [sectorFilter, setSectorFilter] = useState("All");
-  const [selected,     setSelected]     = useState(null);
-  const [uploadedData, setUploadedData] = useState([]);
-  const [uploadMsg,    setUploadMsg]    = useState("");
+  const [search,setSearch] = useState("");
+  const [distFilter,setDistFilter] = useState("All");
+  const [phaseFilter,setPhaseFilter] = useState("All");
+  const [sectorFilter,setSectorFilter] = useState("All");
+  const [selected,setSelected] = useState(null);
+  const [uploadedData,setUploadedData] = useState([]);
+  const [uploadMsg,setUploadMsg] = useState("");
 
-  const allData   = uploadedData.length > 0 ? uploadedData : EMIS_SAMPLE;
-  const districts = ["All", ...new Set(allData.map(s => s.district))].sort();
+  const allData = uploadedData.length > 0 ? uploadedData : EMIS_SAMPLE;
+  const districts = ["All", ...Array.from(new Set(allData.map(s => s.district))).sort()];
 
   const handleUpload = e => {
     const file = e.target.files[0];
@@ -858,43 +543,48 @@ function EmisPage({ onImport }) {
     const reader = new FileReader();
     reader.onload = ev => {
       const text = ev.target.result;
-      const sep  = text.indexOf("\t") > -1 ? "\t" : ",";
+      const sep = text.indexOf("\t") > -1 ? "\t" : ",";
       const lines = text.split(/\r?\n/).filter(Boolean);
-      const hdrs  = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g,""));
-      const get   = (row, ...keys) => { for (const k of keys) { const i=hdrs.indexOf(k.toLowerCase()); if (i>=0&&row[i]!==undefined) return row[i].toString().trim().replace(/^"|"$/g,""); } return ""; };
-      const phMap = { primary:"Primary", secondary:"Secondary", combined:"Combined", intermediate:"Intermediate", "special needs education":"Special Needs Education" };
+      const hdrs = lines[0].split(sep).map(h => h.trim().toLowerCase().replace(/['"]/g,""));
+      const get = (row, ...keys) => {
+        for (let i = 0; i < keys.length; i++) {
+          const idx = hdrs.indexOf(keys[i].toLowerCase());
+          if (idx >= 0 && row[idx] !== undefined) return row[idx].toString().trim().replace(/^"|"$/g,"");
+        }
+        return "";
+      };
+      const phMap = { primary:"Primary", secondary:"Secondary", combined:"Combined", intermediate:"Intermediate" };
       const parsed = lines.slice(1).map(line => {
-        const row  = sep==="\t" ? line.split("\t") : (line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(","));
+        const row = sep === "\t" ? line.split("\t") : line.split(",");
         const emis = get(row,"emiscode","emis code","emis");
         const name = get(row,"institution name","name","school name");
         if (!emis && !name) return null;
         const phRaw = get(row,"institution phase","phase");
         return {
           emis, name,
-          district:      get(row,"district"),
-          phase:         phMap[phRaw.toLowerCase()] || phRaw,
-          type:          get(row,"institution type","type"),
-          sector:        get(row,"sector","legal status").toLowerCase().includes("public") ? "Public" : "Independent",
-          status:        get(row,"practical status of the institution","status"),
-          city:          get(row,"city/town","city","town"),
-          province:      get(row,"province") || "NC",
-          lat:           parseFloat(get(row,"latitude","lat"))  || 0,
-          lng:           parseFloat(get(row,"longitude","lng")) || 0,
-          email:         get(row,"email"),
-          emailAlt:      get(row,"emailalt","email alt"),
-          tel:           get(row,"telephone1","tel1","telephone"),
-          telCode:       get(row,"telcode1","telcode"),
-          circuit:       get(row,"circuit"),
-          landOwnership: get(row,"landownership","land ownership"),
-          examCentre:    get(row,"examcentre","exam centre"),
+          district: get(row,"district"),
+          phase: phMap[phRaw.toLowerCase()] || phRaw,
+          sector: get(row,"sector","legal status").toLowerCase().includes("public") ? "Public" : "Independent",
+          status: get(row,"practical status of the institution","status"),
+          city: get(row,"city/town","city","town"),
+          province: get(row,"province") || "NC",
+          lat: parseFloat(get(row,"latitude","lat")) || 0,
+          lng: parseFloat(get(row,"longitude","lng")) || 0,
+          email: get(row,"email"),
+          emailAlt: get(row,"emailalt"),
+          tel: get(row,"telephone1","tel1"),
+          telCode: get(row,"telcode1","telcode"),
+          circuit: get(row,"circuit"),
+          landOwnership: get(row,"landownership"),
+          examCentre: get(row,"examcentre"),
         };
       }).filter(r => {
         if (!r || (!r.emis && !r.name)) return false;
         const prov = (r.province||"").trim().toUpperCase().replace(/[^A-Z]/g,"");
-        return prov==="NC" || prov==="NORTHERNCAPE" || prov==="NORTHERN";
+        return prov === "NC" || prov === "NORTHERNCAPE" || prov === "NORTHERN";
       });
       setUploadedData(parsed);
-      setUploadMsg(`✓ Loaded ${parsed.length} NC schools from ${file.name}`);
+      setUploadMsg("Loaded " + parsed.length + " NC schools from " + file.name);
     };
     reader.readAsText(file);
   };
@@ -902,23 +592,19 @@ function EmisPage({ onImport }) {
   const filtered = useMemo(() => allData.filter(s => {
     const q = search.toLowerCase();
     return (!q || s.name.toLowerCase().includes(q) || s.emis.includes(q) || (s.city||"").toLowerCase().includes(q))
-      && (distFilter==="All"  || s.district===distFilter)
-      && (phaseFilter==="All" || s.phase===phaseFilter)
-      && (sectorFilter==="All"|| s.sector===sectorFilter);
+      && (distFilter === "All" || s.district === distFilter)
+      && (phaseFilter === "All" || s.phase === phaseFilter)
+      && (sectorFilter === "All" || s.sector === sectorFilter);
   }), [search, distFilter, phaseFilter, sectorFilter, allData]);
 
   return (
     <div>
-      <SectionHeader title="EMIS School Database" extra={
-        <ExportBtn label="CSV" filename="emis_schools.csv"
-          cols={["EMIS","Name","District","Phase","Sector","City","Province","Email","Tel"]}
-          rows={allData.map(s=>[s.emis,s.name,s.district,s.phase,s.sector,s.city,s.province,s.email,s.tel])}/>
-      }/>
+      <SectionHeader title="EMIS School Database" extra={<ExportBtn label="CSV" filename="emis_schools.csv" cols={["EMIS","Name","District","Phase","Sector","City","Province","Email","Tel"]} rows={allData.map(s=>[s.emis,s.name,s.district,s.phase,s.sector,s.city,s.province,s.email,s.tel])}/>}/>
       <Card style={{ marginBottom:"1.25rem", background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)", borderColor:"#BFDBFE" }}>
         <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
           <div>
-            <p style={{ fontWeight:600, fontSize:14, color:"#1E40AF", margin:"0 0 2px" }}>📂 Upload full EMIS dataset</p>
-            <p style={{ fontSize:12, color:"#3B82F6", margin:0 }}>Upload your NC EMIS master list (.txt or .csv, tab-separated). Currently showing {allData.length} schools.</p>
+            <p style={{ fontWeight:600, fontSize:14, color:"#1E40AF", margin:"0 0 2px" }}>Upload full EMIS dataset</p>
+            <p style={{ fontSize:12, color:"#3B82F6", margin:0 }}>Upload your NC EMIS master list. Currently showing {allData.length} schools.</p>
             {uploadMsg && <p style={{ fontSize:12, color:"#065F46", fontWeight:600, margin:"4px 0 0" }}>{uploadMsg}</p>}
           </div>
           <label style={{ padding:"8px 18px", borderRadius:8, background:"#2563EB", color:"#fff", fontSize:13, cursor:"pointer", fontWeight:600, whiteSpace:"nowrap" }}>
@@ -934,10 +620,10 @@ function EmisPage({ onImport }) {
       </div>
       <Card style={{ marginBottom:"1rem" }}>
         <div style={{ display:"grid", gridTemplateColumns:"2fr 1fr 1fr 1fr", gap:10 }}>
-          <div><label style={flbl}>Search name / EMIS / town</label><input style={inp} placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
-          <div><label style={flbl}>District</label><select style={sel} value={distFilter}   onChange={e=>setDistFilter(e.target.value)}>{districts.map(d=><option key={d}>{d}</option>)}</select></div>
-          <div><label style={flbl}>Phase</label>   <select style={sel} value={phaseFilter}  onChange={e=>setPhaseFilter(e.target.value)}>{["All","Primary","Secondary","Combined","Intermediate"].map(p=><option key={p}>{p}</option>)}</select></div>
-          <div><label style={flbl}>Sector</label>  <select style={sel} value={sectorFilter} onChange={e=>setSectorFilter(e.target.value)}>{["All","Public","Independent"].map(x=><option key={x}>{x}</option>)}</select></div>
+          <div><label style={flbl}>Search name EMIS town</label><input style={inp} placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}/></div>
+          <div><label style={flbl}>District</label><select style={sel} value={distFilter} onChange={e=>setDistFilter(e.target.value)}>{districts.map(d=><option key={d}>{d}</option>)}</select></div>
+          <div><label style={flbl}>Phase</label><select style={sel} value={phaseFilter} onChange={e=>setPhaseFilter(e.target.value)}>{["All","Primary","Secondary","Combined","Intermediate"].map(p=><option key={p}>{p}</option>)}</select></div>
+          <div><label style={flbl}>Sector</label><select style={sel} value={sectorFilter} onChange={e=>setSectorFilter(e.target.value)}>{["All","Public","Independent"].map(x=><option key={x}>{x}</option>)}</select></div>
         </div>
       </Card>
       <Card>
@@ -953,37 +639,35 @@ function EmisPage({ onImport }) {
       {selected && (
         <Card style={{ marginTop:"1rem", borderColor:"#BFDBFE" }}>
           <div style={{ display:"flex", justifyContent:"space-between", marginBottom:12 }}>
-            <div><p style={{fontWeight:600,fontSize:15,margin:"0 0 2px"}}>{selected.name}</p><p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {selected.emis} · {selected.district}</p></div>
-            <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:"#9CA3AF",cursor:"pointer",fontSize:18}}>✕</button>
+            <div><p style={{fontWeight:600,fontSize:15,margin:"0 0 2px"}}>{selected.name}</p><p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {selected.emis} - {selected.district}</p></div>
+            <button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:"#9CA3AF",cursor:"pointer",fontSize:18}}>x</button>
           </div>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:8, marginBottom:14 }}>
-            {[["Phase",selected.phase],["Sector",selected.sector],["City/Town",selected.city],["Circuit",selected.circuit||"—"],["Land Ownership",selected.landOwnership||"—"],["Status",selected.status||"—"],["Email",selected.email||"—"],["Alt Email",selected.emailAlt||"—"],["Tel",selected.telCode&&selected.tel?`(${selected.telCode}) ${selected.tel}`:selected.tel||"—"],["Exam Centre",selected.examCentre||"—"],["Latitude",selected.lat||"—"],["Longitude",selected.lng||"—"]].map(([l,v])=>(
+            {[["Phase",selected.phase],["Sector",selected.sector],["City",selected.city],["Circuit",selected.circuit||"-"],["Land Ownership",selected.landOwnership||"-"],["Status",selected.status||"-"],["Email",selected.email||"-"],["Alt Email",selected.emailAlt||"-"],["Tel",selected.telCode&&selected.tel?(selected.telCode+" "+selected.tel):selected.tel||"-"],["Exam Centre",selected.examCentre||"-"],["Latitude",selected.lat||"-"],["Longitude",selected.lng||"-"]].map(([l,v])=>(
               <div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"8px 10px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 2px"}}>{l}</p><p style={{fontSize:13,fontWeight:500,margin:0,wordBreak:"break-all"}}>{v}</p></div>
             ))}
           </div>
-          <button onClick={()=>{onImport(selected);setSelected(null);}} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Import into Audit Schools →</button>
+          <button onClick={()=>{onImport(selected);setSelected(null);}} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Import into Audit Schools</button>
         </Card>
       )}
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-// EXPORT PAGE
-// ─────────────────────────────────────────────
 function ExportPage({ schools, audits, classrooms, furniture, conditions, repairs, warehouse, storage, distribution }) {
+  const scName = id => { const sc = schools.find(s => s.id == id); return sc ? sc.name : ""; };
   const exports = [
-    { label:"Schools",          desc:"All audit school records",     icon:"🏫", file:"schools.csv",     cols:["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"],                            rows:schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk]) },
-    { label:"Audits",           desc:"All school audit records",     icon:"📋", file:"audits.csv",      cols:["School","Year","Date","Risk","Overcapacity","Recommendations"],                                           rows:audits.map(a=>{const sc=schools.find(s=>s.id==a.schoolId);return[sc?.name||"",a.year,a.date,a.risk,a.overcapacity,a.recommendations];}) },
-    { label:"Classrooms",       desc:"All classroom records",        icon:"🚪", file:"classrooms.csv",  cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],                                                rows:classrooms.map(c=>{const sc=schools.find(s=>s.id==c.schoolId);return[sc?.name||"",c.room,c.type,c.grade,c.spec,c.learners,c.isMobile];}) },
-    { label:"Furniture",        desc:"All furniture items",          icon:"🪑", file:"furniture.csv",   cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],                         rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];}) },
-    { label:"Conditions",       desc:"Infrastructure assessments",   icon:"🔍", file:"conditions.csv",  cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],                                      rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];}) },
-    { label:"Repairs",          desc:"All repair jobs",              icon:"🔧", file:"repairs.csv",     cols:["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"],                           rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?.ftype||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];}) },
-    { label:"Warehouse",        desc:"New furniture deliveries",     icon:"🏭", file:"warehouse.csv",   cols:["Date","Supplier","Type","Qty","Condition","Ref","Status"],                                                rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status]) },
-    { label:"Storage",          desc:"Storage room records",         icon:"📦", file:"storage.csv",     cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],                                        rows:storage.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.room,r.condition,r.secure,r.storedType,r.qty,r.usable];}) },
-    { label:"Distribution",     desc:"Delivery and collection",      icon:"🚚", file:"distribution.csv",cols:["School","Purpose","Description","Qty","Destination","Official","Date","Ref"],                             rows:distribution.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref];}) },
-    { label:"Capacity Analysis",desc:"Capacity vs enrolment",        icon:"📐", file:"capacity.csv",    cols:["School","EMIS","Enrolment","Capacity","With Mobiles","Utilisation %","Overcapacity"],                     rows:schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.emis,s.enrolment,s.capacity,mob,pct,Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];}) },
-    { label:"Ratio Analysis",   desc:"Teacher/learner ratios",       icon:"👩‍🏫",file:"ratio.csv",       cols:["School","EMIS","Enrolment","Teachers","Ratio","Status"],                                                 rows:schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.emis,s.enrolment,s.teachers,r?`1:${r}`:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];}) },
+    { label:"Schools",          desc:"All audit school records",   icon:"🏫", file:"schools.csv",     cols:["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"],                   rows:schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk]) },
+    { label:"Audits",           desc:"All school audit records",   icon:"📋", file:"audits.csv",      cols:["School","Year","Date","Risk","Overcapacity","Recommendations"],                                  rows:audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.recommendations]) },
+    { label:"Classrooms",       desc:"All classroom records",      icon:"🚪", file:"classrooms.csv",  cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],                                       rows:classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile]) },
+    { label:"Furniture",        desc:"All furniture items",        icon:"🪑", file:"furniture.csv",   cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],                rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];}) },
+    { label:"Conditions",       desc:"Infrastructure assessments", icon:"🔍", file:"conditions.csv",  cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],                             rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];}) },
+    { label:"Repairs",          desc:"All repair jobs",            icon:"🔧", file:"repairs.csv",     cols:["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"],                  rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];}) },
+    { label:"Warehouse",        desc:"New furniture deliveries",   icon:"🏭", file:"warehouse.csv",   cols:["Date","Supplier","Type","Qty","Condition","Ref","Status"],                                       rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status]) },
+    { label:"Storage",          desc:"Storage room records",       icon:"📦", file:"storage.csv",     cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],                               rows:storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable]) },
+    { label:"Distribution",     desc:"Delivery and collection",    icon:"🚚", file:"distribution.csv",cols:["School","Purpose","Description","Qty","Destination","Official","Date","Ref"],                    rows:distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref]) },
+    { label:"Capacity Analysis",desc:"Capacity vs enrolment",      icon:"📐", file:"capacity.csv",    cols:["School","EMIS","Enrolment","Capacity","With Mobiles","Utilisation","Overcapacity"],              rows:schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.emis,s.enrolment,s.capacity,mob,pct+"%",Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];}) },
+    { label:"Ratio Analysis",   desc:"Teacher learner ratios",     icon:"👩‍🏫",file:"ratio.csv",       cols:["School","EMIS","Enrolment","Teachers","Ratio","Status"],                                        rows:schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.emis,s.enrolment,s.teachers,r?"1:"+r:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];}) },
   ];
   return (
     <div>
@@ -1004,43 +688,39 @@ function ExportPage({ schools, audits, classrooms, furniture, conditions, repair
   );
 }
 
-// ─────────────────────────────────────────────
-// DASHBOARD
-// ─────────────────────────────────────────────
 function Dashboard({ schools, audits, furniture, repairs, warehouse }) {
   const totalShortage = schools.reduce((a,s) => { const sh=Number(s.enrolment||0)-Number(s.capacity||0); return a+(sh>0?sh:0); },0);
-  const riskCounts    = { High:schools.filter(s=>s.risk==="High").length, Medium:schools.filter(s=>s.risk==="Medium").length, Low:schools.filter(s=>s.risk==="Low").length };
-  const dominantRisk  = riskCounts.High>0?"High":riskCounts.Medium>0?"Medium":"Low";
-  const totalFurn     = furniture.reduce((a,f)=>a+Number(f.available||0),0);
-  const inStock       = warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0);
-  const dispatched    = warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0);
-  const reserved      = warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0);
-  const whIn          = repairs.filter(r=>r.destination==="Warehouse").reduce((a,r)=>a+Number(r.qty||0),0);
-  const whDone        = repairs.filter(r=>r.destination==="Warehouse"&&r.status==="Completed").reduce((a,r)=>a+Number(r.qty||0),0);
-  const whProg        = repairs.filter(r=>r.destination==="Warehouse"&&r.status==="In Progress").reduce((a,r)=>a+Number(r.qty||0),0);
-
+  const riskCounts = { High:schools.filter(s=>s.risk==="High").length, Medium:schools.filter(s=>s.risk==="Medium").length, Low:schools.filter(s=>s.risk==="Low").length };
+  const dominantRisk = riskCounts.High>0?"High":riskCounts.Medium>0?"Medium":"Low";
+  const totalFurn = furniture.reduce((a,f)=>a+Number(f.available||0),0);
+  const inStock   = warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0);
+  const dispatched= warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0);
+  const reserved  = warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0);
+  const whIn      = repairs.filter(r=>r.destination==="Warehouse").reduce((a,r)=>a+Number(r.qty||0),0);
+  const whDone    = repairs.filter(r=>r.destination==="Warehouse"&&r.status==="Completed").reduce((a,r)=>a+Number(r.qty||0),0);
+  const whProg    = repairs.filter(r=>r.destination==="Warehouse"&&r.status==="In Progress").reduce((a,r)=>a+Number(r.qty||0),0);
   return (
     <div>
       <SectionHeader title="Dashboard overview"/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}>
-        <StatCard label="Total schools"          value={schools.length}               sub="Registered"            color="#2563EB"/>
-        <StatCard label="Total learner shortage" value={totalShortage.toLocaleString()} sub="Over capacity"        color="#DC2626"/>
-        <StatCard label="Total audits"           value={audits.length}                sub="All years"             color="#7C3AED"/>
-        <StatCard label="Overall risk level"     value={dominantRisk} sub={`H:${riskCounts.High} M:${riskCounts.Medium} L:${riskCounts.Low}`} color={dominantRisk==="High"?"#DC2626":dominantRisk==="Medium"?"#D97706":"#059669"}/>
+        <StatCard label="Total schools"          value={schools.length}               sub="Registered"       color="#2563EB"/>
+        <StatCard label="Total learner shortage" value={totalShortage.toLocaleString()} sub="Over capacity"  color="#DC2626"/>
+        <StatCard label="Total audits"           value={audits.length}                sub="All years"        color="#7C3AED"/>
+        <StatCard label="Overall risk level"     value={dominantRisk} sub={"H:"+riskCounts.High+" M:"+riskCounts.Medium+" L:"+riskCounts.Low} color={dominantRisk==="High"?"#DC2626":dominantRisk==="Medium"?"#D97706":"#059669"}/>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}>
-        <StatCard label="Furniture available" value={totalFurn}           sub="Tracked items"       color="#059669"/>
-        <StatCard label="High risk schools"   value={riskCounts.High}     sub="Urgent action needed" color="#DC2626"/>
-        <StatCard label="Warehouse in stock"  value={inStock}             sub="Ready to dispatch"   color="#2563EB"/>
-        <StatCard label="Repairs in progress" value={whProg}              sub="At warehouse"         color="#D97706"/>
+        <StatCard label="Furniture available" value={totalFurn}       sub="Tracked items"      color="#059669"/>
+        <StatCard label="High risk schools"   value={riskCounts.High} sub="Urgent action"      color="#DC2626"/>
+        <StatCard label="Warehouse in stock"  value={inStock}         sub="Ready to dispatch"  color="#2563EB"/>
+        <StatCard label="Repairs in progress" value={whProg}          sub="At warehouse"       color="#D97706"/>
       </div>
-      <p style={{fontSize:12,color:"#6B7280",fontWeight:500,margin:"0 0 8px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Warehouse — new furniture</p>
+      <p style={{fontSize:12,color:"#6B7280",fontWeight:500,margin:"0 0 8px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Warehouse new furniture</p>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.25rem"}}>
         <StatCard label="In stock"   value={inStock}    color="#059669"/>
         <StatCard label="Reserved"   value={reserved}   color="#D97706"/>
         <StatCard label="Dispatched" value={dispatched} color="#2563EB"/>
       </div>
-      <p style={{fontSize:12,color:"#6B7280",fontWeight:500,margin:"0 0 8px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Warehouse — repairs</p>
+      <p style={{fontSize:12,color:"#6B7280",fontWeight:500,margin:"0 0 8px",textTransform:"uppercase",letterSpacing:"0.05em"}}>Warehouse repairs</p>
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
         <StatCard label="Sent for repair" value={whIn}   color="#7C3AED"/>
         <StatCard label="Completed"       value={whDone} color="#059669"/>
@@ -1069,31 +749,28 @@ function Dashboard({ schools, audits, furniture, repairs, warehouse }) {
       <Card>
         <h3 style={{fontSize:15,fontWeight:500,margin:"0 0 1rem",color:"#111827"}}>Recent audits</h3>
         <DataTable cols={["School","Year","Date","Risk","Overcapacity"]} rows={audits.slice(-4).reverse()}
-          renderRow={r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"—",r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>];}}/>
+          renderRow={r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?sc.name:"--",r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>];}}/>
       </Card>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────
-// KPA DASHBOARD
-// ─────────────────────────────────────────────
 function KpaDashboard({ uploads, learnerData, mobileAudit, schoolRequests, adminTasks, setActive }) {
   const kpas = [
-    { id:"kpa1", icon:"🖥️", label:"KPA 1 — Data Uploads",        weight:"30%", color:"#2563EB", done:uploads.filter(u=>u.status==="Completed").length,                                               total:uploads.length },
-    { id:"kpa2", icon:"📈", label:"KPA 2 — Learner Data",         weight:"20%", color:"#7C3AED", done:learnerData.filter(u=>u.status==="Validated").length,                                           total:learnerData.length },
-    { id:"kpa3", icon:"🚌", label:"KPA 3 — Mobile Audit",         weight:"20%", color:"#059669", done:mobileAudit.filter(u=>u.condition==="Good").length,                                             total:mobileAudit.length },
-    { id:"kpa4", icon:"🏗️", label:"KPA 4 — School Requests",      weight:"15%", color:"#D97706", done:schoolRequests.filter(u=>u.status==="Completed").length,                                        total:schoolRequests.length },
-    { id:"kpa5", icon:"🗂️", label:"KPA 5 — Admin & Payments",     weight:"15%", color:"#DC2626", done:adminTasks.filter(u=>["Verified","Completed","Resolved"].includes(u.status)).length,            total:adminTasks.length },
+    { id:"kpa1", icon:"🖥️", label:"KPA 1 Data Uploads",      weight:"30%", color:"#2563EB", done:uploads.filter(u=>u.status==="Completed").length,                                              total:uploads.length },
+    { id:"kpa2", icon:"📈", label:"KPA 2 Learner Data",       weight:"20%", color:"#7C3AED", done:learnerData.filter(u=>u.status==="Validated").length,                                          total:learnerData.length },
+    { id:"kpa3", icon:"🚌", label:"KPA 3 Mobile Audit",       weight:"20%", color:"#059669", done:mobileAudit.filter(u=>u.condition==="Good").length,                                            total:mobileAudit.length },
+    { id:"kpa4", icon:"🏗️", label:"KPA 4 School Requests",    weight:"15%", color:"#D97706", done:schoolRequests.filter(u=>u.status==="Completed").length,                                       total:schoolRequests.length },
+    { id:"kpa5", icon:"🗂️", label:"KPA 5 Admin Payments",     weight:"15%", color:"#DC2626", done:adminTasks.filter(u=>["Verified","Completed","Resolved"].includes(u.status)).length,           total:adminTasks.length },
   ];
   return (
     <div>
       <div style={{background:"linear-gradient(135deg,#1e3a5f,#1e40af)",borderRadius:14,padding:"1.5rem",marginBottom:"1.5rem",color:"#fff"}}>
         <p style={{fontSize:12,color:"rgba(255,255,255,0.6)",margin:"0 0 4px",textTransform:"uppercase",letterSpacing:"0.08em"}}>Northern Cape Department of Education</p>
         <h2 style={{fontSize:20,fontWeight:700,margin:"0 0 4px"}}>EPMDS Performance Dashboard</h2>
-        <p style={{fontSize:13,color:"rgba(255,255,255,0.7)",margin:"0 0 1rem"}}>PY Tshabangu · Senior Administration Officer · Physical Resources Planning · 2026/2027</p>
+        <p style={{fontSize:13,color:"rgba(255,255,255,0.7)",margin:"0 0 1rem"}}>PY Tshabangu - Senior Administration Officer - Physical Resources Planning - 2026/2027</p>
         <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
-          {[["Total Weight","100%"],["KPAs","5"],["Cycle","2026/2027"],["Supervisor","A Ralph"],["Own Rating","3 — Fully Effective"]].map(([l,v])=>(
+          {[["Total Weight","100%"],["KPAs","5"],["Cycle","2026/2027"],["Supervisor","A Ralph"],["Own Rating","3 Fully Effective"]].map(([l,v])=>(
             <div key={l} style={{background:"rgba(255,255,255,0.12)",borderRadius:10,padding:"10px 12px"}}>
               <p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"0 0 2px"}}>{l}</p>
               <p style={{fontSize:14,fontWeight:600,margin:0}}>{v}</p>
@@ -1111,7 +788,7 @@ function KpaDashboard({ uploads, learnerData, mobileAudit, schoolRequests, admin
                   <span style={{fontSize:22}}>{k.icon}</span>
                   <div>
                     <p style={{fontWeight:500,fontSize:14,margin:"0 0 2px",color:"#111827"}}>{k.label}</p>
-                    <p style={{fontSize:12,color:"#6B7280",margin:0}}>Weight: {k.weight} · {k.done}/{k.total} tasks complete · Click to view</p>
+                    <p style={{fontSize:12,color:"#6B7280",margin:0}}>Weight: {k.weight} - {k.done}/{k.total} tasks complete - Click to view</p>
                   </div>
                 </div>
                 <div style={{textAlign:"right"}}>
@@ -1120,7 +797,7 @@ function KpaDashboard({ uploads, learnerData, mobileAudit, schoolRequests, admin
                 </div>
               </div>
               <div style={{background:"#F3F4F6",borderRadius:999,height:8,overflow:"hidden"}}>
-                <div style={{width:`${pct}%`,height:"100%",background:k.color,borderRadius:999,transition:"width 0.4s"}}/>
+                <div style={{width:pct+"%",height:"100%",background:k.color,borderRadius:999,transition:"width 0.4s"}}/>
               </div>
             </Card>
           );
@@ -1130,9 +807,6 @@ function KpaDashboard({ uploads, learnerData, mobileAudit, schoolRequests, admin
   );
 }
 
-// ─────────────────────────────────────────────
-// MAIN APP
-// ─────────────────────────────────────────────
 function App() {
   const [active,         setActive]         = useState("dashboard");
   const [modal,          setModal]          = useState(null);
@@ -1154,37 +828,27 @@ function App() {
 
   const add = setter => data => { setter(p => [...p, { ...data, id:uid() }]); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null), 3000); };
+  const scName = id => { const sc = schools.find(s => s.id == id); return sc ? sc.name : "--"; };
 
   const importSchool = emis => {
-    if (schools.find(s=>s.emis===emis.emis)) { showToast(`"${emis.name}" already exists.`); return; }
+    if (schools.find(s=>s.emis===emis.emis)) { showToast(emis.name + " already exists."); return; }
     setSchools(p=>[...p,{ id:uid(), name:emis.name, emis:emis.emis, province:emis.province, district:emis.district, circuit:emis.circuit||"", capacity:"", mobiles:"", mobileCap:35, enrolment:"", teachers:"", risk:"Low" }]);
-    showToast(`✓ "${emis.name}" imported.`);
+    showToast(emis.name + " imported.");
     setActive("schools");
   };
 
-  const scName = id => schools.find(s=>s.id==id)?.name || "—";
-  const clLabel = id => { const cl=classrooms.find(c=>c.id==id); return cl ? `${scName(cl.schoolId)} — ${cl.room}` : "—"; };
-
   const renderPage = () => {
     switch (active) {
-
-      case "dashboard": return (
-        <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>
-      );
-
-      case "emis": return <EmisPage onImport={importSchool}/>;
-
-      case "export": return (
-        <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture}
-          conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution}/>
-      );
+      case "dashboard": return <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>;
+      case "emis":      return <EmisPage onImport={importSchool}/>;
+      case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution}/>;
+      case "kpa":       return <KpaDashboard uploads={uploads} learnerData={learnerData} mobileAudit={mobileAudit} schoolRequests={schoolRequests} adminTasks={adminTasks} setActive={setActive}/>;
 
       case "schools": return (
         <div>
-          <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")}
-            extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
+          <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
           <div style={{display:"grid",gap:"1rem"}}>
-            {schools.length===0 && <Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools yet. Use + Add record or import from EMIS Database.</p></Card>}
+            {schools.length===0 && <Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools yet. Use Add record or import from EMIS Database.</p></Card>}
             {schools.map(s=>{
               const over=Number(s.enrolment)>Number(s.capacity);
               const shortage=over?Number(s.enrolment)-Number(s.capacity):0;
@@ -1193,17 +857,17 @@ function App() {
                   <div style={{display:"flex",justifyContent:"space-between"}}>
                     <div>
                       <p style={{fontWeight:600,fontSize:15,margin:"0 0 4px",color:"#111827"}}>{s.name}</p>
-                      <p style={{fontSize:12,color:"#6B7280",margin:"0 0 10px"}}>EMIS: {s.emis} · {s.district}, {s.province}{s.circuit?` · Circuit: ${s.circuit}`:""}</p>
+                      <p style={{fontSize:12,color:"#6B7280",margin:"0 0 10px"}}>EMIS: {s.emis} - {s.district}, {s.province}{s.circuit?" - Circuit: "+s.circuit:""}</p>
                       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
                         {[["Enrolment",s.enrolment],["Teachers",s.teachers],["Capacity",s.capacity],["Mobiles",s.mobiles]].map(([l,v])=>(
-                          <span key={l} style={{fontSize:12,color:"#6B7280"}}>{l}: <strong style={{color:"#111827"}}>{v||"—"}</strong></span>
+                          <span key={l} style={{fontSize:12,color:"#6B7280"}}>{l}: <strong style={{color:"#111827"}}>{v||"--"}</strong></span>
                         ))}
                         {shortage>0&&<span style={{fontSize:12,color:"#DC2626",fontWeight:500}}>Shortage: {shortage}</span>}
                       </div>
                     </div>
                     <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8}}>
                       <Badge val={s.risk}/>
-                      {s.enrolment&&s.capacity&&<span style={{fontSize:12,color:over?"#DC2626":"#059669"}}>{over?"⚠ Overcapacity":"✓ Within capacity"}</span>}
+                      {s.enrolment&&s.capacity&&<span style={{fontSize:12,color:over?"#DC2626":"#059669"}}>{over?"Overcapacity":"Within capacity"}</span>}
                     </div>
                   </div>
                 </Card>
@@ -1215,109 +879,92 @@ function App() {
 
       case "audits": return (
         <div>
-          <SectionHeader title="Audits" onAdd={()=>setModal("audit")}
-            extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.recommendations])}/>}/>
-          <Card>
-            <DataTable cols={["School","Year","Date","Risk","Overcapacity","Recommendations"]} rows={audits}
-              renderRow={r=>[scName(r.schoolId),r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>,<span style={{color:"#6B7280",fontSize:12}}>{r.recommendations}</span>]}/>
+          <SectionHeader title="Audits" onAdd={()=>setModal("audit")} extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.recommendations])}/>}/>
+          <Card><DataTable cols={["School","Year","Date","Risk","Overcapacity","Recommendations"]} rows={audits}
+            renderRow={r=>[scName(r.schoolId),r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>,<span style={{color:"#6B7280",fontSize:12}}>{r.recommendations}</span>]}/>
           </Card>
         </div>
       );
 
       case "classrooms": return (
         <div>
-          <SectionHeader title="Classrooms" onAdd={()=>setModal("classroom")}
-            extra={<ExportBtn label="CSV" filename="classrooms.csv" cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])}/>}/>
-          <Card>
-            <DataTable cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms}
-              renderRow={r=>[scName(r.schoolId),r.room,r.type,r.grade,r.spec,r.learners,<Badge val={r.isMobile}/>]}/>
+          <SectionHeader title="Classrooms" onAdd={()=>setModal("classroom")} extra={<ExportBtn label="CSV" filename="classrooms.csv" cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])}/>}/>
+          <Card><DataTable cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms}
+            renderRow={r=>[scName(r.schoolId),r.room,r.type,r.grade,r.spec,r.learners,<Badge val={r.isMobile}/>]}/>
           </Card>
         </div>
       );
 
       case "furniture": return (
         <div>
-          <SectionHeader title="Furniture inventory" onAdd={()=>setModal("furniture")}
-            extra={<ExportBtn label="CSV" filename="furniture.csv" cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition"]} rows={furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl?.schoolId),cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})}/>}/>
+          <SectionHeader title="Furniture inventory" onAdd={()=>setModal("furniture")} extra={<ExportBtn label="CSV" filename="furniture.csv" cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition"]} rows={furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})}/>}/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
             <StatCard label="Total available" value={furniture.reduce((a,f)=>a+Number(f.available||0),0)} color="#2563EB"/>
             <StatCard label="Damaged"         value={furniture.reduce((a,f)=>a+Number(f.damaged||0),0)}   color="#DC2626"/>
             <StatCard label="Repairable"      value={furniture.reduce((a,f)=>a+Number(f.repairable||0),0)}color="#D97706"/>
           </div>
-          <Card>
-            <DataTable cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition"]} rows={furniture}
-              renderRow={r=>{const cl=classrooms.find(c=>c.id==r.classroomId);return[scName(cl?.schoolId),cl?.room||"?",r.category,r.ftype,r.available,r.damaged,r.repairable,<Badge val={r.condition}/>];}}/>
+          <Card><DataTable cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition"]} rows={furniture}
+            renderRow={r=>{const cl=classrooms.find(c=>c.id==r.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",r.category,r.ftype,r.available,r.damaged,r.repairable,<Badge val={r.condition}/>];}}/>
           </Card>
         </div>
       );
 
       case "conditions": return (
         <div>
-          <SectionHeader title="Condition assessments" onAdd={()=>setModal("condition")}
-            extra={<ExportBtn label="CSV" filename="conditions.csv" cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl?.schoolId),cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})}/>}/>
-          <Card>
-            <DataTable cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions}
-              renderRow={c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl?.schoolId),cl?.room||"?",<Badge val={c.flooring}/>,c.flooringIssues||"—",<Badge val={c.windows}/>,<Badge val={c.electricity}/>,<Badge val={c.locks}/>];}}/>
+          <SectionHeader title="Condition assessments" onAdd={()=>setModal("condition")} extra={<ExportBtn label="CSV" filename="conditions.csv" cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})}/>}/>
+          <Card><DataTable cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions}
+            renderRow={c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",<Badge val={c.flooring}/>,c.flooringIssues||"--",<Badge val={c.windows}/>,<Badge val={c.electricity}/>,<Badge val={c.locks}/>];}}/>
           </Card>
         </div>
       );
 
       case "repairs": return (
         <div>
-          <SectionHeader title="Repairs & refurbishment" onAdd={()=>setModal("repair")}
-            extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?.ftype||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
+          <SectionHeader title="Repairs and refurbishment" onAdd={()=>setModal("repair")} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
             {["Completed","In Progress","Pending"].map(st=><StatCard key={st} label={st} value={repairs.filter(r=>r.status===st).length} color={st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}/>)}
           </div>
-          <Card>
-            <DataTable cols={["Furniture","Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs}
-              renderRow={r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?.ftype||"—",r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.allocated,r.completed||"—"];}}/>
+          <Card><DataTable cols={["Furniture","Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs}
+            renderRow={r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"--",r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.allocated,r.completed||"--"];}}/>
           </Card>
         </div>
       );
 
       case "warehouse": return (
         <div>
-          <SectionHeader title="Warehouse — new furniture" onAdd={()=>setModal("warehouse")}
-            extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"]} rows={warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])}/>}/>
+          <SectionHeader title="Warehouse new furniture" onAdd={()=>setModal("warehouse")} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"]} rows={warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])}/>}/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
             <StatCard label="In stock"   value={warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#059669"/>
             <StatCard label="Reserved"   value={warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#D97706"/>
             <StatCard label="Dispatched" value={warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0)} color="#2563EB"/>
           </div>
-          <Card>
-            <DataTable cols={["Date","Supplier","Furniture type","Qty","Condition","Received by","Ref","Status","Notes"]} rows={warehouse}
-              renderRow={w=>[w.date,w.supplier,w.ftype,w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.notes}</span>]}/>
+          <Card><DataTable cols={["Date","Supplier","Furniture type","Qty","Condition","Received by","Ref","Status","Notes"]} rows={warehouse}
+            renderRow={w=>[w.date,w.supplier,w.ftype,w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.notes}</span>]}/>
           </Card>
         </div>
       );
 
       case "storage": return (
         <div>
-          <SectionHeader title="Storage" onAdd={()=>setModal("storage")}
-            extra={<ExportBtn label="CSV" filename="storage.csv" cols={["School","Room","Condition","Secure","Stored Type","Qty","Usable"]} rows={storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])}/>}/>
-          <Card>
-            <DataTable cols={["School","Room","Condition","Secure","Stored items","Qty","Usable"]} rows={storage}
-              renderRow={r=>[scName(r.schoolId),r.room,<Badge val={r.condition}/>,<Badge val={r.secure}/>,r.storedType,r.qty,<Badge val={r.usable}/>]}/>
+          <SectionHeader title="Storage" onAdd={()=>setModal("storage")} extra={<ExportBtn label="CSV" filename="storage.csv" cols={["School","Room","Condition","Secure","Stored Type","Qty","Usable"]} rows={storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])}/>}/>
+          <Card><DataTable cols={["School","Room","Condition","Secure","Stored items","Qty","Usable"]} rows={storage}
+            renderRow={r=>[scName(r.schoolId),r.room,<Badge val={r.condition}/>,<Badge val={r.secure}/>,r.storedType,r.qty,<Badge val={r.usable}/>]}/>
           </Card>
         </div>
       );
 
       case "distribution": return (
         <div>
-          <SectionHeader title="Distribution" onAdd={()=>setModal("distribution")}
-            extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["School","Purpose","Description","Qty","Destination","Official","Date","Ref"]} rows={distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref])}/>}/>
-          <Card>
-            <DataTable cols={["School","Purpose","Description","Qty","Official","Date","Ref"]} rows={distribution}
-              renderRow={r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.official,r.date,r.ref]}/>
+          <SectionHeader title="Distribution" onAdd={()=>setModal("distribution")} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["School","Purpose","Description","Qty","Destination","Official","Date","Ref"]} rows={distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref])}/>}/>
+          <Card><DataTable cols={["School","Purpose","Description","Qty","Official","Date","Ref"]} rows={distribution}
+            renderRow={r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.official,r.date,r.ref]}/>
           </Card>
         </div>
       );
 
       case "capacity": return (
         <div>
-          <SectionHeader title="Capacity analysis"
-            extra={<ExportBtn label="CSV" filename="capacity.csv" cols={["School","Enrolment","Capacity","With Mobiles","Utilisation","Overcapacity"]} rows={schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.enrolment,s.capacity,mob,pct+"%",Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})}/>}/>
+          <SectionHeader title="Capacity analysis" extra={<ExportBtn label="CSV" filename="capacity.csv" cols={["School","Enrolment","Capacity","With Mobiles","Utilisation","Overcapacity"]} rows={schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.enrolment,s.capacity,mob,pct+"%",Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})}/>}/>
           {!schools.some(s=>s.capacity)&&<Card><p style={{textAlign:"center",color:"#9CA3AF",fontSize:13}}>No capacity data yet. Add schools with capacity figures.</p></Card>}
           <div style={{display:"grid",gap:"1rem"}}>
             {schools.filter(s=>s.capacity).map(s=>{
@@ -1330,12 +977,12 @@ function App() {
                     <p style={{fontWeight:500,fontSize:15,margin:0}}>{s.name}</p><Badge val={over?"Yes":"No"}/>
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-                    {[["Enrolment",s.enrolment,"#111827"],["Cap. no mobiles",s.capacity,"#111827"],["Cap. with mobiles",mobCap,"#111827"],["Utilisation",`${pct}%`,over?"#DC2626":"#059669"]].map(([l,v,c])=>(
+                    {[["Enrolment",s.enrolment,"#111827"],["Cap no mobiles",s.capacity,"#111827"],["Cap with mobiles",mobCap,"#111827"],["Utilisation",pct+"%",over?"#DC2626":"#059669"]].map(([l,v,c])=>(
                       <div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"10px 14px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 4px"}}>{l}</p><p style={{fontSize:20,fontWeight:600,margin:0,color:c}}>{v}</p></div>
                     ))}
                   </div>
                   <div style={{background:"#F3F4F6",borderRadius:999,height:8,overflow:"hidden"}}>
-                    <div style={{width:`${Math.min(pct,100)}%`,height:"100%",background:over?"#DC2626":"#2563EB",borderRadius:999}}/>
+                    <div style={{width:Math.min(pct,100)+"%",height:"100%",background:over?"#DC2626":"#2563EB",borderRadius:999}}/>
                   </div>
                 </Card>
               );
@@ -1346,14 +993,13 @@ function App() {
 
       case "ratio": return (
         <div>
-          <SectionHeader title="Teacher / Learner ratio analysis"
-            extra={<ExportBtn label="CSV" filename="ratio.csv" cols={["School","Enrolment","Teachers","Ratio","Status"]} rows={schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.enrolment,s.teachers,r?`1:${r}`:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];})}/>}/>
+          <SectionHeader title="Teacher Learner ratio analysis" extra={<ExportBtn label="CSV" filename="ratio.csv" cols={["School","Enrolment","Teachers","Ratio","Status"]} rows={schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.enrolment,s.teachers,r?"1:"+r:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];})}/>}/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
             <StatCard label="Total learners" value={schools.reduce((a,s)=>a+Number(s.enrolment||0),0)} color="#2563EB"/>
             <StatCard label="Total teachers" value={schools.reduce((a,s)=>a+Number(s.teachers||0),0)}  color="#7C3AED"/>
-            <StatCard label="Avg. ratio" value={(() => { const t=schools.reduce((a,s)=>a+Number(s.teachers||0),0); const l=schools.reduce((a,s)=>a+Number(s.enrolment||0),0); return t>0?`1:${Math.round(l/t)}`:"—"; })()} color="#059669"/>
+            <StatCard label="Avg ratio" value={(() => { const t=schools.reduce((a,s)=>a+Number(s.teachers||0),0); const l=schools.reduce((a,s)=>a+Number(s.enrolment||0),0); return t>0?"1:"+Math.round(l/t):"--"; })()} color="#059669"/>
           </div>
-          {!schools.some(s=>s.teachers&&s.enrolment)&&<Card><p style={{textAlign:"center",color:"#9CA3AF",fontSize:13}}>No ratio data yet. Add teacher and enrolment data to schools.</p></Card>}
+          {!schools.some(s=>s.teachers&&s.enrolment)&&<Card><p style={{textAlign:"center",color:"#9CA3AF",fontSize:13}}>No ratio data yet.</p></Card>}
           <div style={{display:"grid",gap:"1rem"}}>
             {schools.filter(s=>s.teachers&&s.enrolment).map(s=>{
               const ratio=Math.round(Number(s.enrolment)/Number(s.teachers));
@@ -1367,15 +1013,15 @@ function App() {
                     <span style={{background:color+"22",color,padding:"3px 12px",borderRadius:999,fontSize:12,fontWeight:600}}>{status}</span>
                   </div>
                   <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-                    {[["Learners",s.enrolment,"#111827"],["Teachers",s.teachers,"#111827"],["Ratio",`1:${ratio}`,color],["Ideal","1:35","#6B7280"]].map(([l,v,c])=>(
+                    {[["Learners",s.enrolment,"#111827"],["Teachers",s.teachers,"#111827"],["Ratio","1:"+ratio,color],["Ideal","1:35","#6B7280"]].map(([l,v,c])=>(
                       <div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"10px 14px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 4px"}}>{l}</p><p style={{fontSize:20,fontWeight:600,margin:0,color:c}}>{v}</p></div>
                     ))}
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:10}}>
                     <span style={{fontSize:11,color:"#9CA3AF",width:30}}>0</span>
                     <div style={{flex:1,background:"#F3F4F6",borderRadius:999,height:8,overflow:"hidden",position:"relative"}}>
-                      <div style={{width:`${pct}%`,height:"100%",background:color,borderRadius:999}}/>
-                      <div style={{position:"absolute",left:`${(35/50)*100}%`,top:0,width:2,height:"100%",background:"#9CA3AF"}}/>
+                      <div style={{width:pct+"%",height:"100%",background:color,borderRadius:999}}/>
+                      <div style={{position:"absolute",left:(35/50)*100+"%",top:0,width:2,height:"100%",background:"#9CA3AF"}}/>
                     </div>
                     <span style={{fontSize:11,color:"#9CA3AF",width:30,textAlign:"right"}}>50+</span>
                   </div>
@@ -1387,20 +1033,14 @@ function App() {
         </div>
       );
 
-      // ── KPA PAGES ──
-      case "kpa": return (
-        <KpaDashboard uploads={uploads} learnerData={learnerData} mobileAudit={mobileAudit} schoolRequests={schoolRequests} adminTasks={adminTasks} setActive={setActive}/>
-      );
-
       case "kpa1": return (
         <div>
-          <SectionHeader title="KPA 1 — Data Uploads (NEIMS / EFMS / GOVERP)" onAdd={()=>setModal("upload")}
-            extra={<ExportBtn label="CSV" filename="kpa1_uploads.csv" cols={["System","Date","Status","Records","Verified By","Notes"]} rows={uploads.map(u=>[u.system,u.date,u.status,u.records,u.verifiedBy,u.notes])}/>}/>
+          <SectionHeader title="KPA 1 Data Uploads NEIMS EFMS GOVERP" onAdd={()=>setModal("upload")} extra={<ExportBtn label="CSV" filename="kpa1_uploads.csv" cols={["System","Date","Status","Records","Verified By","Notes"]} rows={uploads.map(u=>[u.system,u.date,u.status,u.records,u.verifiedBy,u.notes])}/>}/>
           <KpaNote weight="30%" target="Daily" description="Verify and monitor captured data to ensure alignment and accuracy across NEIMS, EFMS and GOVERP."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
-            <StatCard label="Total uploads"  value={uploads.length}                                               color="#2563EB"/>
-            <StatCard label="Completed"      value={uploads.filter(u=>u.status==="Completed").length}             color="#059669"/>
-            <StatCard label="In progress"    value={uploads.filter(u=>u.status==="In Progress").length}           color="#D97706"/>
+            <StatCard label="Total uploads"  value={uploads.length} color="#2563EB"/>
+            <StatCard label="Completed"      value={uploads.filter(u=>u.status==="Completed").length} color="#059669"/>
+            <StatCard label="In progress"    value={uploads.filter(u=>u.status==="In Progress").length} color="#D97706"/>
             <StatCard label="Total records"  value={uploads.reduce((a,u)=>a+Number(u.records||0),0).toLocaleString()} color="#7C3AED"/>
           </div>
           <Card><DataTable cols={["System","Date","Records","Status","Verified By","Notes"]} rows={uploads}
@@ -1411,13 +1051,12 @@ function App() {
 
       case "kpa2": return (
         <div>
-          <SectionHeader title="KPA 2 — Learner Data Verification" onAdd={()=>setModal("learner")}
-            extra={<ExportBtn label="CSV" filename="kpa2_learner.csv" cols={["School","District","Source","Date","Enrolment","Verified","Variance","Status"]} rows={learnerData.map(l=>[l.school,l.district,l.source,l.date,l.enrolment,l.verified,l.variance,l.status])}/>}/>
+          <SectionHeader title="KPA 2 Learner Data Verification" onAdd={()=>setModal("learner")} extra={<ExportBtn label="CSV" filename="kpa2_learner.csv" cols={["School","District","Source","Date","Enrolment","Verified","Variance","Status"]} rows={learnerData.map(l=>[l.school,l.district,l.source,l.date,l.enrolment,l.verified,l.variance,l.status])}/>}/>
           <KpaNote weight="20%" target="Daily" description="Access GOVERP, HRMS, Google Forms and 10th Day Snap Survey to verify learner numbers for planning."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
-            <StatCard label="Records"        value={learnerData.length}                                           color="#7C3AED"/>
-            <StatCard label="Validated"      value={learnerData.filter(l=>l.status==="Validated").length}         color="#059669"/>
-            <StatCard label="Queried"        value={learnerData.filter(l=>l.status==="Queried").length}           color="#DC2626"/>
+            <StatCard label="Records"        value={learnerData.length} color="#7C3AED"/>
+            <StatCard label="Validated"      value={learnerData.filter(l=>l.status==="Validated").length} color="#059669"/>
+            <StatCard label="Queried"        value={learnerData.filter(l=>l.status==="Queried").length} color="#DC2626"/>
             <StatCard label="Total variance" value={learnerData.reduce((a,l)=>a+Number(l.variance||0),0)} sub="Discrepancy" color="#D97706"/>
           </div>
           <Card><DataTable cols={["School","District","Source","Date","Reported","Verified","Variance","Status"]} rows={learnerData}
@@ -1430,31 +1069,29 @@ function App() {
 
       case "kpa3": return (
         <div>
-          <SectionHeader title="KPA 3 — Mobile Classroom Audit" onAdd={()=>setModal("mobile")}
-            extra={<ExportBtn label="CSV" filename="kpa3_mobile.csv" cols={["School","Mobiles","Condition","Electricity","Ablutions","Issues","Recommendation","Date","Audited By"]} rows={mobileAudit.map(m=>[scName(m.schoolId),m.mobileCount,m.condition,m.electricityAvail,m.ablutions,m.structuralIssues,m.recommendation,m.auditDate,m.auditedBy])}/>}/>
+          <SectionHeader title="KPA 3 Mobile Classroom Audit" onAdd={()=>setModal("mobile")}           extra={<ExportBtn label="CSV" filename="kpa3_mobile.csv" cols={["School","Mobiles","Condition","Electricity","Ablutions","Issues","Recommendation","Audit Date","Received Date","Audited By"]} rows={mobileAudit.map(m=>[scName(m.schoolId),m.mobileCount,m.condition,m.electricityAvail,m.ablutions,m.structuralIssues,m.recommendation,m.auditDate,m.receivedDate||"",m.auditedBy])}/>}/>
           <KpaNote weight="20%" target="Weekly" description="Conduct furniture and mobile audit. Report on conditional assessment of mobile classrooms and track refurbishment."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
-            <StatCard label="Schools audited" value={mobileAudit.length}                                         color="#059669"/>
-            <StatCard label="Good condition"  value={mobileAudit.filter(m=>m.condition==="Good").length}         color="#059669"/>
-            <StatCard label="Fair condition"  value={mobileAudit.filter(m=>m.condition==="Fair").length}         color="#D97706"/>
-            <StatCard label="Poor condition"  value={mobileAudit.filter(m=>m.condition==="Poor").length}         color="#DC2626"/>
+            <StatCard label="Schools audited" value={mobileAudit.length} color="#059669"/>
+            <StatCard label="Good condition"  value={mobileAudit.filter(m=>m.condition==="Good").length} color="#059669"/>
+            <StatCard label="Fair condition"  value={mobileAudit.filter(m=>m.condition==="Fair").length} color="#D97706"/>
+            <StatCard label="Poor condition"  value={mobileAudit.filter(m=>m.condition==="Poor").length} color="#DC2626"/>
           </div>
-          <Card><DataTable cols={["School","Mobiles","Condition","Electricity","Ablutions","Issues","Recommendation","Date"]} rows={mobileAudit}
-            renderRow={m=>[scName(m.schoolId),m.mobileCount,<Badge val={m.condition}/>,<Badge val={m.electricityAvail}/>,<Badge val={m.ablutions}/>,m.structuralIssues||"—",m.recommendation,m.auditDate]}/>
+          <Card><DataTable cols={["School","Mobiles","Condition","Electricity","Ablutions","Issues","Recommendation","Audit Date","Received Date"]} rows={mobileAudit}
+            renderRow={m=>[scName(m.schoolId),m.mobileCount,<Badge val={m.condition}/>,<Badge val={m.electricityAvail}/>,<Badge val={m.ablutions}/>,m.structuralIssues||"--",m.recommendation,m.auditDate,m.receivedDate||"--"]}/>
           </Card>
         </div>
       );
 
       case "kpa4": return (
         <div>
-          <SectionHeader title="KPA 4 — School Infrastructure Requests" onAdd={()=>setModal("request")}
-            extra={<ExportBtn label="CSV" filename="kpa4_requests.csv" cols={["School","District","Type","Priority","Date Received","Due Date","Status","Assigned To","Notes"]} rows={schoolRequests.map(r=>[scName(r.schoolId),r.district,r.requestType,r.priority,r.dateReceived,r.dueDate,r.status,r.assignedTo,r.notes])}/>}/>
+          <SectionHeader title="KPA 4 School Infrastructure Requests" onAdd={()=>setModal("request")} extra={<ExportBtn label="CSV" filename="kpa4_requests.csv" cols={["School","District","Type","Priority","Date Received","Due Date","Status","Assigned To","Notes"]} rows={schoolRequests.map(r=>[scName(r.schoolId),r.district,r.requestType,r.priority,r.dateReceived,r.dueDate,r.status,r.assignedTo,r.notes])}/>}/>
           <KpaNote weight="15%" target="Quarterly" description="Maintain accurate tracking of all school requests per district. Monitor and report on progress."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
-            <StatCard label="Total requests" value={schoolRequests.length}                                       color="#D97706"/>
-            <StatCard label="Completed"      value={schoolRequests.filter(r=>r.status==="Completed").length}     color="#059669"/>
-            <StatCard label="In progress"    value={schoolRequests.filter(r=>r.status==="In Progress").length}   color="#2563EB"/>
-            <StatCard label="Pending"        value={schoolRequests.filter(r=>r.status==="Pending").length}       color="#DC2626"/>
+            <StatCard label="Total requests" value={schoolRequests.length} color="#D97706"/>
+            <StatCard label="Completed"      value={schoolRequests.filter(r=>r.status==="Completed").length} color="#059669"/>
+            <StatCard label="In progress"    value={schoolRequests.filter(r=>r.status==="In Progress").length} color="#2563EB"/>
+            <StatCard label="Pending"        value={schoolRequests.filter(r=>r.status==="Pending").length} color="#DC2626"/>
           </div>
           <Card><DataTable cols={["School","District","Type","Priority","Received","Due","Status","Notes"]} rows={schoolRequests}
             renderRow={r=>[scName(r.schoolId),r.district,r.requestType,<Badge val={r.priority}/>,r.dateReceived,r.dueDate,<Badge val={r.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{r.notes}</span>]}/>
@@ -1464,17 +1101,16 @@ function App() {
 
       case "kpa5": return (
         <div>
-          <SectionHeader title="KPA 5 — Admin Duties & Payment Verification" onAdd={()=>setModal("admin")}
-            extra={<ExportBtn label="CSV" filename="kpa5_admin.csv" cols={["Type","Reference","Date","Amount","Supplier","Status","Notes"]} rows={adminTasks.map(t=>[t.type,t.ref,t.date,t.amount,t.supplier,t.status,t.notes])}/>}/>
-          <KpaNote weight="15%" target="Daily" description="Assist stakeholders, verify payments and attached documents, assist with filing, copying and scanning of project documentation."/>
+          <SectionHeader title="KPA 5 Admin Duties and Payment Verification" onAdd={()=>setModal("admin")} extra={<ExportBtn label="CSV" filename="kpa5_admin.csv" cols={["Type","Reference","Date","Amount","Supplier","Status","Notes"]} rows={adminTasks.map(t=>[t.type,t.ref,t.date,t.amount,t.supplier,t.status,t.notes])}/>}/>
+          <KpaNote weight="15%" target="Daily" description="Assist stakeholders, verify payments and documents, assist with filing, copying and scanning of project documentation."/>
           <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
-            <StatCard label="Total tasks"           value={adminTasks.length}                                     color="#DC2626"/>
+            <StatCard label="Total tasks"           value={adminTasks.length} color="#DC2626"/>
             <StatCard label="Payment verifications" value={adminTasks.filter(t=>t.type==="Payment Verification").length} color="#2563EB"/>
             <StatCard label="Completed"             value={adminTasks.filter(t=>["Verified","Completed","Resolved"].includes(t.status)).length} color="#059669"/>
-            <StatCard label="Pending"               value={adminTasks.filter(t=>t.status==="Pending").length}    color="#D97706"/>
+            <StatCard label="Pending"               value={adminTasks.filter(t=>t.status==="Pending").length} color="#D97706"/>
           </div>
-          <Card><DataTable cols={["Type","Reference","Date","Amount","Supplier / Party","Status","Notes"]} rows={adminTasks}
-            renderRow={t=>[t.type,t.ref,t.date,t.amount||"—",t.supplier||"—",<Badge val={t.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{t.notes}</span>]}/>
+          <Card><DataTable cols={["Type","Reference","Date","Amount","Supplier","Status","Notes"]} rows={adminTasks}
+            renderRow={t=>[t.type,t.ref,t.date,t.amount||"--",t.supplier||"--",<Badge val={t.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{t.notes}</span>]}/>
           </Card>
         </div>
       );
@@ -1485,15 +1121,12 @@ function App() {
 
   return (
     <div style={{ display:"flex", minHeight:"100vh", fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif", background:"#F3F6FB" }}>
-
-      {/* Toast */}
       {toast && (
         <div style={{ position:"fixed", bottom:24, left:"50%", transform:"translateX(-50%)", background:"#111827", color:"#fff", padding:"10px 20px", borderRadius:10, fontSize:13, zIndex:200, whiteSpace:"nowrap", boxShadow:"0 4px 12px rgba(0,0,0,0.2)" }}>
           {toast}
         </div>
       )}
 
-      {/* Modals */}
       {modal==="school"       && <SchoolForm       onClose={()=>setModal(null)} onSave={add(setSchools)}/>}
       {modal==="audit"        && <AuditForm        schools={schools}            onClose={()=>setModal(null)} onSave={add(setAudits)}/>}
       {modal==="classroom"    && <ClassroomForm    schools={schools}            onClose={()=>setModal(null)} onSave={add(setClassrooms)}/>}
@@ -1509,7 +1142,6 @@ function App() {
       {modal==="request"      && <SchoolRequestForm schools={schools}           onClose={()=>setModal(null)} onSave={add(setSchoolRequests)}/>}
       {modal==="admin"        && <AdminTaskForm                                 onClose={()=>setModal(null)} onSave={add(setAdminTasks)}/>}
 
-      {/* Sidebar */}
       <aside style={{ width:220, background:"linear-gradient(180deg,#1e3a5f,#1e40af)", padding:"1.5rem 0", flexShrink:0, overflowY:"auto" }}>
         <div style={{ padding:"0 1.25rem 1.5rem", borderBottom:"0.5px solid rgba(255,255,255,0.1)", marginBottom:"1rem" }}>
           <p style={{ fontWeight:700, fontSize:14, color:"#fff", margin:"0 0 2px" }}>SchoolAudit</p>
@@ -1522,14 +1154,12 @@ function App() {
             color:      active===n.id ? "#fff" : "rgba(255,255,255,0.65)",
             border:"none", borderLeft: active===n.id ? "2px solid #60A5FA" : "2px solid transparent",
             cursor:"pointer", fontSize:13, fontWeight: active===n.id ? 600 : 400, textAlign:"left",
-            transition:"background 0.15s",
           }}>
             <span style={{fontSize:14}}>{n.icon}</span>{n.label}
           </button>
         ))}
       </aside>
 
-      {/* Main */}
       <main style={{ flex:1, padding:"2rem", maxWidth:980, overflowY:"auto" }}>
         {renderPage()}
       </main>
@@ -1537,21 +1167,12 @@ function App() {
   );
 }
 
-// ─── Mount App ───
 (function mount() {
   var container = document.getElementById("root");
-  if (!container) {
-    setTimeout(mount, 100);
-    return;
-  }
+  if (!container) { setTimeout(mount, 100); return; }
   try {
     ReactDOM.createRoot(container).render(React.createElement(App));
   } catch(e) {
-    console.error("Mount error:", e);
-    container.innerHTML =
-      '<div style="padding:2rem;font-family:sans-serif;color:#DC2626">' +
-      '<h2>App failed to start</h2>' +
-      '<p style="margin-top:8px">Error: ' + e.message + '</p>' +
-      '</div>';
+    container.innerHTML = '<div style="padding:2rem;font-family:sans-serif;color:#DC2626"><h2>App failed to start</h2><p style="margin-top:8px">Error: ' + e.message + '</p></div>';
   }
 })();
