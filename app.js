@@ -846,7 +846,57 @@ function App() {
 
       case "schools": return (
         <div>
-          <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
+      <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")} extra={
+          <div style={{display:"flex",gap:8,alignItems:"center"}}>
+            <label style={{fontSize:12,color:"#7C3AED",background:"#F5F3FF",border:"0.5px solid #DDD6FE",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}}>
+              📂 Import CSV
+              <input type="file" accept=".csv,.txt,.tsv" onChange={e=>{
+                const file = e.target.files[0];
+                if (!file) return;
+                const reader = new FileReader();
+                reader.onload = ev => {
+                  const text = ev.target.result;
+                  const sep = text.indexOf("\t") > -1 ? "\t" : ",";
+                  const lines = text.split(/\r?\n/).filter(Boolean);
+                  const hdrs = lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));
+                  const get = (row,...keys) => { for(let i=0;i<keys.length;i++){const idx=hdrs.indexOf(keys[i].toLowerCase());if(idx>=0&&row[idx]!==undefined)return row[idx].toString().trim().replace(/^"|"$/g,"");} return ""; };
+                  const imported = lines.slice(1).map(line=>{
+                    const row = sep==="\t" ? line.split("\t") : line.split(",");
+                    const name = get(row,"name","school name","institution name","schoolname");
+                    if (!name) return null;
+                    return {
+                      id: uid(),
+                      name,
+                      emis:       get(row,"emis","emiscode","emis code","emis number"),
+                      province:   get(row,"province") || "NC",
+                      district:   get(row,"district"),
+                      circuit:    get(row,"circuit"),
+                      capacity:   get(row,"capacity","permanent capacity"),
+                      mobiles:    get(row,"mobiles","mobile classrooms","mobile classes"),
+                      mobileCap:  get(row,"mobilecap","per mobile","capacity per mobile") || "35",
+                      enrolment:  get(row,"enrolment","enrollment","total enrolment","learners"),
+                      teachers:   get(row,"teachers","number of teachers","no of teachers"),
+                      risk:       get(row,"risk","risk level") || "Low",
+                    };
+                  }).filter(Boolean);
+                  if (imported.length > 0) {
+                    setSchools(p => {
+                      const existing = new Set(p.map(s=>s.emis+s.name));
+                      const newOnes = imported.filter(s=>!existing.has(s.emis+s.name));
+                      return [...p, ...newOnes];
+                    });
+                    showToast(imported.length + " schools imported from " + file.name);
+                  } else {
+                    showToast("No schools found. Check your CSV column headers.");
+                  }
+                  e.target.value = "";
+                };
+                reader.readAsText(file);
+              }} style={{display:"none"}}/>
+            </label>
+            <ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Circuit","Capacity","Mobiles","MobileCap","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.circuit,s.capacity,s.mobiles,s.mobileCap,s.enrolment,s.teachers,s.risk])}/>
+          </div>
+        }/>
           <div style={{display:"grid",gap:"1rem"}}>
             {schools.length===0 && <Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools yet. Use Add record or import from EMIS Database.</p></Card>}
             {schools.map(s=>{
