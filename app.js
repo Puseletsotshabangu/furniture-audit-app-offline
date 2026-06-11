@@ -856,27 +856,47 @@ function App() {
                 const reader = new FileReader();
                 reader.onload = ev => {
                   const text = ev.target.result;
-                  const sep = text.indexOf("\t") > -1 ? "\t" : ",";
+                  const sep = text.indexOf("\t") > -1 ? "\t" : text.indexOf("|") > -1 ? "|" : ",";
                   const lines = text.split(/\r?\n/).filter(Boolean);
                   const hdrs = lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));
                   const get = (row,...keys) => { for(let i=0;i<keys.length;i++){const idx=hdrs.indexOf(keys[i].toLowerCase());if(idx>=0&&row[idx]!==undefined)return row[idx].toString().trim().replace(/^"|"$/g,"");} return ""; };
                   const imported = lines.slice(1).map(line=>{
-                    const row = sep==="\t" ? line.split("\t") : line.split(",");
-                    const name = get(row,"name","school name","institution name","schoolname");
+                    const row = sep==="\t" ? line.split("\t") : sep==="|" ? line.split("|") : line.split(",");
+                    const name = get(row,"institution name","name","school name","schoolname","institutionname");
                     if (!name) return null;
                     return {
                       id: uid(),
                       name,
-                      emis:       get(row,"emis","emiscode","emis code","emis number"),
-                      province:   get(row,"province") || "NC",
-                      district:   get(row,"district"),
-                      circuit:    get(row,"circuit"),
-                      capacity:   get(row,"capacity","permanent capacity"),
-                      mobiles:    get(row,"mobiles","mobile classrooms","mobile classes"),
-                      mobileCap:  get(row,"mobilecap","per mobile","capacity per mobile") || "35",
-                      enrolment:  get(row,"enrolment","enrollment","total enrolment","learners"),
-                      teachers:   get(row,"teachers","number of teachers","no of teachers"),
-                      risk:       get(row,"risk","risk level") || "Low",
+                      emis:         get(row,"emiscode","emis","emis code","emis number"),
+                      province:     get(row,"province") || "NC",
+                      district:     get(row,"district"),
+                      circuit:      get(row,"circuit"),
+                      sector:       get(row,"sector","legal status"),
+                      phase:        get(row,"institution phase","phase"),
+                      type:         get(row,"institution type","type"),
+                      status:       get(row,"practical status of the institution","status"),
+                      city:         get(row,"city/town","city","town"),
+                      postalCode:   get(row,"postal code"),
+                      poBox:        get(row,"p o box","po box"),
+                      privateBag:   get(row,"private bag"),
+                      postOffice:   get(row,"post office"),
+                      telCode1:     get(row,"telcode1","tel code 1"),
+                      telephone1:   get(row,"telephone1","telephone 1"),
+                      telCode2:     get(row,"telcode2","tel code 2"),
+                      telephone2:   get(row,"telephone2","telephone 2"),
+                      email:        get(row,"email"),
+                      emailAlt:     get(row,"emailalt","email alt"),
+                      longitude:    get(row,"longitude","long"),
+                      latitude:     get(row,"latitude","lat"),
+                      examCentreNo: get(row,"examcentrenumber","exam centre number","examcentreno"),
+                      examCentre:   get(row,"examcentre","exam centre"),
+                      landOwnership:get(row,"landownership","land ownership"),
+                      capacity:     "",
+                      mobiles:      "",
+                      mobileCap:    "35",
+                      enrolment:    "",
+                      teachers:     "",
+                      risk:         "Low",
                     };
                   }).filter(Boolean);
                   if (imported.length > 0) {
@@ -891,10 +911,10 @@ function App() {
                   }
                   e.target.value = "";
                 };
-                reader.readAsText(file);
+                reader.readAsText(file, "windows-1252");
               }} style={{display:"none"}}/>
             </label>
-            <ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Circuit","Capacity","Mobiles","MobileCap","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.circuit,s.capacity,s.mobiles,s.mobileCap,s.enrolment,s.teachers,s.risk])}/>
+            <ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Circuit","Sector","Phase","Status","City","Postal Code","Tel","Email","Latitude","Longitude","Exam Centre No","Exam Centre","Capacity","Mobiles","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.circuit,s.sector||"",s.phase||"",s.status||"",s.city||"",s.postalCode||"",(s.telCode1||"")+" "+(s.telephone1||""),s.email||"",s.latitude||"",s.longitude||"",s.examCentreNo||"",s.examCentre||"",s.capacity,s.mobiles,s.enrolment,s.teachers,s.risk])}/>
           </div>
         }/>
           <div style={{display:"grid",gap:"1rem"}}>
@@ -907,7 +927,10 @@ function App() {
                   <div style={{display:"flex",justifyContent:"space-between"}}>
                     <div>
                       <p style={{fontWeight:600,fontSize:15,margin:"0 0 4px",color:"#111827"}}>{s.name}</p>
-                      <p style={{fontSize:12,color:"#6B7280",margin:"0 0 10px"}}>EMIS: {s.emis} - {s.district}, {s.province}{s.circuit?" - Circuit: "+s.circuit:""}</p>
+                      <p style={{fontSize:12,color:"#6B7280",margin:"0 0 4px"}}>EMIS: {s.emis} - {s.district}, {s.province}{s.circuit?" - Circuit: "+s.circuit:""}</p>
+                      {(s.city||s.postalCode) && <p style={{fontSize:12,color:"#6B7280",margin:"0 0 4px"}}>{[s.city,s.postalCode].filter(Boolean).join(" ")}</p>}
+                      {(s.email||s.telephone1) && <p style={{fontSize:12,color:"#6B7280",margin:"0 0 4px"}}>{s.telephone1?("Tel: "+(s.telCode1||"")+" "+s.telephone1):""}{s.email?" | "+s.email:""}</p>}
+                      {(s.latitude||s.examCentre) && <p style={{fontSize:12,color:"#6B7280",margin:"0 0 6px"}}>{s.latitude&&s.longitude?"GPS: "+s.latitude+", "+s.longitude:""}{s.examCentre?" | Exam Centre: "+s.examCentre:""}</p>}
                       <div style={{display:"flex",gap:16,flexWrap:"wrap"}}>
                         {[["Enrolment",s.enrolment],["Teachers",s.teachers],["Capacity",s.capacity],["Mobiles",s.mobiles]].map(([l,v])=>(
                           <span key={l} style={{fontSize:12,color:"#6B7280"}}>{l}: <strong style={{color:"#111827"}}>{v||"--"}</strong></span>
