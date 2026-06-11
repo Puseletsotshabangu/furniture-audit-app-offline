@@ -850,16 +850,101 @@ function App() {
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             <label style={{fontSize:12,color:"#7C3AED",background:"#F5F3FF",border:"0.5px solid #DDD6FE",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}}>
               📂 Import CSV
-              <input type="file" accept=".csv,.txt,.tsv" onChange={e=>{
+              <input type="file" accept=".csv,.txt,.tsv"               onChange={e=>{
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
                 reader.onload = ev => {
-                  const text = ev.target.result;
-                  const sep = text.indexOf("\t") > -1 ? "\t" : text.indexOf("|") > -1 ? "|" : ",";
-                  const lines = text.split(/\r?\n/).filter(Boolean);
-                  const hdrs = lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));
-                  const get = (row,...keys) => { for(let i=0;i<keys.length;i++){const idx=hdrs.indexOf(keys[i].toLowerCase());if(idx>=0&&row[idx]!==undefined)return row[idx].toString().trim().replace(/^"|"$/g,"");} return ""; };
+                  try {
+                    const text = ev.target.result;
+                    // Auto-detect separator: tab, pipe, semicolon, comma
+                    const firstLine = text.split(/\r?\n/)[0] || "";
+                    const sep = firstLine.indexOf("\t")>-1 ? "\t"
+                              : firstLine.indexOf("|")>-1  ? "|"
+                              : firstLine.indexOf(";")>-1  ? ";"
+                              : ",";
+
+                    const lines = text.split(/\r?\n/).filter(l=>l.trim());
+                    if (lines.length < 2) { showToast("File appears empty or has only 1 row."); return; }
+
+                    // Clean and normalise headers
+                    const hdrs = lines[0].split(sep).map(h=>
+                      h.trim().toLowerCase()
+                       .replace(/['"]/g,"")
+                       .replace(/\s+/g," ")
+                    );
+
+                    const get = (row,...keys) => {
+                      for (let i=0;i<keys.length;i++){
+                        const idx = hdrs.indexOf(keys[i].toLowerCase().trim());
+                        if (idx>=0 && row[idx]!==undefined){
+                          return row[idx].toString().trim().replace(/^["']|["']$/g,"");
+                        }
+                      }
+                      return "";
+                    };
+
+                    const imported = lines.slice(1).map(line=>{
+                      if (!line.trim()) return null;
+                      const row = line.split(sep);
+                      const name = get(row,
+                        "institution name","name","school name",
+                        "schoolname","institutionname","institution_name");
+                      if (!name || name.length < 2) return null;
+                      return {
+                        id:           uid(),
+                        name,
+                        emis:         get(row,"emiscode","emis code","emis","emis_code"),
+                        province:     get(row,"province") || "NC",
+                        district:     get(row,"district"),
+                        circuit:      get(row,"circuit"),
+                        sector:       get(row,"sector","legal status"),
+                        phase:        get(row,"institution phase","phase","institutionphase"),
+                        type:         get(row,"institution type","type","institutiontype"),
+                        status:       get(row,"practical status of the institution","status","practical status"),
+                        city:         get(row,"city/town","city","town"),
+                        postalCode:   get(row,"postal code","postalcode"),
+                        poBox:        get(row,"p o box","po box","pobox","p.o.box"),
+                        privateBag:   get(row,"private bag","privatebag"),
+                        postOffice:   get(row,"post office","postoffice"),
+                        telCode1:     get(row,"telcode1","tel code 1","telcode 1"),
+                        telephone1:   get(row,"telephone1","telephone 1","tel1"),
+                        telCode2:     get(row,"telcode2","tel code 2","telcode 2"),
+                        telephone2:   get(row,"telephone2","telephone 2","tel2"),
+                        email:        get(row,"email"),
+                        emailAlt:     get(row,"emailalt","email alt","alternative email"),
+                        longitude:    get(row,"longitude","long"),
+                        latitude:     get(row,"latitude","lat"),
+                        examCentreNo: get(row,"examcentrenumber","exam centre number","examcentreno","examcentre number"),
+                        examCentre:   get(row,"examcentre","exam centre"),
+                        landOwnership:get(row,"landownership","land ownership","land_ownership"),
+                        capacity:     "",
+                        mobiles:      "",
+                        mobileCap:    "35",
+                        enrolment:    "",
+                        teachers:     "",
+                        risk:         "Low",
+                      };
+                    }).filter(Boolean);
+
+                    if (imported.length > 0) {
+                      setSchools(p => {
+                        const existing = new Set(p.map(s=>s.emis+s.name));
+                        const newOnes = imported.filter(s=>!existing.has(s.emis+s.name));
+                        return [...p, ...newOnes];
+                      });
+                      showToast(imported.length + " schools imported from " + file.name);
+                    } else {
+                      // Debug: show detected headers to help diagnose
+                      showToast("No schools found. Headers detected: " + hdrs.slice(0,5).join(" | "));
+                    }
+                  } catch(err) {
+                    showToast("Error reading file: " + err.message);
+                  }
+                  e.target.value = "";
+                };
+                reader.readAsText(file, "windows-1252");
+              }}
                   const imported = lines.slice(1).map(line=>{
                     const row = sep==="\t" ? line.split("\t") : sep==="|" ? line.split("|") : line.split(",");
                     const name = get(row,"institution name","name","school name","schoolname","institutionname");
