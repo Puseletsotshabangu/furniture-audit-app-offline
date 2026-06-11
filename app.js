@@ -854,37 +854,34 @@ function App() {
                 const file = e.target.files[0];
                 if (!file) return;
                 const reader = new FileReader();
-                reader.onload = ev => {
+                reader.onload = function(ev) {
                   try {
                     const text = ev.target.result;
-                    // Auto-detect separator: tab, pipe, semicolon, comma
                     const firstLine = text.split(/\r?\n/)[0] || "";
-                    const sep = firstLine.indexOf("\t")>-1 ? "\t"
-                              : firstLine.indexOf("|")>-1  ? "|"
-                              : firstLine.indexOf(";")>-1  ? ";"
-                              : ",";
+                    let sep = ",";
+                    if (firstLine.indexOf("\t") > -1) sep = "\t";
+                    else if (firstLine.indexOf("|") > -1) sep = "|";
+                    else if (firstLine.indexOf(";") > -1) sep = ";";
 
-                    const lines = text.split(/\r?\n/).filter(l=>l.trim());
+                    const lines = text.split(/\r?\n/).filter(function(l){ return l.trim(); });
                     if (lines.length < 2) { showToast("File appears empty or has only 1 row."); return; }
 
-                    // Clean and normalise headers
-                    const hdrs = lines[0].split(sep).map(h=>
-                      h.trim().toLowerCase()
-                       .replace(/['"]/g,"")
-                       .replace(/\s+/g," ")
-                    );
+                    const hdrs = lines[0].split(sep).map(function(h){
+                      return h.trim().toLowerCase().replace(/['"]/g,"").replace(/\s+/g," ");
+                    });
 
-                    const get = (row,...keys) => {
-                      for (let i=0;i<keys.length;i++){
+                    const get = function(row) {
+                      const keys = Array.prototype.slice.call(arguments, 1);
+                      for (let i = 0; i < keys.length; i++) {
                         const idx = hdrs.indexOf(keys[i].toLowerCase().trim());
-                        if (idx>=0 && row[idx]!==undefined){
+                        if (idx >= 0 && row[idx] !== undefined) {
                           return row[idx].toString().trim().replace(/^["']|["']$/g,"");
                         }
                       }
                       return "";
                     };
 
-                    const imported = lines.slice(1).map(line=>{
+                    const imported = lines.slice(1).map(function(line){
                       if (!line.trim()) return null;
                       const row = line.split(sep);
                       const name = get(row,
@@ -893,7 +890,7 @@ function App() {
                       if (!name || name.length < 2) return null;
                       return {
                         id:           uid(),
-                        name,
+                        name:         name,
                         emis:         get(row,"emiscode","emis code","emis","emis_code"),
                         province:     get(row,"province") || "NC",
                         district:     get(row,"district"),
@@ -904,20 +901,19 @@ function App() {
                         status:       get(row,"practical status of the institution","status","practical status"),
                         city:         get(row,"city/town","city","town"),
                         postalCode:   get(row,"postal code","postalcode"),
-                        poBox:        get(row,"p o box","po box","pobox","p.o.box"),
+                        poBox:        get(row,"p o box","po box","pobox"),
                         privateBag:   get(row,"private bag","privatebag"),
-                        postOffice:   get(row,"post office","postoffice"),
-                        telCode1:     get(row,"telcode1","tel code 1","telcode 1"),
+                        telCode1:     get(row,"telcode1","tel code 1"),
                         telephone1:   get(row,"telephone1","telephone 1","tel1"),
-                        telCode2:     get(row,"telcode2","tel code 2","telcode 2"),
+                        telCode2:     get(row,"telcode2","tel code 2"),
                         telephone2:   get(row,"telephone2","telephone 2","tel2"),
                         email:        get(row,"email"),
-                        emailAlt:     get(row,"emailalt","email alt","alternative email"),
+                        emailAlt:     get(row,"emailalt","email alt"),
                         longitude:    get(row,"longitude","long"),
                         latitude:     get(row,"latitude","lat"),
-                        examCentreNo: get(row,"examcentrenumber","exam centre number","examcentreno","examcentre number"),
+                        examCentreNo: get(row,"examcentrenumber","exam centre number","examcentreno"),
                         examCentre:   get(row,"examcentre","exam centre"),
-                        landOwnership:get(row,"landownership","land ownership","land_ownership"),
+                        landOwnership:get(row,"landownership","land ownership"),
                         capacity:     "",
                         mobiles:      "",
                         mobileCap:    "35",
@@ -928,18 +924,17 @@ function App() {
                     }).filter(Boolean);
 
                     if (imported.length > 0) {
-                      setSchools(p => {
-                        const existing = new Set(p.map(s=>s.emis+s.name));
-                        const newOnes = imported.filter(s=>!existing.has(s.emis+s.name));
-                        return [...p, ...newOnes];
+                      setSchools(function(p) {
+                        const existing = new Set(p.map(function(s){ return s.emis + s.name; }));
+                        const newOnes = imported.filter(function(s){ return !existing.has(s.emis + s.name); });
+                        return p.concat(newOnes);
                       });
                       showToast(imported.length + " schools imported from " + file.name);
                     } else {
-                      // Debug: show detected headers to help diagnose
-                      showToast("No schools found. Headers detected: " + hdrs.slice(0,5).join(" | "));
+                      showToast("No schools found. Headers: " + hdrs.slice(0,5).join(" | "));
                     }
                   } catch(err) {
-                    showToast("Error reading file: " + err.message);
+                    showToast("Error: " + err.message);
                   }
                   e.target.value = "";
                 };
