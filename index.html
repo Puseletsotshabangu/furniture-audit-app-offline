@@ -106,8 +106,8 @@ const initFurniture=[
   {id:2,classroomId:2,category:"Specialised",ftype:"Science Lab Table",spec:"Science Lab",chairType:"Lab Stool",available:20,damaged:3,repairable:3,otherType:"",otherQty:0,condition:"Good"},
 ];
 const initRepairs=[
-  {id:1,furnitureId:1,repairType:"Minor",destination:"Warehouse",qty:5,status:"Completed",allocated:"2024-03-20",completed:"2024-04-01"},
-  {id:2,furnitureId:2,repairType:"Major",destination:"Labour Dept",qty:3,status:"In Progress",allocated:"2024-04-10",completed:""},
+  {id:1,furnitureId:1,repairType:"Minor",destination:"Warehouse",qty:5,collectedQty:5,collectedDate:"2024-03-18",collectedBy:"T. Mokoena",status:"Completed",allocated:"2024-03-20",completed:"2024-04-01"},
+  {id:2,furnitureId:2,repairType:"Major",destination:"Labour Dept",qty:3,collectedQty:3,collectedDate:"2024-04-08",collectedBy:"S. Dlamini",status:"In Progress",allocated:"2024-04-10",completed:""},
 ];
 const initStorage=[{id:1,schoolId:1,room:"Store 1",condition:"Fair",secure:"Yes",storedType:"Old Desks",qty:20,usable:"No",desc:"Old damaged desks"}];
 const initDistribution=[{id:1,schoolId:1,destination:"Warehouse",desc:"Double Desks",qty:10,source:"School",official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001"}];
@@ -273,11 +273,78 @@ function SchoolPicker({schools,value,onChange}){
 
 
 const DBE_CHAIRS=["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility Steel Frame","Lab Stool","Upholstered","N/A"];
+
+// ── Grade to desk size mapping ────────────────────────────────────────────────
+const GRADE_DESK_MAP={
+  "R":  {size:"Size 1",grade:"Grade R",seat:"260mm",types:["Single Learner Desk Size 1 Grade R seat 260mm Supawood Top","Single Learner Desk Size 1 Grade R seat 260mm Saligna Top","Single Learner Desk Size 1 Grade R seat 260mm Melamine Top","Combination Desk and Chair Size 1 Grade R seat 260mm Supawood Top"]},
+  "1":  {size:"Size 2",grade:"Grade 1-3",seat:"310mm",types:["Single Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Melamine Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top","Combination Desk and Chair Size 2 Grade 1-3 seat 310mm Supawood Top"]},
+  "2":  {size:"Size 2",grade:"Grade 1-3",seat:"310mm",types:["Single Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Melamine Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top"]},
+  "3":  {size:"Size 2",grade:"Grade 1-3",seat:"310mm",types:["Single Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top","Single Learner Desk Size 2 Grade 1-3 seat 310mm Melamine Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Supawood Top","Double Learner Desk Size 2 Grade 1-3 seat 310mm Saligna Top"]},
+  "4":  {size:"Size 3",grade:"Grade 4-6",seat:"350mm",types:["Single Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Saligna Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Melamine Top","Double Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Combination Desk and Chair Size 3 Grade 4-6 Supawood Top","Combination Desk and Chair Size 3 Grade 4-6 Saligna Top","Combination Desk and Chair Size 3 Grade 4-6 Melamine Top"]},
+  "5":  {size:"Size 3",grade:"Grade 4-6",seat:"350mm",types:["Single Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Saligna Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Melamine Top","Double Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Combination Desk and Chair Size 3 Grade 4-6 Supawood Top","Combination Desk and Chair Size 3 Grade 4-6 Saligna Top"]},
+  "6":  {size:"Size 3",grade:"Grade 4-6",seat:"350mm",types:["Single Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Saligna Top","Single Learner Desk Size 3 Grade 4-6 seat 350mm Melamine Top","Double Learner Desk Size 3 Grade 4-6 seat 350mm Supawood Top","Combination Desk and Chair Size 3 Grade 4-6 Supawood Top"]},
+  "7":  {size:"Size 4",grade:"Grade 7-9",seat:"380mm",types:["Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Supawood Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Saligna Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Melamine Top","Combination Desk and Chair Size 4 Grade 7-9 Supawood Top","Combination Desk and Chair Size 4 Grade 7-9 Saligna Top","Combination Desk and Chair Size 4 Grade 7-9 Melamine Top"]},
+  "8":  {size:"Size 4",grade:"Grade 7-9",seat:"380mm",types:["Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Supawood Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Saligna Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Melamine Top","Combination Desk and Chair Size 4 Grade 7-9 Supawood Top","Combination Desk and Chair Size 4 Grade 7-9 Saligna Top"]},
+  "9":  {size:"Size 4",grade:"Grade 7-9",seat:"380mm",types:["Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Supawood Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Saligna Top","Single Learner Desk Size 4 Grade 7-9 Senior seat 380mm Melamine Top","Combination Desk and Chair Size 4 Grade 7-9 Supawood Top","Combination Desk and Chair Size 4 Grade 7-9 Saligna Top"]},
+  "10": {size:"Size 5",grade:"Grade 10-12",seat:"430mm",types:["Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Supawood Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Saligna Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Melamine Top","Combination Desk and Chair Size 5 Grade 10-12 FET Supawood Top","Combination Desk and Chair Size 5 Grade 10-12 FET Saligna Top","Combination Desk and Chair Size 5 Grade 10-12 FET Melamine Top"]},
+  "11": {size:"Size 5",grade:"Grade 10-12",seat:"430mm",types:["Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Supawood Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Saligna Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Melamine Top","Combination Desk and Chair Size 5 Grade 10-12 FET Supawood Top","Combination Desk and Chair Size 5 Grade 10-12 FET Saligna Top"]},
+  "12": {size:"Size 5",grade:"Grade 10-12",seat:"430mm",types:["Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Supawood Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Saligna Top","Single Learner Desk Size 5 Grade 10-12 FET seat 430mm Melamine Top","Combination Desk and Chair Size 5 Grade 10-12 FET Supawood Top","Combination Desk and Chair Size 5 Grade 10-12 FET Saligna Top"]},
+};
+
+// Grade picker with auto desk suggestion
+function GradeDeskPicker({grade,ftype,onGradeChange,onFtypeChange}){
+  var e=React.createElement;
+  var gradeKey=(grade||"").toString().trim().replace(/grade\s*/i,"");
+  var match=GRADE_DESK_MAP[gradeKey];
+  return e("div",null,
+    e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12,marginBottom:match?8:0}},
+      e(Field,{label:"Grade"},
+        e("select",{style:inp,value:grade,onChange:onGradeChange},
+          e("option",{value:""},"Select grade..."),
+          ["R","1","2","3","4","5","6","7","8","9","10","11","12"].map(function(g){
+            return e("option",{key:g,value:g},"Grade "+g);
+          })
+        )
+      ),
+      match&&e(Field,{label:"DBE Desk size for this grade"},
+        e("div",{style:{padding:"8px 12px",background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",border:"0.5px solid #BFDBFE",borderRadius:8,fontSize:13,color:"#1E40AF",fontWeight:500}},
+          match.size+" (seat "+match.seat+") — "+match.grade
+        )
+      )
+    ),
+    match&&e("div",null,
+      e("label",{style:{fontSize:12,color:"#6B7280",marginBottom:4,display:"block"}},"Select desk/combination type for "+("Grade "+gradeKey)),
+      e("select",{style:Object.assign({},inp,{marginBottom:8}),value:ftype,onChange:onFtypeChange},
+        e("option",{value:""},"Select desk type..."),
+        match.types.map(function(t){return e("option",{key:t,value:t},t);}),
+        e("option",{value:"Other"},"Other — specify")
+      ),
+      e("div",{style:{display:"flex",flexWrap:"wrap",gap:6,marginBottom:8}},
+        match.types.slice(0,4).map(function(t){
+          var isSelected=ftype===t;
+          var isCombo=t.toLowerCase().includes("combination");
+          var isSingle=t.toLowerCase().includes("single");
+          var isDouble=t.toLowerCase().includes("double");
+          var label=isCombo?"Combo desk+chair":isDouble?"Double desk":isSingle?"Single desk":"Desk";
+          var top=t.includes("Supawood")?"Supawood":t.includes("Saligna")?"Saligna":t.includes("Melamine")?"Melamine":"";
+          return e("button",{key:t,onClick:function(ev){ev.preventDefault();onFtypeChange({target:{value:t}});},
+            style:{padding:"5px 12px",borderRadius:999,fontSize:11,cursor:"pointer",fontWeight:isSelected?700:400,
+              background:isSelected?"linear-gradient(135deg,#2563EB,#1D4ED8)":"#F3F4F6",
+              color:isSelected?"#fff":"#374151",
+              border:isSelected?"none":"0.5px solid #D1D5DB"}},
+            label+(top?" ("+top+")":"")
+          );
+        })
+      )
+    )
+  );
+}
+
 function ClassroomFurnitureForm({schools,classrooms,initial,onSave,onClose}){
   var ts=useState("classroom");var tab=ts[0];var setTab=ts[1];
   var rs=useState(initial||{schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
   var room=rs[0];var setRoom=rs[1];
-  var fs=useState({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",otherType:"",condition:"Good"});
+  var fs=useState({category:"Learner",ftype:"",grade:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",otherType:"",condition:"Good"});
   var furn=fs[0];var setFurn=fs[1];
   var ls=useState([]);var furnList=ls[0];var setFurnList=ls[1];
   var as=useState(false);var addingFurn=as[0];var setAddingFurn=as[1];
@@ -379,7 +446,7 @@ function SchoolCaptureForm({schools,audits,classrooms,furniture,conditions,repai
   var rl=useState({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
   var roomForm=rl[0];var setRoomForm=rl[1];
   function sr(k){return function(e){setRoomForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
-  var fl=useState({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",condition:"Good"});
+  var fl=useState({category:"Learner",ftype:"",grade:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",condition:"Good"});
   var furnForm=fl[0];var setFurnForm=fl[1];
   function sfn(k){return function(e){setFurnForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
   var al=useState(false);var addingRoom=al[0];var setAddingRoom=al[1];
@@ -613,11 +680,15 @@ function SchoolCaptureForm({schools,audits,classrooms,furniture,conditions,repai
             e(Field,{label:"Category"},e("select",{style:inp,value:furnForm.category,onChange:sfn("category")},["Learner","Admin","Specialised"].map(function(v){return e("option",{key:v},v);}))),
             e(Field,{label:"Condition"},e("select",{style:inp,value:furnForm.condition,onChange:sfn("condition")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);})))
           ),
-          e(Field,{label:"DBE Furniture type"},e("select",{style:inp,value:furnForm.ftype,onChange:sfn("ftype")},
-            e("option",{value:""},"Select..."),
-            DBE_FURNITURE.map(function(v){return e("option",{key:v,value:v},v);}),
-            e("option",{value:"Other"},"Other")
-          )),
+          furnForm.category==="Learner"
+          ?e(GradeDeskPicker,{grade:furnForm.grade||"",ftype:furnForm.ftype,
+              onGradeChange:function(ev){setFurnForm(function(p){return Object.assign({},p,{grade:ev.target.value,ftype:""});});},
+              onFtypeChange:sfn("ftype")})
+          :e(Field,{label:"DBE Furniture type"},e("select",{style:inp,value:furnForm.ftype,onChange:sfn("ftype")},
+              e("option",{value:""},"Select..."),
+              DBE_FURNITURE.map(function(v){return e("option",{key:v,value:v},v);}),
+              e("option",{value:"Other"},"Other")
+            )),
           e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
             e(Field,{label:"Available"},e("input",{style:inp,type:"number",value:furnForm.available,onChange:sfn("available")})),
             e(Field,{label:"Damaged"},e("input",{style:inp,type:"number",value:furnForm.damaged,onChange:sfn("damaged")})),
@@ -695,8 +766,14 @@ function SchoolCaptureForm({schools,audits,classrooms,furniture,conditions,repai
           e(Field,{label:"Destination"},e("select",{style:inp,value:repairForm.destination,onChange:srp("destination")},["Warehouse","Labour Dept"].map(function(v){return e("option",{key:v},v);})))
         ),
         e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
-          e(Field,{label:"Quantity"},e("input",{style:inp,type:"number",value:repairForm.qty,onChange:srp("qty")})),
+          e(Field,{label:"Qty for repair"},e("input",{style:inp,type:"number",value:repairForm.qty,onChange:srp("qty")})),
           e(Field,{label:"Status"},e("select",{style:inp,value:repairForm.status,onChange:srp("status")},["Pending","In Progress","Completed"].map(function(v){return e("option",{key:v},v);})))
+        ),
+        e("div",{style:{background:"linear-gradient(135deg,#ECFDF5,#D1FAE5)",border:"0.5px solid #A7F3D0",borderRadius:8,padding:"8px 12px",margin:"4px 0",fontSize:12,color:"#065F46",fontWeight:500}},"Collection from school"),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+          e(Field,{label:"Qty collected"},e("input",{style:inp,type:"number",value:repairForm.collectedQty||"",onChange:srp("collectedQty"),placeholder:"0"})),
+          e(Field,{label:"Date collected"},e("input",{style:inp,type:"date",value:repairForm.collectedDate||"",onChange:srp("collectedDate")})),
+          e(Field,{label:"Collected by"},e("input",{style:inp,value:repairForm.collectedBy||"",onChange:srp("collectedBy"),placeholder:"Official name"}))
         ),
         e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
           e(Field,{label:"Date allocated"},e("input",{style:inp,type:"date",value:repairForm.allocated,onChange:srp("allocated")})),
@@ -771,13 +848,13 @@ function ConditionForm({classrooms,schools,initial,onSave,onClose}){
   );
 }
 function RepairForm({furniture,initial,onSave,onClose}){
-  const[f,setF]=useState(initial||{furnitureId:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""});
+  const[f,setF]=useState(initial||{furnitureId:"",repairType:"Minor",destination:"Warehouse",qty:"",collectedQty:"",collectedDate:"",collectedBy:"",status:"Pending",allocated:"",completed:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit repair":"Log repair",onClose,onSave:()=>onSave(f)},
     React.createElement(Field,{label:"Furniture item"},React.createElement("select",{style:sel,value:f.furnitureId,onChange:s("furnitureId")},React.createElement("option",{value:""},"Select"),furniture.map(fu=>React.createElement("option",{key:fu.id,value:fu.id},fu.ftype+" "+fu.spec)))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Repair type"},React.createElement("select",{style:sel,value:f.repairType,onChange:s("repairType")},["Minor","Major"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Destination"},React.createElement("select",{style:sel,value:f.destination,onChange:s("destination")},["Warehouse","Labour Dept"].map(v=>React.createElement("option",{key:v},v))))),
-    React.createElement(Row2,null,React.createElement(Field,{label:"Quantity"},React.createElement("input",{style:inp,type:"number",value:f.qty,onChange:s("qty")})),React.createElement(Field,{label:"Status"},React.createElement("select",{style:sel,value:f.status,onChange:s("status")},["Pending","In Progress","Completed"].map(v=>React.createElement("option",{key:v},v))))),
-    React.createElement(Row2,null,React.createElement(Field,{label:"Date allocated"},React.createElement("input",{style:inp,type:"date",value:f.allocated,onChange:s("allocated")})),React.createElement(Field,{label:"Date completed"},React.createElement("input",{style:inp,type:"date",value:f.completed,onChange:s("completed")})))
+    React.createElement(Row2,null,React.createElement(Field,{label:"Quantity for repair"},React.createElement("input",{style:inp,type:"number",value:f.qty,onChange:s("qty")})),React.createElement(Field,{label:"Status"},React.createElement("select",{style:sel,value:f.status,onChange:s("status")},["Pending","In Progress","Completed"].map(v=>React.createElement("option",{key:v},v))))),React.createElement("div",{style:{background:"linear-gradient(135deg,#ECFDF5,#D1FAE5)",border:"0.5px solid #A7F3D0",borderRadius:10,padding:"8px 14px",margin:"8px 0",fontSize:12,color:"#065F46",fontWeight:600}},"Collection from school"),React.createElement(Row3,null,React.createElement(Field,{label:"Qty collected from school"},React.createElement("input",{style:inp,type:"number",value:f.collectedQty,onChange:s("collectedQty"),placeholder:"0"})),React.createElement(Field,{label:"Date collected"},React.createElement("input",{style:inp,type:"date",value:f.collectedDate,onChange:s("collectedDate")})),React.createElement(Field,{label:"Collected by"},React.createElement("input",{style:inp,value:f.collectedBy,onChange:s("collectedBy"),placeholder:"Name of official"}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"Date allocated for repair"},React.createElement("input",{style:inp,type:"date",value:f.allocated,onChange:s("allocated")})),React.createElement(Field,{label:"Date completed"},React.createElement("input",{style:inp,type:"date",value:f.completed,onChange:s("completed")})))
   );
 }
 function StorageForm({schools,initial,onSave,onClose}){
@@ -894,7 +971,7 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     {label:"Classrooms",desc:"All classroom records",icon:"🚪",file:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])},
     {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})},
     {label:"Conditions",desc:"Infrastructure assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
-    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})},
+    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["Furniture","Type","Destination","Qty","Collected","Collected By","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.collectedQty||"0",r.collectedBy||"",r.status,r.allocated,r.completed||""];})},
     {label:"Warehouse",desc:"New furniture deliveries",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Type","Qty","Condition","Ref","Status"],rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status])},
     {label:"Storage",desc:"Storage room records",icon:"📦",file:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])},
     {label:"Distribution",desc:"Delivery and collection",icon:"🚚",file:"distribution.csv",cols:["School","Purpose","Description","Qty","Destination","Official","Date","Ref"],rows:distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref])},
@@ -1094,9 +1171,21 @@ function App(){
     React.createElement("div",null,cfRows)
   );
 }
-    case "furniture":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Furniture inventory",onAdd:()=>{setEditTarget(null);setModal("furniture");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},React.createElement(StatCard,{label:"Total available",value:furniture.reduce((a,f)=>a+Number(f.available||0),0),color:"#2563EB"}),React.createElement(StatCard,{label:"Damaged",value:furniture.reduce((a,f)=>a+Number(f.damaged||0),0),color:"#DC2626"}),React.createElement(StatCard,{label:"Repairable",value:furniture.reduce((a,f)=>a+Number(f.repairable||0),0),color:"#D97706"})),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition","Actions"],rows:furniture,renderRow:r=>{const cl=classrooms.find(c=>c.id==r.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",r.category,r.ftype,r.available,r.damaged,r.repairable,React.createElement(Badge,{val:r.condition}),React.createElement(RowActions,{onEdit:()=>openEdit("furniture",r),onDelete:()=>del(setFurniture)(r.id)})];}})));
+    case "furniture":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Furniture inventory",onAdd:()=>{setEditTarget(null);setModal("furniture");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},React.createElement(StatCard,{label:"Total available",value:furniture.reduce((a,f)=>a+Number(f.available||0),0),color:"#2563EB"}),React.createElement(StatCard,{label:"Damaged",value:furniture.reduce((a,f)=>a+Number(f.damaged||0),0),color:"#DC2626"}),React.createElement(StatCard,{label:"Repairable",value:furniture.reduce((a,f)=>a+Number(f.repairable||0),0),color:"#D97706"})),React.createElement("details",{style:{marginBottom:"1rem"}},
+      React.createElement("summary",{style:{cursor:"pointer",fontSize:13,fontWeight:600,color:"#2563EB",padding:"8px 14px",background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",borderRadius:8,border:"0.5px solid #BFDBFE",listStyle:"none"}},"DBE Desk size reference by grade — click to expand"),
+      React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:8,padding:"12px",background:"#F9FAFB",border:"0.5px solid #E0E7EF",borderRadius:"0 0 8px 8px",marginTop:4}},
+        [["Grade R","Size 1","260mm","Single/Combo"],["Grade 1-3","Size 2","310mm","Single/Double/Combo"],["Grade 4-6","Size 3","350mm","Single/Double/Combo"],["Grade 7-9","Size 4","380mm","Single/Combo"],["Grade 10-12","Size 5","430mm","Single/Combo"]].map(function(item){
+          return React.createElement("div",{key:item[0],style:{background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",borderRadius:8,padding:"10px 8px",textAlign:"center",border:"0.5px solid #BFDBFE"}},
+            React.createElement("p",{style:{fontSize:10,color:"#6B7280",margin:"0 0 2px"}},item[0]),
+            React.createElement("p",{style:{fontSize:16,fontWeight:700,color:"#1E40AF",margin:"0 0 2px"}},item[1]),
+            React.createElement("p",{style:{fontSize:11,color:"#3B82F6",margin:"0 0 2px"}},"seat "+item[2]),
+            React.createElement("p",{style:{fontSize:9,color:"#6B7280",margin:0}},item[3])
+          );
+        })
+      )
+    ),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition","Actions"],rows:furniture,renderRow:r=>{const cl=classrooms.find(c=>c.id==r.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",r.category,r.ftype,r.available,r.damaged,r.repairable,React.createElement(Badge,{val:r.condition}),React.createElement(RowActions,{onEdit:()=>openEdit("furniture",r),onDelete:()=>del(setFurniture)(r.id)})];}})));
     case "conditions":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Condition assessments",onAdd:()=>{setEditTarget(null);setModal("condition");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Flooring","Issues","Windows","Elec","Locks","Actions"],rows:conditions,renderRow:c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",React.createElement(Badge,{val:c.flooring}),c.flooringIssues||"--",React.createElement(Badge,{val:c.windows}),React.createElement(Badge,{val:c.electricity}),React.createElement(Badge,{val:c.locks}),React.createElement(RowActions,{onEdit:()=>openEdit("condition",c),onDelete:()=>del(setConditions)(c.id)})];}})));
-    case "repairs":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Repairs and refurbishment",onAdd:()=>{setEditTarget(null);setModal("repair");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"repairs.csv",cols:["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},["Completed","In Progress","Pending"].map(st=>React.createElement(StatCard,{key:st,label:st,value:repairs.filter(r=>r.status===st).length,color:st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}))),React.createElement(Card,null,React.createElement(DataTable,{cols:["Furniture","Type","Destination","Qty","Status","Allocated","Completed","Actions"],rows:repairs,renderRow:r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"--",r.repairType,r.destination,r.qty,React.createElement(Badge,{val:r.status}),r.allocated,r.completed||"--",React.createElement(RowActions,{onEdit:()=>openEdit("repair",r),onDelete:()=>del(setRepairs)(r.id)})];}})));
+    case "repairs":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Repairs and refurbishment",onAdd:()=>{setEditTarget(null);setModal("repair");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"repairs.csv",cols:["Furniture","Type","Destination","Qty","Collected","Collected By","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.collectedQty||"0",r.collectedBy||"",r.status,r.allocated,r.completed||""];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},["Completed","In Progress","Pending"].map(st=>React.createElement(StatCard,{key:st,label:st,value:repairs.filter(r=>r.status===st).length,color:st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}),React.createElement(StatCard,{label:"Total collected",value:repairs.reduce((a,r)=>a+Number(r.collectedQty||0),0),sub:"Items from schools",color:"#7C3AED"}))),React.createElement(Card,null,React.createElement(DataTable,{cols:["Furniture","Type","Dest","Qty","Collected","Collected By","Status","Allocated","Completed","Actions"],rows:repairs,renderRow:r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"--",r.repairType,r.destination,r.qty,React.createElement("span",{style:{fontWeight:600,color:"#059669"}},r.collectedQty||"0"),r.collectedBy||"--",React.createElement(Badge,{val:r.status}),r.allocated,r.completed||"--",React.createElement(RowActions,{onEdit:()=>openEdit("repair",r),onDelete:()=>del(setRepairs)(r.id)})];}})));
     case "warehouse":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Warehouse new furniture",onAdd:()=>{setEditTarget(null);setModal("warehouse");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"warehouse.csv",cols:["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"],rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},React.createElement(StatCard,{label:"In stock",value:warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0),color:"#059669"}),React.createElement(StatCard,{label:"Reserved",value:warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0),color:"#D97706"}),React.createElement(StatCard,{label:"Dispatched",value:warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0),color:"#2563EB"})),React.createElement(Card,null,React.createElement(DataTable,{cols:["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes","Actions"],rows:warehouse,renderRow:w=>[w.date,w.supplier,w.ftype,w.qty,React.createElement(Badge,{val:w.condition}),w.ref,React.createElement(Badge,{val:w.status}),React.createElement("span",{style:{fontSize:12,color:"#6B7280"}},w.notes),React.createElement(RowActions,{onEdit:()=>openEdit("warehouse",w),onDelete:()=>del(setWarehouse)(w.id)})]})));
     case "storage":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Storage",onAdd:()=>{setEditTarget(null);setModal("storage");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Condition","Secure","Stored items","Qty","Usable","Actions"],rows:storage,renderRow:r=>[scName(r.schoolId),r.room,React.createElement(Badge,{val:r.condition}),React.createElement(Badge,{val:r.secure}),r.storedType,r.qty,React.createElement(Badge,{val:r.usable}),React.createElement(RowActions,{onEdit:()=>openEdit("storage",r),onDelete:()=>del(setStorage)(r.id)})]})));
     case "distribution":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Distribution",onAdd:()=>{setEditTarget(null);setModal("distribution");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"distribution.csv",cols:["School","Purpose","Description","Qty","Destination","Official","Date","Ref"],rows:distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref])})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Purpose","Description","Qty","Official","Date","Ref","Actions"],rows:distribution,renderRow:r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.official,r.date,r.ref,React.createElement(RowActions,{onEdit:()=>openEdit("distribution",r),onDelete:()=>del(setDistribution)(r.id)})]})));
