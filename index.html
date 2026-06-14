@@ -202,6 +202,75 @@ function RowActions({onEdit,onDelete}){
 }
 
 // ─── Forms ───────────────────────────────────────────────────────────────────
+
+// ── School search picker ──────────────────────────────────────────────────────
+function SchoolPicker({schools,value,onChange}){
+  const[q,setQ]=useState("");
+  const[open,setOpen]=useState(false);
+  const selected=schools.find(s=>String(s.id)===String(value));
+  const filtered=q.trim()===""?schools:schools.filter(s=>
+    s.name.toLowerCase().includes(q.toLowerCase())||
+    (s.emis||"").includes(q)||
+    (s.district||"").toLowerCase().includes(q.toLowerCase())
+  );
+  return React.createElement("div",{style:{position:"relative"}},
+    // Display box
+    React.createElement("div",{
+      onClick:()=>setOpen(o=>!o),
+      style:{width:"100%",padding:"7px 10px",border:"0.5px solid #D1D5DB",borderRadius:8,
+        fontSize:13,boxSizing:"border-box",background:"#fff",color:selected?"#111827":"#9CA3AF",
+        cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center",userSelect:"none"}
+    },
+      React.createElement("span",null,selected?selected.name:"Select school..."),
+      React.createElement("span",{style:{color:"#9CA3AF",fontSize:10}},open?"▲":"▼")
+    ),
+    // Dropdown
+    open&&React.createElement("div",{style:{position:"absolute",top:"100%",left:0,right:0,zIndex:999,
+      background:"#fff",border:"0.5px solid #D1D5DB",borderRadius:8,boxShadow:"0 8px 24px rgba(0,0,0,0.15)",
+      maxHeight:280,display:"flex",flexDirection:"column"}},
+      // Search input
+      React.createElement("div",{style:{padding:"8px 10px",borderBottom:"0.5px solid #F3F4F6"}},
+        React.createElement("input",{
+          autoFocus:true,
+          placeholder:"Type school name, EMIS or district...",
+          value:q,
+          onChange:e=>setQ(e.target.value),
+          style:{width:"100%",padding:"6px 10px",border:"0.5px solid #BFDBFE",borderRadius:6,
+            fontSize:13,boxSizing:"border-box",background:"#EFF6FF",outline:"none"},
+          onClick:e=>e.stopPropagation()
+        })
+      ),
+      // Options list
+      React.createElement("div",{style:{overflowY:"auto",flex:1}},
+        React.createElement("div",{
+          onClick:()=>{onChange("");setOpen(false);setQ("");},
+          style:{padding:"8px 12px",fontSize:13,color:"#9CA3AF",cursor:"pointer",
+            borderBottom:"0.5px solid #F9FAFB"}
+        },"— Select school —"),
+        filtered.length===0
+          ?React.createElement("div",{style:{padding:"12px",fontSize:13,color:"#9CA3AF",textAlign:"center"}},
+            "No schools match \""+q+"\"")
+          :filtered.map(s=>React.createElement("div",{
+              key:s.id,
+              onClick:()=>{onChange(String(s.id));setOpen(false);setQ("");},
+              style:{padding:"8px 12px",fontSize:13,cursor:"pointer",
+                background:String(s.id)===String(value)?"#EFF6FF":"#fff",
+                color:String(s.id)===String(value)?"#2563EB":"#111827",
+                borderBottom:"0.5px solid #F9FAFB"}
+            },
+            React.createElement("div",{style:{fontWeight:500}},s.name),
+            React.createElement("div",{style:{fontSize:11,color:"#9CA3AF",marginTop:1}},
+              [s.emis,s.district].filter(Boolean).join(" · "))
+          ))
+      ),
+      // Result count
+      filtered.length>0&&React.createElement("div",{style:{padding:"6px 12px",
+        borderTop:"0.5px solid #F3F4F6",fontSize:11,color:"#9CA3AF",background:"#FAFAFA"}},
+        filtered.length+" school"+(filtered.length===1?"":"s")+(q?" matching \""+q+"\"":""))
+    )
+  );
+}
+
 function SchoolForm({initial,onSave,onClose}){
   const[f,setF]=useState(initial||{name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
@@ -217,7 +286,7 @@ function AuditForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit audit":"New audit",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select school"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"Year"},React.createElement("input",{style:inp,type:"number",value:f.year,onChange:s("year")}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"Year"},React.createElement("input",{style:inp,type:"number",value:f.year,onChange:s("year")}))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Date"},React.createElement("input",{style:inp,type:"date",value:f.date,onChange:s("date")})),React.createElement(Field,{label:"Risk level"},React.createElement("select",{style:sel,value:f.risk,onChange:s("risk")},["Low","Medium","High"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Row3,null,React.createElement(Field,{label:"Cap with mobiles"},React.createElement("input",{style:inp,type:"number",value:f.capWith,onChange:s("capWith")})),React.createElement(Field,{label:"Cap without mobiles"},React.createElement("input",{style:inp,type:"number",value:f.capWithout,onChange:s("capWithout")})),React.createElement(Field,{label:"Overcapacity"},React.createElement("select",{style:sel,value:f.overcapacity,onChange:s("overcapacity")},["Yes","No"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Field,{label:"Recommendations"},React.createElement("textarea",{style:{...inp,minHeight:60,resize:"vertical"},value:f.recommendations,onChange:s("recommendations")})),
@@ -228,7 +297,7 @@ function ClassroomForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit classroom":"Add classroom",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"Room number"},React.createElement("input",{style:inp,value:f.room,onChange:s("room")}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"Room number"},React.createElement("input",{style:inp,value:f.room,onChange:s("room")}))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Room type"},React.createElement("select",{style:sel,value:f.type,onChange:s("type")},["Classroom","Lab","Office","Storage"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Is mobile?"},React.createElement("select",{style:sel,value:f.isMobile,onChange:s("isMobile")},["Yes","No"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Row3,null,React.createElement(Field,{label:"Grade R-12"},React.createElement("input",{style:inp,value:f.grade,onChange:s("grade")})),React.createElement(Field,{label:"Spec e.g. 4E1"},React.createElement("input",{style:inp,value:f.spec,onChange:s("spec")})),React.createElement(Field,{label:"Learner count"},React.createElement("input",{style:inp,type:"number",value:f.learners,onChange:s("learners")})))
   );
@@ -272,7 +341,7 @@ function StorageForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",room:"",condition:"Good",secure:"Yes",storedType:"",qty:"",usable:"No",desc:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit storage":"Add storage record",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"Room number"},React.createElement("input",{style:inp,value:f.room,onChange:s("room")}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"Room number"},React.createElement("input",{style:inp,value:f.room,onChange:s("room")}))),
     React.createElement(Row3,null,React.createElement(Field,{label:"Condition"},React.createElement("select",{style:sel,value:f.condition,onChange:s("condition")},["Good","Fair","Poor"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Secure?"},React.createElement("select",{style:sel,value:f.secure,onChange:s("secure")},["Yes","No"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Usable?"},React.createElement("select",{style:sel,value:f.usable,onChange:s("usable")},["Yes","No"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Stored type"},React.createElement("input",{style:inp,value:f.storedType,onChange:s("storedType")})),React.createElement(Field,{label:"Quantity"},React.createElement("input",{style:inp,type:"number",value:f.qty,onChange:s("qty")}))),
     React.createElement(Field,{label:"Description"},React.createElement("textarea",{style:{...inp,minHeight:50,resize:"vertical"},value:f.desc,onChange:s("desc")}))
@@ -282,7 +351,7 @@ function DistributionForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",destination:"",desc:"",qty:"",source:"",official:"",position:"",receiver:"",role:"",date:"",purpose:"Delivery",ref:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit distribution":"Add distribution record",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"Purpose"},React.createElement("select",{style:sel,value:f.purpose,onChange:s("purpose")},["Delivery","Collection","Repair"].map(v=>React.createElement("option",{key:v},v))))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"Purpose"},React.createElement("select",{style:sel,value:f.purpose,onChange:s("purpose")},["Delivery","Collection","Repair"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Destination"},React.createElement("input",{style:inp,value:f.destination,onChange:s("destination")})),React.createElement(Field,{label:"Source location"},React.createElement("input",{style:inp,value:f.source,onChange:s("source")}))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Description"},React.createElement("input",{style:inp,value:f.desc,onChange:s("desc")})),React.createElement(Field,{label:"Quantity"},React.createElement("input",{style:inp,type:"number",value:f.qty,onChange:s("qty")}))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Official name"},React.createElement("input",{style:inp,value:f.official,onChange:s("official")})),React.createElement(Field,{label:"Position"},React.createElement("input",{style:inp,value:f.position,onChange:s("position")}))),
@@ -326,7 +395,7 @@ function MobileAuditForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:"",auditDate:"",auditedBy:"PY Tshabangu",receivedDate:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit mobile audit":"Mobile classroom audit",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"Number of mobiles"},React.createElement("input",{style:inp,type:"number",value:f.mobileCount,onChange:s("mobileCount")}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"Number of mobiles"},React.createElement("input",{style:inp,type:"number",value:f.mobileCount,onChange:s("mobileCount")}))),
     React.createElement(Row3,null,React.createElement(Field,{label:"Overall condition"},React.createElement("select",{style:sel,value:f.condition,onChange:s("condition")},["Good","Fair","Poor"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Electricity?"},React.createElement("select",{style:sel,value:f.electricityAvail,onChange:s("electricityAvail")},["Yes","No"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Ablutions?"},React.createElement("select",{style:sel,value:f.ablutions,onChange:s("ablutions")},["Yes","No"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Field,{label:"Structural issues"},React.createElement("input",{style:inp,value:f.structuralIssues,onChange:s("structuralIssues"),placeholder:"e.g. Roof leaks floor damage"})),
     React.createElement(Field,{label:"Recommendation"},React.createElement("input",{style:inp,value:f.recommendation,onChange:s("recommendation"),placeholder:"e.g. Repair Replace Monitor"})),
@@ -338,7 +407,7 @@ function SchoolRequestForm({schools,initial,onSave,onClose}){
   const[f,setF]=useState(initial||{schoolId:"",district:"",requestType:"Furniture",priority:"Medium",dateReceived:"",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"",notes:""});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   return React.createElement(Modal,{title:initial?"Edit request":"Log school request",onClose,onSave:()=>onSave(f)},
-    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement("select",{style:sel,value:f.schoolId,onChange:s("schoolId")},React.createElement("option",{value:""},"Select"),schools.map(sc=>React.createElement("option",{key:sc.id,value:sc.id},sc.name)))),React.createElement(Field,{label:"District"},React.createElement("input",{style:inp,value:f.district,onChange:s("district")}))),
+    React.createElement(Row2,null,React.createElement(Field,{label:"School"},React.createElement(SchoolPicker,{schools,value:f.schoolId,onChange:v=>setF(p=>({...p,schoolId:v}))})),React.createElement(Field,{label:"District"},React.createElement("input",{style:inp,value:f.district,onChange:s("district")}))),
     React.createElement(Row3,null,React.createElement(Field,{label:"Request type"},React.createElement("select",{style:sel,value:f.requestType,onChange:s("requestType")},["Furniture","Mobile Unit","Repairs","Infrastructure","Other"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Priority"},React.createElement("select",{style:sel,value:f.priority,onChange:s("priority")},["High","Medium","Low"].map(v=>React.createElement("option",{key:v},v)))),React.createElement(Field,{label:"Status"},React.createElement("select",{style:sel,value:f.status,onChange:s("status")},["Pending","In Progress","Completed","Declined"].map(v=>React.createElement("option",{key:v},v))))),
     React.createElement(Row2,null,React.createElement(Field,{label:"Date received"},React.createElement("input",{style:inp,type:"date",value:f.dateReceived,onChange:s("dateReceived")})),React.createElement(Field,{label:"Due date"},React.createElement("input",{style:inp,type:"date",value:f.dueDate,onChange:s("dueDate")}))),
     React.createElement(Field,{label:"Assigned to"},React.createElement("input",{style:inp,value:f.assignedTo,onChange:s("assignedTo")})),
