@@ -23,10 +23,10 @@ const {useState,useMemo,useEffect}=React;
 const NAV=[
   {id:"dashboard",label:"Dashboard",icon:"📊"},
   {id:"emis",label:"EMIS Database",icon:"🗃️"},
-  {id:"schools",label:"Audit Schools",icon:"🏫"},
+  {id:"schools",label:"Audit Schools",icon:"🏫"},{id:"capture",label:"School Capture",icon:"📝"},
   {id:"audits",label:"Audits",icon:"📋"},
-  {id:"classrooms",label:"Classrooms",icon:"🚪"},
-  {id:"furniture",label:"Furniture",icon:"🪑"},
+  {id:"classrooms",label:"Classrooms & Furniture",icon:"🚪"},
+  
   {id:"conditions",label:"Conditions",icon:"🔍"},
   {id:"repairs",label:"Repairs",icon:"🔧"},
   {id:"warehouse",label:"Warehouse",icon:"🏭"},
@@ -271,6 +271,449 @@ function SchoolPicker({schools,value,onChange}){
   );
 }
 
+
+const DBE_CHAIRS=["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility Steel Frame","Lab Stool","Upholstered","N/A"];
+function ClassroomFurnitureForm({schools,classrooms,initial,onSave,onClose}){
+  var ts=useState("classroom");var tab=ts[0];var setTab=ts[1];
+  var rs=useState(initial||{schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
+  var room=rs[0];var setRoom=rs[1];
+  var fs=useState({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",otherType:"",condition:"Good"});
+  var furn=fs[0];var setFurn=fs[1];
+  var ls=useState([]);var furnList=ls[0];var setFurnList=ls[1];
+  var as=useState(false);var addingFurn=as[0];var setAddingFurn=as[1];
+  function sr(k){return function(e){setRoom(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  function sf(k){return function(e){setFurn(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  function addFurnItem(){
+    if(!furn.ftype&&!furn.otherType)return;
+    setFurnList(function(p){return p.concat([Object.assign({},furn,{id:uid()})]);});
+    setFurn({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",otherType:"",condition:"Good"});
+    setAddingFurn(false);
+  }
+  var e=React.createElement;
+  function tb(id,label){return e("button",{onClick:function(){setTab(id);},style:{padding:"8px 18px",borderRadius:"8px 8px 0 0",border:"0.5px solid #E0E7EF",borderBottom:tab===id?"none":"0.5px solid #E0E7EF",background:tab===id?"#fff":"#F9FAFB",color:tab===id?"#2563EB":"#6B7280",fontWeight:tab===id?600:400,fontSize:13,cursor:"pointer",marginRight:4,position:"relative",bottom:-1}},label);}
+  return e(Modal,{title:initial?"Edit classroom":"New classroom & furniture",onClose:onClose,onSave:function(){onSave({room:room,furnItems:furnList});}},
+    e("div",{style:{borderBottom:"0.5px solid #E0E7EF",marginBottom:"1.25rem",display:"flex"}},
+      tb("classroom","Classroom details"),
+      tb("furniture","Furniture ("+furnList.length+")")
+    ),
+    tab==="classroom"&&e("div",null,
+      e(Field,{label:"School"},e(SchoolPicker,{schools:schools,value:room.schoolId,onChange:function(v){setRoom(function(p){return Object.assign({},p,{schoolId:v});});}})),
+      e(Row2,null,
+        e(Field,{label:"Room number"},e("input",{style:inp,value:room.room,onChange:sr("room"),placeholder:"e.g. 1A, Lab 1"})),
+        e(Field,{label:"Room type"},e("select",{style:inp,value:room.type,onChange:sr("type")},["Classroom","Lab","Office","Storage","Library","Hall"].map(function(v){return e("option",{key:v},v);})))
+      ),
+      e(Row2,null,
+        e(Field,{label:"Is mobile?"},e("select",{style:inp,value:room.isMobile,onChange:sr("isMobile")},["No","Yes"].map(function(v){return e("option",{key:v},v);}))),
+        e(Field,{label:"Grade"},e("input",{style:inp,value:room.grade,onChange:sr("grade"),placeholder:"e.g. 4"}))
+      ),
+      e(Row2,null,
+        e(Field,{label:"Spec / Section"},e("input",{style:inp,value:room.spec,onChange:sr("spec"),placeholder:"e.g. 4E1"})),
+        e(Field,{label:"Learner count"},e("input",{style:inp,type:"number",value:room.learners,onChange:sr("learners")}))
+      ),
+      e("div",{style:{background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",borderRadius:10,padding:"10px 14px",fontSize:12,color:"#1E40AF",marginTop:4}},
+        "Fill in classroom details then click Furniture tab to add furniture items for this room.")
+    ),
+    tab==="furniture"&&e("div",null,
+      furnList.length>0&&e("div",{style:{marginBottom:"1rem"}},
+        e("p",{style:{fontSize:12,fontWeight:600,color:"#374151",margin:"0 0 8px"}},"Added items:"),
+        furnList.map(function(f,i){return e("div",{key:f.id,style:{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 12px",background:"#F9FAFB",borderRadius:8,marginBottom:4,border:"0.5px solid #E5E7EB"}},
+          e("div",null,
+            e("p",{style:{fontSize:13,fontWeight:500,margin:"0 0 2px",color:"#111827"}},f.ftype||f.otherType||"Item"),
+            e("p",{style:{fontSize:11,color:"#6B7280",margin:0}},"Available: "+(f.available||0)+" / Damaged: "+(f.damaged||0)+" / "+f.condition)
+          ),
+          e("button",{onClick:function(){setFurnList(function(p){return p.filter(function(_,j){return j!==i;});});},style:{fontSize:11,color:"#DC2626",background:"#FFF5F5",border:"0.5px solid #FECACA",borderRadius:5,padding:"2px 8px",cursor:"pointer"}},"Remove")
+        );})
+      ),
+      !addingFurn&&e("button",{onClick:function(){setAddingFurn(true);},style:{width:"100%",padding:"10px",borderRadius:8,border:"1px dashed #BFDBFE",background:"#F0F9FF",color:"#2563EB",fontSize:13,cursor:"pointer",fontWeight:500}},"+ Add furniture item"),
+      addingFurn&&e("div",{style:{border:"0.5px solid #E0E7EF",borderRadius:10,padding:"1rem",background:"#FAFAFA"}},
+        e("p",{style:{fontSize:13,fontWeight:600,color:"#111827",margin:"0 0 12px"}},"New furniture item"),
+        e(Row2,null,
+          e(Field,{label:"Category"},e("select",{style:inp,value:furn.category,onChange:sf("category")},["Learner","Admin","Specialised"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Condition"},e("select",{style:inp,value:furn.condition,onChange:sf("condition")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);})))
+        ),
+        e(Field,{label:"DBE Furniture type"},e("select",{style:inp,value:furn.ftype,onChange:sf("ftype")},
+          e("option",{value:""},"Select type..."),
+          DBE_FURNITURE.map(function(v){return e("option",{key:v,value:v},v);}),
+          e("option",{value:"Other"},"Other")
+        )),
+        furn.ftype==="Other"&&e(Field,{label:"Specify"},e("input",{style:inp,value:furn.otherType,onChange:sf("otherType"),placeholder:"Describe item"})),
+        e(Row2,null,
+          e(Field,{label:"Specification"},e("input",{style:inp,value:furn.spec,onChange:sf("spec"),placeholder:"e.g. Grade 4-6"})),
+          e(Field,{label:"Chair type"},e("select",{style:inp,value:furn.chairType,onChange:sf("chairType")},DBE_CHAIRS.map(function(v){return e("option",{key:v},v);})))
+        ),
+        e(Row3,null,
+          e(Field,{label:"Available"},e("input",{style:inp,type:"number",value:furn.available,onChange:sf("available")})),
+          e(Field,{label:"Damaged"},e("input",{style:inp,type:"number",value:furn.damaged,onChange:sf("damaged")})),
+          e(Field,{label:"Repairable"},e("input",{style:inp,type:"number",value:furn.repairable,onChange:sf("repairable")}))
+        ),
+        e("div",{style:{display:"flex",gap:8,marginTop:4}},
+          e("button",{onClick:addFurnItem,style:{flex:1,padding:"8px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Add this item"),
+          e("button",{onClick:function(){setAddingFurn(false);},style:{padding:"8px 16px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Cancel")
+        )
+      ),
+      furnList.length===0&&!addingFurn&&e("div",{style:{textAlign:"center",padding:"1.5rem",color:"#9CA3AF",fontSize:13}},"No furniture items added yet.")
+    )
+  );
+}
+
+// ── School Capture — all data per school in one tabbed form ───────────────────
+function SchoolCaptureForm({schools,audits,classrooms,furniture,conditions,repairs,
+  setSchools,setAudits,setClassrooms,setFurniture,setConditions,setRepairs,showToast}){
+
+  var ts=useState("school");var activeTab=ts[0];var setActiveTab=ts[1];
+  var ss=useState("");var selectedSchoolId=ss[0];var setSelectedSchoolId=ss[1];
+  var selectedSchool=schools.find(function(s){return String(s.id)===String(selectedSchoolId);});
+
+  // School form state
+  var sf=useState({name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
+  var schoolForm=sf[0];var setSchoolForm=sf[1];
+  function ss2(k){return function(e){setSchoolForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+
+  // Audit form state
+  var af=useState({year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:""});
+  var auditForm=af[0];var setAuditForm=af[1];
+  function sa(k){return function(e){setAuditForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+
+  // Classrooms + furniture list
+  var cl=useState([]);var roomList=cl[0];var setRoomList=cl[1];
+  var rl=useState({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
+  var roomForm=rl[0];var setRoomForm=rl[1];
+  function sr(k){return function(e){setRoomForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  var fl=useState({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",condition:"Good"});
+  var furnForm=fl[0];var setFurnForm=fl[1];
+  function sfn(k){return function(e){setFurnForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  var al=useState(false);var addingRoom=al[0];var setAddingRoom=al[1];
+  var afl=useState(false);var addingFurn=afl[0];var setAddingFurn=afl[1];
+  var crfl=useState([]);var currentRoomFurniture=crfl[0];var setCurrentRoomFurniture=crfl[1];
+
+  // Conditions list
+  var cols=useState([]);var condList=cols[0];var setCondList=cols[1];
+  var cof=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:""});
+  var condForm=cof[0];var setCondForm=cof[1];
+  function sc(k){return function(e){setCondForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  var acl=useState(false);var addingCond=acl[0];var setAddingCond=acl[1];
+
+  // Repairs list
+  var rpls=useState([]);var repairList=rpls[0];var setRepairList=rpls[1];
+  var rpf=useState({repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""});
+  var repairForm=rpf[0];var setRepairForm=rpf[1];
+  function srp(k){return function(e){setRepairForm(function(p){var n=Object.assign({},p);n[k]=e.target.value;return n;});};}
+  var arpl=useState(false);var addingRepair=arpl[0];var setAddingRepair=arpl[1];
+  var selFurnId=useState("");var selectedFurnId=selFurnId[0];var setSelectedFurnId=selFurnId[1];
+
+  var e=React.createElement;
+
+  // Save school + all captured data
+  function saveAll(){
+    var schoolId;
+    if(selectedSchool){
+      schoolId=selectedSchool.id;
+    } else {
+      if(!schoolForm.name){showToast("Please enter a school name.");setActiveTab("school");return;}
+      schoolId=uid();
+      setSchools(function(p){return p.concat([Object.assign({},schoolForm,{id:schoolId})]);});
+    }
+    // Save audit
+    if(auditForm.date||auditForm.recommendations){
+      setAudits(function(p){return p.concat([Object.assign({},auditForm,{id:uid(),schoolId:schoolId})]);});
+    }
+    // Save classrooms + furniture
+    roomList.forEach(function(room){
+      var roomId=uid();
+      setClassrooms(function(p){return p.concat([Object.assign({},room,{id:roomId,schoolId:schoolId})]);});
+      (room.furniture||[]).forEach(function(f){
+        setFurniture(function(p){return p.concat([Object.assign({},f,{id:uid(),classroomId:roomId})]);});
+      });
+    });
+    // Save conditions (linked to first classroom if exists)
+    condList.forEach(function(cond){
+      setConditions(function(p){return p.concat([Object.assign({},cond,{id:uid()})]);});
+    });
+    // Save repairs
+    repairList.forEach(function(rep){
+      setRepairs(function(p){return p.concat([Object.assign({},rep,{id:uid()})]);});
+    });
+    showToast("Saved: "+(selectedSchool?selectedSchool.name:schoolForm.name));
+    // Reset
+    setSchoolForm({name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
+    setAuditForm({year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:""});
+    setRoomList([]);setCondList([]);setRepairList([]);
+    setSelectedSchoolId("");setActiveTab("school");
+  }
+
+  function addRoomToList(){
+    if(!roomForm.room){return;}
+    setRoomList(function(p){return p.concat([Object.assign({},roomForm,{furniture:currentRoomFurniture.slice()})]);});
+    setRoomForm({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
+    setCurrentRoomFurniture([]);setAddingRoom(false);
+  }
+
+  function addFurnToRoom(){
+    if(!furnForm.ftype){return;}
+    setCurrentRoomFurniture(function(p){return p.concat([Object.assign({},furnForm,{id:uid()})]);});
+    setFurnForm({category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Wooden",available:"",damaged:"",repairable:"",condition:"Good"});
+    setAddingFurn(false);
+  }
+
+  function addCondToList(){
+    setCondList(function(p){return p.concat([Object.assign({},condForm,{id:uid()})]);});
+    setCondForm({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:""});
+    setAddingCond(false);
+  }
+
+  function addRepairToList(){
+    setRepairList(function(p){return p.concat([Object.assign({},repairForm,{id:uid(),furnitureId:selectedFurnId})]);});
+    setRepairForm({repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""});
+    setSelectedFurnId("");setAddingRepair(false);
+  }
+
+  var TABS=[
+    {id:"school",label:"1. School"},
+    {id:"audit",label:"2. Audit"},
+    {id:"rooms",label:"3. Classrooms & Furniture"},
+    {id:"conditions",label:"4. Conditions"},
+    {id:"repairs",label:"5. Repairs"},
+  ];
+
+  var completedColor="#059669";
+  var progress=[
+    selectedSchool||(schoolForm.name?true:false),
+    auditForm.date?true:false,
+    roomList.length>0,
+    condList.length>0,
+    repairList.length>0,
+  ];
+
+  var allFurniture=roomList.reduce(function(a,r){return a.concat(r.furniture||[]);},[]); 
+
+  return e("div",null,
+    // Header
+    e("div",{style:{background:"linear-gradient(135deg,#1e3a5f,#1e40af)",borderRadius:14,padding:"1.25rem 1.5rem",marginBottom:"1.5rem",color:"#fff",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+      e("div",null,
+        e("p",{style:{fontSize:12,color:"rgba(255,255,255,0.6)",margin:"0 0 2px",textTransform:"uppercase",letterSpacing:"0.08em"}},"School Capture"),
+        e("h2",{style:{fontSize:18,fontWeight:700,margin:0}},"Capture all school data in one place"),
+        e("p",{style:{fontSize:12,color:"rgba(255,255,255,0.6)",margin:"4px 0 0"}},"Select an existing school or add a new one, then fill in all sections.")
+      ),
+      e("button",{onClick:saveAll,style:{padding:"10px 24px",borderRadius:10,border:"none",background:"#fff",color:"#1e3a5f",fontSize:13,cursor:"pointer",fontWeight:700,boxShadow:"0 2px 8px rgba(0,0,0,0.2)"}},"Save all")
+    ),
+
+    // School selector
+    e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:12,padding:"1rem 1.25rem",marginBottom:"1.25rem"}},
+      e("p",{style:{fontSize:12,color:"#6B7280",margin:"0 0 8px",fontWeight:500}},"SELECT OR ADD A SCHOOL"),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr auto",gap:10,alignItems:"center"}},
+        e(SchoolPicker,{schools:schools,value:selectedSchoolId,onChange:function(v){
+          setSelectedSchoolId(v);
+          if(v){
+            var sc=schools.find(function(s){return String(s.id)===v;});
+            if(sc) setSchoolForm(sc);
+          }
+        }}),
+        e("span",{style:{fontSize:12,color:"#6B7280",whiteSpace:"nowrap"}},"or fill in tab 1")
+      )
+    ),
+
+    // Progress bar
+    e("div",{style:{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:4,marginBottom:"1rem"}},
+      TABS.map(function(t,i){
+        return e("div",{key:t.id,style:{padding:"6px 4px",textAlign:"center",borderRadius:8,
+          background:progress[i]?"linear-gradient(135deg,#D1FAE5,#A7F3D0)":"linear-gradient(135deg,#F3F4F6,#E5E7EB)",
+          border:activeTab===t.id?"2px solid #2563EB":"2px solid transparent",cursor:"pointer"},
+          onClick:function(){setActiveTab(t.id);}},
+          e("p",{style:{fontSize:11,fontWeight:activeTab===t.id?700:500,
+            color:progress[i]?completedColor:activeTab===t.id?"#2563EB":"#6B7280",margin:0}},
+            (progress[i]?"✅ ":"")+t.label)
+        );
+      })
+    ),
+
+    // ── Tab: School ──────────────────────────────────────────────────────────
+    activeTab==="school"&&e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:14,padding:"1.25rem"}},
+      e("h3",{style:{fontSize:14,fontWeight:600,color:"#111827",margin:"0 0 1rem"}},"School details"),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+        e(Field,{label:"School name"},e("input",{style:inp,value:schoolForm.name,onChange:ss2("name"),placeholder:"Full school name"})),
+        e(Field,{label:"EMIS number"},e("input",{style:inp,value:schoolForm.emis,onChange:ss2("emis")}))
+      ),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+        e(Field,{label:"Province"},e("input",{style:inp,value:schoolForm.province,onChange:ss2("province")})),
+        e(Field,{label:"District"},e("input",{style:inp,value:schoolForm.district,onChange:ss2("district")}))
+      ),
+      e(Field,{label:"Circuit"},e("input",{style:inp,value:schoolForm.circuit,onChange:ss2("circuit"),placeholder:"e.g. F8"})),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}},
+        e(Field,{label:"Capacity"},e("input",{style:inp,type:"number",value:schoolForm.capacity,onChange:ss2("capacity")})),
+        e(Field,{label:"Mobile classrooms"},e("input",{style:inp,type:"number",value:schoolForm.mobiles,onChange:ss2("mobiles")})),
+        e(Field,{label:"Learners per mobile"},e("input",{style:inp,type:"number",value:schoolForm.mobileCap,onChange:ss2("mobileCap")}))
+      ),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}},
+        e(Field,{label:"Enrolment"},e("input",{style:inp,type:"number",value:schoolForm.enrolment,onChange:ss2("enrolment")})),
+        e(Field,{label:"Teachers"},e("input",{style:inp,type:"number",value:schoolForm.teachers,onChange:ss2("teachers")})),
+        e(Field,{label:"Risk level"},e("select",{style:inp,value:schoolForm.risk,onChange:ss2("risk")},["Low","Medium","High"].map(function(v){return e("option",{key:v},v);})))
+      ),
+      e("button",{onClick:function(){setActiveTab("audit");},style:{marginTop:8,padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Next: Audit details")
+    ),
+
+    // ── Tab: Audit ──────────────────────────────────────────────────────────
+    activeTab==="audit"&&e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:14,padding:"1.25rem"}},
+      e("h3",{style:{fontSize:14,fontWeight:600,color:"#111827",margin:"0 0 1rem"}},"Audit details"),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+        e(Field,{label:"Audit date"},e("input",{style:inp,type:"date",value:auditForm.date,onChange:sa("date")})),
+        e(Field,{label:"Audit year"},e("input",{style:inp,type:"number",value:auditForm.year,onChange:sa("year")}))
+      ),
+      e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}},
+        e(Field,{label:"Risk level"},e("select",{style:inp,value:auditForm.risk,onChange:sa("risk")},["Low","Medium","High"].map(function(v){return e("option",{key:v},v);}))),
+        e(Field,{label:"Capacity with mobiles"},e("input",{style:inp,type:"number",value:auditForm.capWith,onChange:sa("capWith")})),
+        e(Field,{label:"Capacity without mobiles"},e("input",{style:inp,type:"number",value:auditForm.capWithout,onChange:sa("capWithout")}))
+      ),
+      e(Field,{label:"Overcapacity?"},e("select",{style:inp,value:auditForm.overcapacity,onChange:sa("overcapacity")},["No","Yes"].map(function(v){return e("option",{key:v},v);}))),
+      e(Field,{label:"Recommendations"},e("textarea",{style:Object.assign({},inp,{minHeight:60,resize:"vertical"}),value:auditForm.recommendations,onChange:sa("recommendations")})),
+      e(Field,{label:"Comments"},e("textarea",{style:Object.assign({},inp,{minHeight:40,resize:"vertical"}),value:auditForm.comments,onChange:sa("comments")})),
+      e("div",{style:{display:"flex",gap:8,marginTop:8}},
+        e("button",{onClick:function(){setActiveTab("school");},style:{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Back"),
+        e("button",{onClick:function(){setActiveTab("rooms");},style:{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Next: Classrooms")
+      )
+    ),
+
+    // ── Tab: Classrooms & Furniture ──────────────────────────────────────────
+    activeTab==="rooms"&&e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:14,padding:"1.25rem"}},
+      e("h3",{style:{fontSize:14,fontWeight:600,color:"#111827",margin:"0 0 1rem"}},"Classrooms & Furniture"),
+      // Room list
+      roomList.length>0&&e("div",{style:{marginBottom:"1rem"}},
+        roomList.map(function(room,i){return e("div",{key:i,style:{padding:"10px 14px",background:"#F9FAFB",borderRadius:8,marginBottom:6,border:"0.5px solid #E5E7EB",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+          e("div",null,
+            e("p",{style:{fontWeight:600,fontSize:13,margin:"0 0 2px",color:"#111827"}},room.room+" - "+room.type+(room.grade?" (Grade "+room.grade+")":"")),
+            e("p",{style:{fontSize:11,color:"#6B7280",margin:0}},(room.furniture||[]).length+" furniture item(s) - "+room.learners+" learners")
+          ),
+          e("button",{onClick:function(){setRoomList(function(p){return p.filter(function(_,j){return j!==i;});});},style:{fontSize:11,color:"#DC2626",background:"#FFF5F5",border:"0.5px solid #FECACA",borderRadius:5,padding:"2px 8px",cursor:"pointer"}},"Remove")
+        );})
+      ),
+      // Add room
+      !addingRoom&&e("button",{onClick:function(){setAddingRoom(true);},style:{width:"100%",padding:"10px",borderRadius:8,border:"1px dashed #BFDBFE",background:"#F0F9FF",color:"#2563EB",fontSize:13,cursor:"pointer",fontWeight:500,marginBottom:8}},"+ Add classroom"),
+      addingRoom&&e("div",{style:{border:"0.5px solid #E0E7EF",borderRadius:10,padding:"1rem",background:"#FAFAFA",marginBottom:8}},
+        e("p",{style:{fontSize:13,fontWeight:600,color:"#111827",margin:"0 0 10px"}},"Classroom details"),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Room number"},e("input",{style:inp,value:roomForm.room,onChange:sr("room"),placeholder:"e.g. 1A"})),
+          e(Field,{label:"Type"},e("select",{style:inp,value:roomForm.type,onChange:sr("type")},["Classroom","Lab","Office","Storage","Library","Hall"].map(function(v){return e("option",{key:v},v);})))
+        ),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}},
+          e(Field,{label:"Grade"},e("input",{style:inp,value:roomForm.grade,onChange:sr("grade"),placeholder:"e.g. 4"})),
+          e(Field,{label:"Spec"},e("input",{style:inp,value:roomForm.spec,onChange:sr("spec"),placeholder:"e.g. 4E1"})),
+          e(Field,{label:"Learners"},e("input",{style:inp,type:"number",value:roomForm.learners,onChange:sr("learners")}))
+        ),
+        e(Field,{label:"Is mobile?"},e("select",{style:inp,value:roomForm.isMobile,onChange:sr("isMobile")},["No","Yes"].map(function(v){return e("option",{key:v},v);}))),
+        // Furniture for this room
+        e("p",{style:{fontSize:12,fontWeight:600,color:"#374151",margin:"12px 0 6px"}},"Furniture in this room:"),
+        currentRoomFurniture.length>0&&e("div",{style:{marginBottom:8}},
+          currentRoomFurniture.map(function(f,i){return e("div",{key:i,style:{padding:"6px 10px",background:"#EFF6FF",borderRadius:6,marginBottom:4,fontSize:12,color:"#1E40AF",display:"flex",justifyContent:"space-between"}},
+            e("span",null,(f.ftype||"Item").split(" ").slice(0,5).join(" ")+" / "+f.available+" avail / "+f.condition),
+            e("button",{onClick:function(){setCurrentRoomFurniture(function(p){return p.filter(function(_,j){return j!==i;});});},style:{fontSize:10,color:"#DC2626",background:"none",border:"none",cursor:"pointer"}},"x")
+          );})
+        ),
+        !addingFurn&&e("button",{onClick:function(){setAddingFurn(true);},style:{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"4px 12px",cursor:"pointer",marginBottom:8}},"+ Add furniture item"),
+        addingFurn&&e("div",{style:{border:"0.5px solid #BFDBFE",borderRadius:8,padding:"10px",background:"#fff",marginBottom:8}},
+          e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}},
+            e(Field,{label:"Category"},e("select",{style:inp,value:furnForm.category,onChange:sfn("category")},["Learner","Admin","Specialised"].map(function(v){return e("option",{key:v},v);}))),
+            e(Field,{label:"Condition"},e("select",{style:inp,value:furnForm.condition,onChange:sfn("condition")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);})))
+          ),
+          e(Field,{label:"DBE Furniture type"},e("select",{style:inp,value:furnForm.ftype,onChange:sfn("ftype")},
+            e("option",{value:""},"Select..."),
+            DBE_FURNITURE.map(function(v){return e("option",{key:v,value:v},v);}),
+            e("option",{value:"Other"},"Other")
+          )),
+          e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}},
+            e(Field,{label:"Available"},e("input",{style:inp,type:"number",value:furnForm.available,onChange:sfn("available")})),
+            e(Field,{label:"Damaged"},e("input",{style:inp,type:"number",value:furnForm.damaged,onChange:sfn("damaged")})),
+            e(Field,{label:"Repairable"},e("input",{style:inp,type:"number",value:furnForm.repairable,onChange:sfn("repairable")}))
+          ),
+          e("div",{style:{display:"flex",gap:8,marginTop:4}},
+            e("button",{onClick:addFurnToRoom,style:{flex:1,padding:"6px",borderRadius:6,border:"none",background:"#2563EB",color:"#fff",fontSize:12,cursor:"pointer"}},"Add item"),
+            e("button",{onClick:function(){setAddingFurn(false);},style:{padding:"6px 12px",borderRadius:6,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:12,cursor:"pointer",color:"#374151"}},"Cancel")
+          )
+        ),
+        e("div",{style:{display:"flex",gap:8,marginTop:8}},
+          e("button",{onClick:addRoomToList,style:{flex:1,padding:"8px",borderRadius:8,border:"none",background:"#059669",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Save this classroom ("+currentRoomFurniture.length+" furniture items)"),
+          e("button",{onClick:function(){setAddingRoom(false);setCurrentRoomFurniture([]);},style:{padding:"8px 14px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Cancel")
+        )
+      ),
+      e("div",{style:{display:"flex",gap:8,marginTop:8}},
+        e("button",{onClick:function(){setActiveTab("audit");},style:{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Back"),
+        e("button",{onClick:function(){setActiveTab("conditions");},style:{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Next: Conditions")
+      )
+    ),
+
+    // ── Tab: Conditions ──────────────────────────────────────────────────────
+    activeTab==="conditions"&&e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:14,padding:"1.25rem"}},
+      e("h3",{style:{fontSize:14,fontWeight:600,color:"#111827",margin:"0 0 1rem"}},"Infrastructure Conditions"),
+      condList.length>0&&e("div",{style:{marginBottom:"1rem"}},
+        condList.map(function(c,i){return e("div",{key:i,style:{padding:"8px 12px",background:"#F9FAFB",borderRadius:8,marginBottom:4,border:"0.5px solid #E5E7EB",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+          e("p",{style:{fontSize:12,margin:0,color:"#374151"}},"Floor: "+c.flooring+" / Windows: "+c.windows+" / Locks: "+c.locks+" / Electricity: "+c.electricity),
+          e("button",{onClick:function(){setCondList(function(p){return p.filter(function(_,j){return j!==i;});});},style:{fontSize:11,color:"#DC2626",background:"none",border:"none",cursor:"pointer"}},"Remove")
+        );})
+      ),
+      !addingCond&&e("button",{onClick:function(){setAddingCond(true);},style:{width:"100%",padding:"10px",borderRadius:8,border:"1px dashed #BFDBFE",background:"#F0F9FF",color:"#2563EB",fontSize:13,cursor:"pointer",fontWeight:500,marginBottom:8}},"+ Add condition assessment"),
+      addingCond&&e("div",{style:{border:"0.5px solid #E0E7EF",borderRadius:10,padding:"1rem",background:"#FAFAFA",marginBottom:8}},
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Flooring"},e("select",{style:inp,value:condForm.flooring,onChange:sc("flooring")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Flooring issues"},e("input",{style:inp,value:condForm.flooringIssues,onChange:sc("flooringIssues"),placeholder:"e.g. Cracks"}))
+        ),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Windows"},e("select",{style:inp,value:condForm.windows,onChange:sc("windows")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Window issues"},e("input",{style:inp,value:condForm.windowIssues,onChange:sc("windowIssues"),placeholder:"e.g. Broken panes"}))
+        ),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}},
+          e(Field,{label:"Locks"},e("select",{style:inp,value:condForm.locks,onChange:sc("locks")},["Good","Fair","Poor"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Electricity"},e("select",{style:inp,value:condForm.electricity,onChange:sc("electricity")},["Yes","No"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Mobile condition"},e("input",{style:inp,value:condForm.mobile,onChange:sc("mobile"),placeholder:"N/A"}))
+        ),
+        e(Field,{label:"Comments"},e("textarea",{style:Object.assign({},inp,{minHeight:50,resize:"vertical"}),value:condForm.comments,onChange:sc("comments")})),
+        e("div",{style:{display:"flex",gap:8,marginTop:4}},
+          e("button",{onClick:addCondToList,style:{flex:1,padding:"8px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Save condition"),
+          e("button",{onClick:function(){setAddingCond(false);},style:{padding:"8px 14px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Cancel")
+        )
+      ),
+      e("div",{style:{display:"flex",gap:8,marginTop:8}},
+        e("button",{onClick:function(){setActiveTab("rooms");},style:{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Back"),
+        e("button",{onClick:function(){setActiveTab("repairs");},style:{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Next: Repairs")
+      )
+    ),
+
+    // ── Tab: Repairs ─────────────────────────────────────────────────────────
+    activeTab==="repairs"&&e("div",{style:{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:14,padding:"1.25rem"}},
+      e("h3",{style:{fontSize:14,fontWeight:600,color:"#111827",margin:"0 0 1rem"}},"Repairs & Refurbishment"),
+      repairList.length>0&&e("div",{style:{marginBottom:"1rem"}},
+        repairList.map(function(r,i){return e("div",{key:i,style:{padding:"8px 12px",background:"#F9FAFB",borderRadius:8,marginBottom:4,border:"0.5px solid #E5E7EB",display:"flex",justifyContent:"space-between",alignItems:"center"}},
+          e("p",{style:{fontSize:12,margin:0,color:"#374151"}},r.repairType+" / "+r.destination+" / "+r.qty+" units / "+r.status),
+          e("button",{onClick:function(){setRepairList(function(p){return p.filter(function(_,j){return j!==i;});});},style:{fontSize:11,color:"#DC2626",background:"none",border:"none",cursor:"pointer"}},"Remove")
+        );})
+      ),
+      !addingRepair&&e("button",{onClick:function(){setAddingRepair(true);},style:{width:"100%",padding:"10px",borderRadius:8,border:"1px dashed #BFDBFE",background:"#F0F9FF",color:"#2563EB",fontSize:13,cursor:"pointer",fontWeight:500,marginBottom:8}},"+ Add repair record"),
+      addingRepair&&e("div",{style:{border:"0.5px solid #E0E7EF",borderRadius:10,padding:"1rem",background:"#FAFAFA",marginBottom:8}},
+        allFurniture.length>0&&e(Field,{label:"Furniture item (optional)"},e("select",{style:inp,value:selectedFurnId,onChange:function(ev){setSelectedFurnId(ev.target.value);}},
+          e("option",{value:""},"Select furniture..."),
+          allFurniture.map(function(f){return e("option",{key:f.id,value:f.id},(f.ftype||"Item").split(" ").slice(0,5).join(" "));})
+        )),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Repair type"},e("select",{style:inp,value:repairForm.repairType,onChange:srp("repairType")},["Minor","Major"].map(function(v){return e("option",{key:v},v);}))),
+          e(Field,{label:"Destination"},e("select",{style:inp,value:repairForm.destination,onChange:srp("destination")},["Warehouse","Labour Dept"].map(function(v){return e("option",{key:v},v);})))
+        ),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Quantity"},e("input",{style:inp,type:"number",value:repairForm.qty,onChange:srp("qty")})),
+          e(Field,{label:"Status"},e("select",{style:inp,value:repairForm.status,onChange:srp("status")},["Pending","In Progress","Completed"].map(function(v){return e("option",{key:v},v);})))
+        ),
+        e("div",{style:{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}},
+          e(Field,{label:"Date allocated"},e("input",{style:inp,type:"date",value:repairForm.allocated,onChange:srp("allocated")})),
+          e(Field,{label:"Date completed"},e("input",{style:inp,type:"date",value:repairForm.completed,onChange:srp("completed")}))
+        ),
+        e("div",{style:{display:"flex",gap:8,marginTop:4}},
+          e("button",{onClick:addRepairToList,style:{flex:1,padding:"8px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}},"Save repair"),
+          e("button",{onClick:function(){setAddingRepair(false);},style:{padding:"8px 14px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Cancel")
+        )
+      ),
+      e("div",{style:{display:"flex",gap:8,marginTop:8}},
+        e("button",{onClick:function(){setActiveTab("conditions");},style:{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:"pointer",color:"#374151"}},"Back"),
+        e("button",{onClick:saveAll,style:{padding:"12px 32px",borderRadius:10,border:"none",background:"linear-gradient(135deg,#059669,#047857)",color:"#fff",fontSize:14,cursor:"pointer",fontWeight:700,boxShadow:"0 4px 12px rgba(5,150,105,0.3)"}},"Save all data")
+      )
+    )
+  );
+}
 function SchoolForm({initial,onSave,onClose}){
   const[f,setF]=useState(initial||{name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
@@ -607,12 +1050,50 @@ function App(){
 
   const renderPage=()=>{switch(active){
     case "dashboard":return React.createElement(Dashboard,{schools,audits,furniture,repairs,warehouse});
+    case "capture":return React.createElement(SchoolCaptureForm,{
+      schools,audits,classrooms,furniture,conditions,repairs,
+      setSchools,setAudits,setClassrooms,setFurniture,setConditions,setRepairs,showToast
+    });
     case "emis":return React.createElement(EmisPage,{onImport:importSchool});
     case "export":return React.createElement(ExportPage,{schools,audits,classrooms,furniture,conditions,repairs,warehouse,storage,distribution});
     case "kpa":return React.createElement(KpaDashboard,{uploads,learnerData,mobileAudit,schoolRequests,adminTasks,setActive});
     case "schools":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Audit Schools",onAdd:()=>{setEditTarget(null);setModal("school");},extra:React.createElement("div",{style:{display:"flex",gap:8,alignItems:"center"}},React.createElement("label",{style:{fontSize:12,color:"#7C3AED",background:"#F5F3FF",border:"0.5px solid #DDD6FE",borderRadius:8,padding:"5px 12px",cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}},"📂 Import CSV",React.createElement("input",{type:"file",accept:".csv,.txt,.tsv",onChange:handleSchoolCSV,style:{display:"none"}})),React.createElement(ExportBtn,{label:"CSV",filename:"schools.csv",cols:["Name","EMIS","Province","District","Circuit","Capacity","Mobiles","Enrolment","Teachers","Risk"],rows:schools.map(s=>[s.name,s.emis,s.province,s.district,s.circuit,s.capacity,s.mobiles,s.enrolment,s.teachers,s.risk])}))}),React.createElement("div",{style:{display:"grid",gap:"1rem"}},schools.length===0&&React.createElement(Card,null,React.createElement("p",{style:{color:"#9CA3AF",textAlign:"center"}},"No schools yet.")),schools.map(s=>{const over=Number(s.enrolment)>Number(s.capacity);const shortage=over?Number(s.enrolment)-Number(s.capacity):0;return React.createElement(Card,{key:s.id},React.createElement("div",{style:{display:"flex",justifyContent:"space-between"}},React.createElement("div",null,React.createElement("p",{style:{fontWeight:600,fontSize:15,margin:"0 0 4px",color:"#111827"}},s.name),React.createElement("p",{style:{fontSize:12,color:"#6B7280",margin:"0 0 4px"}},"EMIS: "+s.emis+" · "+s.district+", "+s.province+(s.circuit?" · Circuit: "+s.circuit:"")),React.createElement("div",{style:{display:"flex",gap:16,flexWrap:"wrap",marginTop:4}},[["Enrolment",s.enrolment],["Teachers",s.teachers],["Capacity",s.capacity],["Mobiles",s.mobiles]].map(([l,v])=>React.createElement("span",{key:l,style:{fontSize:12,color:"#6B7280"}},l+": ",React.createElement("strong",{style:{color:"#111827"}},v||"--"))),shortage>0&&React.createElement("span",{style:{fontSize:12,color:"#DC2626",fontWeight:500}},"Shortage: "+shortage))),React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8}},React.createElement(Badge,{val:s.risk}),s.enrolment&&s.capacity&&React.createElement("span",{style:{fontSize:12,color:over?"#DC2626":"#059669"}},over?"Overcapacity":"Within capacity"),React.createElement(RowActions,{onEdit:()=>openEdit("school",s),onDelete:()=>del(setSchools)(s.id)}))));})));
     case "audits":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Audits",onAdd:()=>{setEditTarget(null);setModal("audit");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"audits.csv",cols:["School","Year","Date","Risk","Overcapacity","Recommendations"],rows:audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.recommendations])})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Year","Date","Risk","Overcapacity","Recommendations","Actions"],rows:audits,renderRow:r=>[scName(r.schoolId),r.year,r.date,React.createElement(Badge,{val:r.risk}),React.createElement(Badge,{val:r.overcapacity}),React.createElement("span",{style:{color:"#6B7280",fontSize:12}},r.recommendations),React.createElement(RowActions,{onEdit:()=>openEdit("audit",r),onDelete:()=>del(setAudits)(r.id)})]})));
-    case "classrooms":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Classrooms",onAdd:()=>{setEditTarget(null);setModal("classroom");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Type","Grade","Spec","Learners","Mobile","Actions"],rows:classrooms,renderRow:r=>[scName(r.schoolId),r.room,r.type,r.grade,r.spec,r.learners,React.createElement(Badge,{val:r.isMobile}),React.createElement(RowActions,{onEdit:()=>openEdit("classroom",r),onDelete:()=>del(setClassrooms)(r.id)})]})));
+    case "classrooms": {
+  var cfRows=classrooms.map(function(c){
+    var rf=furniture.filter(function(f){return f.classroomId==c.id;});
+    return React.createElement(Card,{key:c.id,style:{marginBottom:"1rem"}},
+      React.createElement("div",{style:{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}},
+        React.createElement("div",{style:{flex:1}},
+          React.createElement("p",{style:{fontWeight:600,fontSize:15,margin:"0 0 4px",color:"#111827"}},c.room+" - "+c.type+(c.isMobile==="Yes"?" (Mobile)":"")),
+          React.createElement("p",{style:{fontSize:12,color:"#6B7280",margin:"0 0 8px"}},scName(c.schoolId)+(c.grade?" - Grade "+c.grade:"")+(c.spec?" - "+c.spec:"")+(c.learners?" - "+c.learners+" learners":"")),
+          rf.length>0
+            ?React.createElement("div",{style:{display:"flex",flexWrap:"wrap",gap:6}},
+                rf.map(function(f){return React.createElement("span",{key:f.id,style:{background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",color:"#1E40AF",padding:"3px 10px",borderRadius:999,fontSize:11,border:"0.5px solid #BFDBFE"}},
+                  (f.ftype||"Item").split(" ").slice(0,5).join(" ")+" / "+f.available+" avail / "+f.condition
+                );})
+              )
+            :React.createElement("span",{style:{fontSize:11,color:"#9CA3AF",fontStyle:"italic"}},"No furniture recorded")
+        ),
+        React.createElement("div",{style:{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:6,flexShrink:0,marginLeft:12}},
+          React.createElement(Badge,{val:c.isMobile==="Yes"?"Yes":"No"}),
+          React.createElement(RowActions,{onEdit:function(){openEdit("classroomFurniture",c);},onDelete:function(){del(setClassrooms)(c.id);}})
+        )
+      )
+    );
+  });
+  return React.createElement("div",null,
+    React.createElement(SectionHeader,{title:"Classrooms & Furniture",
+      onAdd:function(){setEditTarget(null);setModal("classroomFurniture");},
+      extra:React.createElement(ExportBtn,{label:"CSV",filename:"classrooms.csv",
+        cols:["School","Room","Type","Grade","Spec","Learners","Mobile","Furniture items"],
+        rows:classrooms.map(function(c){return[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile,furniture.filter(function(f){return f.classroomId==c.id;}).length+" items"];})
+      })
+    }),
+    classrooms.length===0&&React.createElement(Card,null,React.createElement("p",{style:{color:"#9CA3AF",textAlign:"center",padding:"1rem"}},"No classrooms yet. Click + Add record.")),
+    React.createElement("div",null,cfRows)
+  );
+}
     case "furniture":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Furniture inventory",onAdd:()=>{setEditTarget(null);setModal("furniture");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},React.createElement(StatCard,{label:"Total available",value:furniture.reduce((a,f)=>a+Number(f.available||0),0),color:"#2563EB"}),React.createElement(StatCard,{label:"Damaged",value:furniture.reduce((a,f)=>a+Number(f.damaged||0),0),color:"#DC2626"}),React.createElement(StatCard,{label:"Repairable",value:furniture.reduce((a,f)=>a+Number(f.repairable||0),0),color:"#D97706"})),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition","Actions"],rows:furniture,renderRow:r=>{const cl=classrooms.find(c=>c.id==r.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",r.category,r.ftype,r.available,r.damaged,r.repairable,React.createElement(Badge,{val:r.condition}),React.createElement(RowActions,{onEdit:()=>openEdit("furniture",r),onDelete:()=>del(setFurniture)(r.id)})];}})));
     case "conditions":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Condition assessments",onAdd:()=>{setEditTarget(null);setModal("condition");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})})}),React.createElement(Card,null,React.createElement(DataTable,{cols:["School","Room","Flooring","Issues","Windows","Elec","Locks","Actions"],rows:conditions,renderRow:c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl&&cl.schoolId),cl?cl.room:"?",React.createElement(Badge,{val:c.flooring}),c.flooringIssues||"--",React.createElement(Badge,{val:c.windows}),React.createElement(Badge,{val:c.electricity}),React.createElement(Badge,{val:c.locks}),React.createElement(RowActions,{onEdit:()=>openEdit("condition",c),onDelete:()=>del(setConditions)(c.id)})];}})));
     case "repairs":return React.createElement("div",null,React.createElement(SectionHeader,{title:"Repairs and refurbishment",onAdd:()=>{setEditTarget(null);setModal("repair");},extra:React.createElement(ExportBtn,{label:"CSV",filename:"repairs.csv",cols:["Furniture","Repair Type","Destination","Qty","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})})}),React.createElement("div",{style:{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}},["Completed","In Progress","Pending"].map(st=>React.createElement(StatCard,{key:st,label:st,value:repairs.filter(r=>r.status===st).length,color:st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}))),React.createElement(Card,null,React.createElement(DataTable,{cols:["Furniture","Type","Destination","Qty","Status","Allocated","Completed","Actions"],rows:repairs,renderRow:r=>{const fu=furniture.find(f=>f.id==r.furnitureId);return[fu?fu.ftype:"--",r.repairType,r.destination,r.qty,React.createElement(Badge,{val:r.status}),r.allocated,r.completed||"--",React.createElement(RowActions,{onEdit:()=>openEdit("repair",r),onDelete:()=>del(setRepairs)(r.id)})];}})));
@@ -689,6 +1170,7 @@ function App(){
     modal==="audit"&&React.createElement(AuditForm,{schools,initial:editTarget,onClose:closeModal,onSave:save(setAudits)}),
     modal==="classroom"&&React.createElement(ClassroomForm,{schools,initial:editTarget,onClose:closeModal,onSave:save(setClassrooms)}),
     modal==="furniture"&&React.createElement(FurnitureForm,{classrooms,schools,initial:editTarget,onClose:closeModal,onSave:save(setFurniture)}),
+    modal==="classroomFurniture"&&React.createElement(ClassroomFurnitureForm,{schools:schools,classrooms:classrooms,initial:editTarget,onClose:closeModal,onSave:function(data){var cd=Object.assign({},data.room);if(!cd.id){cd.id=uid();setClassrooms(function(p){return p.concat([cd]);});}else{setClassrooms(function(p){return p.map(function(r){return r.id===cd.id?cd:r;});});}data.furnItems.forEach(function(f){setFurniture(function(p){return p.concat([Object.assign({},f,{id:uid(),classroomId:cd.id})]);});});setModal(null);setEditTarget(null);showToast("Saved "+data.furnItems.length+" furniture items");}}),
     modal==="condition"&&React.createElement(ConditionForm,{classrooms,schools,initial:editTarget,onClose:closeModal,onSave:save(setConditions)}),
     modal==="repair"&&React.createElement(RepairForm,{furniture,initial:editTarget,onClose:closeModal,onSave:save(setRepairs)}),
     modal==="warehouse"&&React.createElement(WarehouseForm,{initial:editTarget,onClose:closeModal,onSave:save(setWarehouse)}),
