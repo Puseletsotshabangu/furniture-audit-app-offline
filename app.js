@@ -1731,7 +1731,7 @@ const loadFromLS = (key, fallback) => {
 function App() {
   const [active,       setActive]       = useState("dashboard");
   const [modal,        setModal]        = useState(null);
-  const [schools,      setSchools]      = useState(() => loadFromLS('schools', initSchools).filter(s => isNorthernCape(s.province)));
+  const [schools,      setSchools]      = useState(() => loadFromLS('schools', initSchools));
   const [audits,       setAudits]       = useState(() => loadFromLS('audits', initAudits));
   const [classrooms,   setClassrooms]   = useState(() => loadFromLS('classrooms', initClassrooms));
   const [furniture,    setFurniture]    = useState(() => loadFromLS('furniture', initFurniture));
