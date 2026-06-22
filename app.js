@@ -381,61 +381,64 @@ function AuditForm({ initial, schools, onSave, onClose }) {
 }
 
 function CombinedCaptureForm({ initial, schools, onSave, onClose }) {
-  const [f, setF] = useState(initial || {
+  const [f, setF]           = useState(initial || {
     schoolId:"", year:new Date().getFullYear(), date:new Date().toISOString().slice(0,10), risk:"Low", capWith:"", capWithout:"", overcapacity:"No", recommendations:"", comments:"",
     room:"", type:"Classroom", grade:"", spec:"", learners:"", isMobile:"No",
     category:"Learner", ftype:"", chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3)", available:"", damaged:"", repairable:"", otherType:"", otherQty:"", condition:"Good", auditDate:new Date().toISOString().slice(0,10)
   });
+  const [touched, setTouched] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]:e.target.value }));
-  return (
-    <Modal title="Capture audit, classroom & furniture" onClose={onClose} onSave={() => onSave({
+
+  const validate = d => ({
+    schoolId: !d.schoolId     ? "School is required"       : "",
+    date:     !d.date         ? "Audit date is required"   : "",
+    room:     !d.room?.trim() ? "Room number is required"  : "",
+    ftype:    !d.ftype?.trim()? "Furniture type is required":"",
+  });
+  const errors = touched ? validate(f) : {};
+  const eS = k => touched && errors[k] ? { ...sel, borderColor:"#EF4444", background:"#FFF5F5" } : sel;
+  const eI = k => touched && errors[k] ? { ...inp, borderColor:"#EF4444", background:"#FFF5F5" } : inp;
+
+  const handleSave = () => {
+    setTouched(true);
+    if (Object.values(validate(f)).some(Boolean)) return;
+    onSave({
       audit: {
-        schoolId: f.schoolId,
-        year: f.year,
-        date: f.date,
-        risk: f.risk,
-        capWith: f.capWith,
-        capWithout: f.capWithout,
-        overcapacity: f.overcapacity,
-        recommendations: f.recommendations,
-        comments: f.comments,
+        schoolId: f.schoolId, year: f.year, date: f.date, risk: f.risk,
+        capWith: f.capWith, capWithout: f.capWithout, overcapacity: f.overcapacity,
+        recommendations: f.recommendations, comments: f.comments,
       },
       classroom: {
-        schoolId: f.schoolId,
-        room: f.room,
-        type: f.type,
-        grade: f.grade,
-        spec: f.spec,
-        learners: f.learners,
-        isMobile: f.isMobile,
+        schoolId: f.schoolId, room: f.room, type: f.type,
+        grade: f.grade, spec: f.spec, learners: f.learners, isMobile: f.isMobile,
       },
       furniture: {
-        category: f.category,
-        ftype: f.ftype,
-        spec: f.spec,
-        chairType: f.chairType,
-        available: f.available,
-        damaged: f.damaged,
-        repairable: f.repairable,
-        otherType: f.otherType,
-        otherQty: f.otherQty,
-        condition: f.condition,
-        auditDate: f.auditDate,
+        schoolId: f.schoolId,
+        category: f.category, ftype: f.ftype, spec: f.spec,
+        chairType: f.chairType, available: f.available, damaged: f.damaged,
+        repairable: f.repairable, otherType: f.otherType, otherQty: f.otherQty,
+        condition: f.condition, auditDate: f.auditDate,
       }
-    })}>
+    });
+  };
+
+  return (
+    <Modal title="Capture audit, classroom & furniture" onClose={onClose} onSave={handleSave} errors={errors}>
       <h4 style={{ margin:"0 0 12px", fontSize:14, color:"#111827" }}>Audit details</h4>
-      <Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Year"><input style={inp} type="number" value={f.year} onChange={s("year")}/></Field></Row2>
-      <Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Risk"><select style={sel} value={f.risk} onChange={s("risk")}>{["Low","Medium","High"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Year"><input style={inp} type="number" value={f.year} onChange={s("year")}/></Field></Row2>
+      <Row2><Field label="Date *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Risk"><select style={sel} value={f.risk} onChange={s("risk")}>{["Low","Medium","High"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Cap. with mobiles"><input style={inp} type="number" value={f.capWith} onChange={s("capWith")}/></Field><Field label="Cap. without mobiles"><input style={inp} type="number" value={f.capWithout} onChange={s("capWithout")}/></Field><Field label="Overcapacity"><select style={sel} value={f.overcapacity} onChange={s("overcapacity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
       <Field label="Recommendations"><textarea style={{ ...inp, minHeight:60, resize:"vertical" }} value={f.recommendations} onChange={s("recommendations")}/></Field>
       <Field label="Comments"><textarea style={{ ...inp, minHeight:40, resize:"vertical" }} value={f.comments} onChange={s("comments")}/></Field>
+
       <h4 style={{ margin:"1.25rem 0 12px", fontSize:14, color:"#111827" }}>Classroom details</h4>
-      <Row2><Field label="Room"><input style={inp} value={f.room} onChange={s("room")}/></Field><Field label="Type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Row2><Field label="Room *"><input style={eI("room")} value={f.room} onChange={s("room")}/></Field><Field label="Type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Grade"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learners"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
       <Field label="Mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
+
       <h4 style={{ margin:"1.25rem 0 12px", fontSize:14, color:"#111827" }}>Furniture details</h4>
-      <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Furniture type"><input style={inp} value={f.ftype} onChange={s("ftype")}/></Field></Row2>
-      <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Plastic Chair – Size 2 (Grade 1–3)","Penny 1 Wood Chair – Size 2 (Grade 1–3)","Penny 4 Plastic Chair – Size 3 (Grade 4–6)","Utility Plastic Chair – Size 4 (Grade 7–12)"].map(v=> <option key={v}>{v}</option>)}</select></Field><Field label="Available *"><input style={eI("available")} type="number" value={f.available} onChange={s("available")}/></Field></Row2>
+      <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Furniture type *"><input style={eI("ftype")} value={f.ftype} onChange={s("ftype")} placeholder="e.g. Desk, Chair"/></Field></Row2>
+      <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Plastic Chair – Size 2 (Grade 1–3)","Penny 1 Wood Chair – Size 2 (Grade 1–3)","Penny 4 Plastic Chair – Size 3 (Grade 4–6)","Utility Plastic Chair – Size 4 (Grade 7–12)"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Available"><input style={inp} type="number" value={f.available} onChange={s("available")}/></Field></Row2>
       <Row3><Field label="Damaged"><input style={inp} type="number" value={f.damaged} onChange={s("damaged")}/></Field><Field label="Repairable"><input style={inp} type="number" value={f.repairable} onChange={s("repairable")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
       <Field label="Other furniture details"><input style={inp} value={f.otherType} onChange={s("otherType")}/></Field>
       <Row2><Field label="Other quantity"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field></Row2>
@@ -606,7 +609,7 @@ function ConditionForm({ classrooms, schools, onSave, onClose }) {
 }
 
 function RepairForm({ furniture, classrooms, schools, onSave, onClose }) {
-  const [f, setF]           = useState({ furnitureId:"", repairType:"Minor", destination:"Warehouse", qty:"", status:"Pending", allocated:"", completed:"" });
+  const [f, setF]           = useState({ furnitureId:"", ftype:"", repairType:"Minor", destination:"Warehouse", qty:"", status:"Pending", allocated:"", completed:"" });
   const [touched, setTouched] = useState(false);
   const s = k => e => setF(p => ({ ...p, [k]:e.target.value }));
 
@@ -675,6 +678,13 @@ function RepairForm({ furniture, classrooms, schools, onSave, onClose }) {
         </div>
       )}
 
+      <Field label="DBE furniture type">
+        <select style={sel} value={f.ftype} onChange={s("ftype")}>
+          <option value="">Select DBE type...</option>
+          {DBE_FURNITURE.map(v => <option key={v} value={v}>{v}</option>)}
+          <option value="Other">Other (specify in notes)</option>
+        </select>
+      </Field>
       <Row2><Field label="Repair type"><select style={sel} value={f.repairType} onChange={s("repairType")}>{["Minor","Major"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Destination"><select style={sel} value={f.destination} onChange={s("destination")}>{["Warehouse","Labour Dept"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row2><Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row2><Field label="Date allocated *"><input style={eI("allocated")} type="date" value={f.allocated} onChange={s("allocated")}/></Field><Field label="Date completed"><input style={inp} type="date" value={f.completed} onChange={s("completed")}/></Field></Row2>
@@ -1925,19 +1935,22 @@ function App() {
       case "repairs": return (
         <div>
           <SectionHeader title="Repairs & refurbishment" onAdd={() => setModal("repair")}
-            extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","Room","Furniture","Spec","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
+            extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","Room","Furniture","Spec","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",r.ftype||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:12, marginBottom:"1.5rem" }}>
             {["Completed","In Progress","Pending"].map(st => <StatCard key={st} label={st} value={repairs.filter(r=>r.status===st).length} color={st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}/>)}
           </div>
-          <Card><DataTable cols={["School","Room","Furniture","Condition","Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs}
+          <Card><DataTable cols={["School Collected From","Room","Furniture","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs}
             renderRow={r => {
               const fu=furniture.find(f=>f.id==r.furnitureId);
               const cl=classrooms.find(c=>c.id==fu?.classroomId);
-              const sc=schools.find(s=>s.id==cl?.schoolId);
+              const sc=schools.find(s=>s.id==cl?.schoolId) || schools.find(s=>s.id==fu?.schoolId);
               return [
-                sc?.name||<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
+                sc
+                  ? <span style={{fontWeight:500,color:"#1e3a5f"}}>{sc.name}</span>
+                  : <span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
                 cl?.room ? `Room ${cl.room}` : <span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
-                fu ? <span>{fu.ftype}{fu.spec ? <span style={{fontSize:11,color:"#6B7280"}}> ({fu.spec})</span> : ""}</span> : "—",
+                fu ? <span>{fu.ftype}{fu.spec ? <span style={{fontSize:11,color:"#6B7280"}}> ({fu.spec})</span> : ""}</span> : <span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
+                r.ftype ? <span style={{fontSize:12,color:"#374151"}}>{r.ftype}</span> : <span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
                 fu?.condition ? <Badge val={fu.condition}/> : <span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
                 r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.allocated,r.completed||"—"
               ];
