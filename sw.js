@@ -1,11 +1,13 @@
-/* SchoolAudit Service Worker */
-/* !! Change this date string every time you deploy to force update !! */
+/* SchoolAudit Service Worker — offline cache */
 const CACHE = "schoolaudit-v2026-06-22b";
 
-/* Only cache files that actually exist in the repo */
 const PRECACHE = [
   "./index.html",
   "./app.js",
+  "./style.css",
+  "./react.production.min.js",
+  "./react-dom.production.min.js",
+  "./vendor/babel.min.js",
 ];
 
 self.addEventListener("install", e => {
@@ -30,23 +32,15 @@ self.addEventListener("fetch", e => {
   if (e.request.method !== "GET") return;
   e.respondWith(
     caches.match(e.request).then(cached => {
-      /* Always try network first for app.js so updates load immediately */
-      if (e.request.url.includes("app.js")) {
-        return fetch(e.request)
-          .then(resp => {
-            if (resp && resp.status === 200) {
-              caches.open(CACHE).then(c => c.put(e.request, resp.clone()));
-            }
-            return resp;
-          })
-          .catch(() => cached);
-      }
-      return cached || fetch(e.request).then(resp => {
-        if (resp && resp.status === 200) {
-          caches.open(CACHE).then(c => c.put(e.request, resp.clone()));
+      if (cached) return cached;
+      // Clone BEFORE consuming — fixes "body already used" error
+      return fetch(e.request.clone()).then(resp => {
+        if (resp && resp.status === 200 && resp.type !== "opaque") {
+          const toCache = resp.clone();
+          caches.open(CACHE).then(c => c.put(e.request, toCache));
         }
         return resp;
-      });
+      }).catch(() => cached);
     })
   );
 });
