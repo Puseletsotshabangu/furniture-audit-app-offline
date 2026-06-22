@@ -1,6 +1,4 @@
-/* SchoolAudit Service Worker — offline cache */
-const CACHE = "schoolaudit-v1";
-const PRECACHE = [
+const CACHE = "schoolaudit-v2026-06-22";/
   "./index.html",
   "./app.js",
   "./style.css",
