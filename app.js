@@ -1003,7 +1003,7 @@ function App(){
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           <StatCard label="Total learners" value={schools.reduce((a,s)=>a+Number(s.enrolment||0),0)} color="#2563EB"/>
           <StatCard label="Total teachers" value={schools.reduce((a,s)=>a+Number(s.teachers||0),0)}  color="#7C3AED"/>
-          <StatCard label="Avg. ratio" value={()=>{const t=schools.reduce((a,s)=>a+Number(s.teachers||0),0);const l=schools.reduce((a,s)=>a+Number(s.enrolment||0),0);return t>0?`1:${Math.round(l/t)}`:"—";}()} color="#059669"/>
+          <StatCard label="Avg. ratio" value={schools.reduce((a,s)=>a+Number(s.teachers||0),0)>0?`1:${Math.round(schools.reduce((a,s)=>a+Number(s.enrolment||0),0)/schools.reduce((a,s)=>a+Number(s.teachers||0),0))}`:"—"} color="#059669"/>
         </div>
         <div style={{display:"grid",gap:"1rem"}}>
           {schools.filter(s=>s.teachers&&s.enrolment).map(s=>{const ratio=Math.round(Number(s.enrolment)/Number(s.teachers));const pct=Math.min(Math.round((ratio/50)*100),150);const color=ratio<=30?"#059669":ratio<=40?"#D97706":"#DC2626";const status=ratio<=30?"Good":ratio<=40?"Acceptable":"Overcrowded";return(
