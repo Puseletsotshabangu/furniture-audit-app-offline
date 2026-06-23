@@ -421,10 +421,40 @@ function WarehouseForm({onSave,onClose}) {
 // ─────────────────────────────────────────────
 // SCHOOL CAPTURE — tabbed single-school form
 // ─────────────────────────────────────────────
-function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSaveAll,showToast}) {
+function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSaveAll,showToast,emisData}) {
   const [tab,setTab]=useState(0);
   const [selectedSchoolId,setSelectedSchoolId]=useState("");
+  const [emisSearch,setEmisSearch]=useState("");
+  const [emisMatch,setEmisMatch]=useState(null);
   const [newSchool,setNewSchool]=useState({name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
+
+  // Search EMIS database and pre-fill school form
+  const searchEmis = val => {
+    setEmisSearch(val);
+    setEmisMatch(null);
+    if (!val.trim()) return;
+    const q = val.trim().toLowerCase();
+    const match = emisData.find(s =>
+      s.emis === val.trim() ||
+      s.name.toLowerCase().includes(q) ||
+      s.emis.includes(val.trim())
+    );
+    setEmisMatch(match || null);
+  };
+
+  const applyEmisMatch = () => {
+    if (!emisMatch) return;
+    setNewSchool(p => ({...p,
+      name: emisMatch.name,
+      emis: emisMatch.emis,
+      province: emisMatch.province || "NC",
+      district: emisMatch.district || "",
+      circuit: emisMatch.circuit || "",
+    }));
+    setEmisSearch("");
+    setEmisMatch(null);
+    showToast(`✓ Pre-filled from EMIS: ${emisMatch.name}`);
+  };
   const [audit,setAudit]=useState({year:new Date().getFullYear(),date:new Date().toISOString().slice(0,10),risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
   const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",ftype:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"}]);
   const [condRow,setCondRow]=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
@@ -474,6 +504,22 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
         {tab===0&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>School details</h3>
           {selectedSchoolId?<p style={{color:"#059669",fontSize:13}}>✓ Using existing school: <strong>{schools.find(s=>s.id==selectedSchoolId)?.name}</strong></p>:<>
+            {/* EMIS database search to pre-fill */}
+            <div style={{background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",border:"1px solid #BFDBFE",borderRadius:10,padding:"12px 14px",marginBottom:"1rem"}}>
+              <p style={{fontSize:12,fontWeight:600,color:"#1E40AF",margin:"0 0 6px"}}>🔍 Search EMIS database to pre-fill</p>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <input style={{...inp,flex:1}} value={emisSearch} onChange={e=>searchEmis(e.target.value)} placeholder="Type school name or EMIS number..."/>
+                {emisMatch&&<button type="button" onClick={applyEmisMatch} style={{padding:"7px 16px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:12,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>Use this →</button>}
+              </div>
+              {emisSearch && emisMatch && (
+                <div style={{marginTop:8,background:"#fff",borderRadius:8,padding:"8px 12px",border:"1px solid #BFDBFE"}}>
+                  <p style={{margin:"0 0 2px",fontSize:13,fontWeight:600,color:"#111827"}}>{emisMatch.name}</p>
+                  <p style={{margin:0,fontSize:12,color:"#6B7280"}}>EMIS: {emisMatch.emis} · {emisMatch.district} · {emisMatch.circuit||"—"}</p>
+                </div>
+              )}
+              {emisSearch && !emisMatch && <p style={{fontSize:12,color:"#9CA3AF",margin:"6px 0 0"}}>No match found — fill in manually below</p>}
+              {!emisData.length && <p style={{fontSize:12,color:"#9CA3AF",margin:"6px 0 0"}}>Upload EMIS dataset in the EMIS Database page to enable search</p>}
+            </div>
             <Row2><Field label="School name"><input style={inp} value={newSchool.name} onChange={sc("name")} placeholder="Full school name"/></Field><Field label="EMIS number"><input style={inp} value={newSchool.emis} onChange={sc("emis")}/></Field></Row2>
             <Row2><Field label="Province"><input style={inp} value={newSchool.province} onChange={sc("province")}/></Field><Field label="District"><input style={inp} value={newSchool.district} onChange={sc("district")}/></Field></Row2>
             <Field label="Circuit"><input style={inp} value={newSchool.circuit} onChange={sc("circuit")} placeholder="e.g. F8"/></Field>
@@ -565,7 +611,7 @@ function AdminTaskForm({onSave,onClose}){const [f,setF]=useState({type:"Payment 
 // ─────────────────────────────────────────────
 // EMIS PAGE (from v77)
 // ─────────────────────────────────────────────
-function EmisPage({onImport}){const [search,setSearch]=useState("");const [distFilter,setDistFilter]=useState("All");const [phaseFilter,setPhaseFilter]=useState("All");const [sectorFilter,setSectorFilter]=useState("All");const [selected,setSelected]=useState(null);const [uploadedData,setUploadedData]=useState([]);const [uploadMsg,setUploadMsg]=useState("");const allData=uploadedData.length>0?uploadedData:EMIS_SAMPLE;const districts=["All",...new Set(allData.map(s=>s.district))].sort();const handleUpload=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const text=ev.target.result;const sep=text.indexOf("\t")>-1?"\t":text.indexOf(";")>-1?";":",";const lines=text.split(/\r?\n/).filter(Boolean);const hdrs=lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));const get=(row,...keys)=>{for(const k of keys){const i=hdrs.indexOf(k.toLowerCase());if(i>=0&&row[i]!==undefined)return row[i].toString().trim().replace(/^"|"$/g,"");}return "";};const phMap={primary:"Primary",secondary:"Secondary",combined:"Combined",intermediate:"Intermediate","special needs education":"Special Needs Education"};const parsed=lines.slice(1).map(line=>{const row=sep==="\t"?line.split("\t"):(line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(","));const emis=get(row,"emiscode","emis code","emis","EmisCode");const name=get(row,"institution name","name","school name","Institution name");if(!emis&&!name)return null;const phRaw=get(row,"institution phase","phase");return{emis,name,district:get(row,"district"),phase:phMap[phRaw.toLowerCase()]||phRaw,type:get(row,"institution type","type"),sector:get(row,"sector","legal status").toLowerCase().includes("public")?"Public":"Independent",status:get(row,"practical status of the institution","status"),city:get(row,"city/town","city","town"),province:get(row,"province","PROVINCE")||"NC",lat:parseFloat(get(row,"latitude","lat"))||0,lng:parseFloat(get(row,"longitude","lng"))||0,email:get(row,"email"),emailAlt:get(row,"emailalt","email alt"),tel:get(row,"telephone1","tel1","telephone"),telCode:get(row,"telcode1","telcode"),circuit:get(row,"circuit"),landOwnership:get(row,"landownership","land ownership"),examCentre:get(row,"examcentre","exam centre")};}).filter(r=>{if(!r||(!r.emis&&!r.name))return false;const prov=(r.province||"").trim().toUpperCase();const provStripped=prov.replace(/[^A-Z]/g,"");return prov==="NC"||provStripped==="NC"||provStripped==="NORTHERNCAPE"||provStripped==="NORTHERN"||prov.startsWith("NC");});setUploadedData(parsed);setUploadMsg(`✓ Loaded ${parsed.length} NC schools from ${file.name}`);};reader.readAsText(file);};const filtered=useMemo(()=>allData.filter(s=>{const q=search.toLowerCase();return(!q||s.name.toLowerCase().includes(q)||s.emis.includes(q)||(s.city||"").toLowerCase().includes(q))&&(distFilter==="All"||s.district===distFilter)&&(phaseFilter==="All"||s.phase===phaseFilter)&&(sectorFilter==="All"||s.sector===sectorFilter);}),[search,distFilter,phaseFilter,sectorFilter,allData]);
+function EmisPage({onImport,onDataLoaded}){const [search,setSearch]=useState("");const [distFilter,setDistFilter]=useState("All");const [phaseFilter,setPhaseFilter]=useState("All");const [sectorFilter,setSectorFilter]=useState("All");const [selected,setSelected]=useState(null);const [uploadedData,setUploadedData]=useState([]);const [uploadMsg,setUploadMsg]=useState("");const allData=uploadedData.length>0?uploadedData:EMIS_SAMPLE;const districts=["All",...new Set(allData.map(s=>s.district))].sort();const handleUpload=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const text=ev.target.result;const sep=text.indexOf("\t")>-1?"\t":text.indexOf(";")>-1?";":",";const lines=text.split(/\r?\n/).filter(Boolean);const hdrs=lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));const get=(row,...keys)=>{for(const k of keys){const i=hdrs.indexOf(k.toLowerCase());if(i>=0&&row[i]!==undefined)return row[i].toString().trim().replace(/^"|"$/g,"");}return "";};const phMap={primary:"Primary",secondary:"Secondary",combined:"Combined",intermediate:"Intermediate","special needs education":"Special Needs Education"};const parsed=lines.slice(1).map(line=>{const row=sep==="\t"?line.split("\t"):(line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(","));const emis=get(row,"emiscode","emis code","emis","EmisCode");const name=get(row,"institution name","name","school name","Institution name");if(!emis&&!name)return null;const phRaw=get(row,"institution phase","phase");return{emis,name,district:get(row,"district"),phase:phMap[phRaw.toLowerCase()]||phRaw,type:get(row,"institution type","type"),sector:get(row,"sector","legal status").toLowerCase().includes("public")?"Public":"Independent",status:get(row,"practical status of the institution","status"),city:get(row,"city/town","city","town"),province:get(row,"province","PROVINCE")||"NC",lat:parseFloat(get(row,"latitude","lat"))||0,lng:parseFloat(get(row,"longitude","lng"))||0,email:get(row,"email"),emailAlt:get(row,"emailalt","email alt"),tel:get(row,"telephone1","tel1","telephone"),telCode:get(row,"telcode1","telcode"),circuit:get(row,"circuit"),landOwnership:get(row,"landownership","land ownership"),examCentre:get(row,"examcentre","exam centre")};}).filter(r=>{if(!r||(!r.emis&&!r.name))return false;const prov=(r.province||"").trim().toUpperCase();const provStripped=prov.replace(/[^A-Z]/g,"");return prov==="NC"||provStripped==="NC"||provStripped==="NORTHERNCAPE"||provStripped==="NORTHERN"||prov.startsWith("NC");});setUploadedData(parsed);if(onDataLoaded)onDataLoaded(parsed);setUploadMsg(`✓ Loaded ${parsed.length} NC schools from ${file.name}`);};reader.readAsText(file);};const filtered=useMemo(()=>allData.filter(s=>{const q=search.toLowerCase();return(!q||s.name.toLowerCase().includes(q)||s.emis.includes(q)||(s.city||"").toLowerCase().includes(q))&&(distFilter==="All"||s.district===distFilter)&&(phaseFilter==="All"||s.phase===phaseFilter)&&(sectorFilter==="All"||s.sector===sectorFilter);}),[search,distFilter,phaseFilter,sectorFilter,allData]);
 return(<div><SectionHeader title="EMIS School Database" extra={<ExportBtn label="CSV" filename="emis_schools.csv" cols={["EMIS","Name","District","Phase","Sector","City","Province","Email","Tel"]} rows={allData.map(s=>[s.emis,s.name,s.district,s.phase,s.sector,s.city,s.province,s.email,s.tel])}/>}/><Card style={{marginBottom:"1.25rem",background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",borderColor:"#BFDBFE"}}><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}><div><p style={{fontWeight:600,fontSize:14,color:"#1E40AF",margin:"0 0 2px"}}>📂 Upload full EMIS dataset</p><p style={{fontSize:12,color:"#3B82F6",margin:0}}>Upload your NC EMIS master list (.txt or .csv). Currently showing {allData.length} schools.</p>{uploadMsg&&<p style={{fontSize:12,color:"#065F46",fontWeight:600,margin:"4px 0 0"}}>{uploadMsg}</p>}</div><label style={{padding:"8px 18px",borderRadius:8,background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}}>Choose file<input type="file" accept=".txt,.csv,.tsv" onChange={handleUpload} style={{display:"none"}}/></label></div></Card><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}><StatCard label="Total records" value={allData.length} sub="Northern Cape" color="#2563EB"/><StatCard label="Public" value={allData.filter(s=>s.sector==="Public").length} color="#059669"/><StatCard label="Independent" value={allData.filter(s=>s.sector==="Independent").length} color="#7C3AED"/><StatCard label="Districts" value={new Set(allData.map(s=>s.district)).size} color="#D97706"/></div><Card style={{marginBottom:"1rem"}}><div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",gap:10}}><div><label style={flbl}>Search name / EMIS / town</label><input style={inp} placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}/></div><div><label style={flbl}>District</label><select style={sel} value={distFilter} onChange={e=>setDistFilter(e.target.value)}>{districts.map(d=><option key={d}>{d}</option>)}</select></div><div><label style={flbl}>Phase</label><select style={sel} value={phaseFilter} onChange={e=>setPhaseFilter(e.target.value)}>{["All","Primary","Secondary","Combined","Intermediate"].map(p=><option key={p}>{p}</option>)}</select></div><div><label style={flbl}>Sector</label><select style={sel} value={sectorFilter} onChange={e=>setSectorFilter(e.target.value)}>{["All","Public","Independent"].map(x=><option key={x}>{x}</option>)}</select></div></div></Card><Card><p style={{fontSize:12,color:"#6B7280",margin:"0 0 10px"}}>Showing {filtered.length} of {allData.length} schools</p><DataTable cols={["EMIS","School Name","District","Phase","Sector","City","Action"]} rows={filtered} renderRow={s=>[<span style={{fontSize:12,color:"#6B7280"}}>{s.emis}</span>,<span style={{fontWeight:500}}>{s.name}</span>,s.district,<Badge val={s.phase}/>,<Badge val={s.sector}/>,s.city,<button onClick={()=>setSelected(s)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>View</button>]}/></Card>{selected&&(<Card style={{marginTop:"1rem",borderColor:"#BFDBFE"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><div><p style={{fontWeight:600,fontSize:15,margin:"0 0 2px"}}>{selected.name}</p><p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {selected.emis} · {selected.district}</p></div><button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:"#9CA3AF",cursor:"pointer",fontSize:18}}>✕</button></div><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>{[["Phase",selected.phase],["Sector",selected.sector],["City/Town",selected.city],["Circuit",selected.circuit||"—"],["Land Ownership",selected.landOwnership||"—"],["Status",selected.status||"—"],["Email",selected.email||"—"],["Alt Email",selected.emailAlt||"—"],["Tel",selected.telCode&&selected.tel?`(${selected.telCode}) ${selected.tel}`:selected.tel||"—"],["Exam Centre",selected.examCentre||"—"],["Latitude",selected.lat||"—"],["Longitude",selected.lng||"—"]].map(([l,v])=><div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"8px 10px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 2px"}}>{l}</p><p style={{fontSize:13,fontWeight:500,margin:0,wordBreak:"break-all"}}>{v}</p></div>)}</div><button onClick={()=>{onImport(selected);setSelected(null);}} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Import into Audit Schools →</button></Card>)}</div>);}
 
 
@@ -786,6 +832,7 @@ function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks
 function App(){
   const [active,         setActive]         = useState("dashboard");
   const [modal,          setModal]          = useState(null);
+  const [emisData,       setEmisData]       = useState([]);
   const [schools,        setSchools]        = useState(()=>loadFromLS("schools",initSchools));
   const [audits,         setAudits]         = useState(()=>loadFromLS("audits",initAudits));
   const [classrooms,     setClassrooms]     = useState(()=>loadFromLS("classrooms",initClassrooms));
@@ -871,8 +918,8 @@ function App(){
   const renderPage = () => { switch(active){
 
     case "dashboard": return <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>;
-    case "emis":      return <EmisPage onImport={importSchool}/>;
-    case "capture":   return <SchoolCapturePage schools={schools} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} onSaveAll={saveCaptureAll} showToast={showToast}/>;
+    case "emis":      return <EmisPage onImport={importSchool} onDataLoaded={setEmisData}/>;
+    case "capture":   return <SchoolCapturePage schools={schools} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} onSaveAll={saveCaptureAll} showToast={showToast} emisData={emisData}/>;
     case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution} onRestore={restoreAll} onMerge={mergeAll}/>;
 
     case "schools": return (
