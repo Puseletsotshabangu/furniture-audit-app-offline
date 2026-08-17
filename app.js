@@ -1141,26 +1141,70 @@ function App(){
         </Card>
       </div>
     );
-    case "classrooms": return (
+    case "classrooms": {
+      const unassignedFurniture = furniture.filter(f=>!classrooms.find(c=>c.id==f.classroomId));
+      const unassignedBySchool = {};
+      unassignedFurniture.forEach(f=>{ const sid=f.schoolId; if(sid==null) return; (unassignedBySchool[sid]=unassignedBySchool[sid]||[]).push(f); });
+      const combinedCols=["School","Room","Room Type","Grade","Learners","Category","Furniture Type","Available","Damaged","Repairable","Condition"];
+      const combinedRows=[];
+      classrooms.forEach(c=>{
+        const items=furniture.filter(f=>f.classroomId==c.id);
+        if(!items.length) combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,"","","","","",""]);
+        else items.forEach(f=>combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+      });
+      unassignedFurniture.forEach(f=>combinedRows.push([scName(f.schoolId),"— Unassigned —","","","",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+      return (
       <div>
-        <SectionHeader title="Classrooms & Furniture" onAdd={()=>setModal("classroom")} extra={<ExportBtn label="CSV" filename="classrooms.csv" cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])}/>}/>
-        <Card style={{marginBottom:"1rem"}}>
-          <h3 style={{fontSize:14,fontWeight:600,margin:"0 0 0.75rem"}}>Classrooms</h3>
-          <DataTable cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms}
-            renderRow={r=>[scName(r.schoolId),r.room,r.type,r.grade,r.spec,r.learners,<Badge val={r.isMobile}/>]}/>
-        </Card>
-        <SectionHeader title="Furniture" onAdd={()=>setModal("furniture")} extra={<ExportBtn label="CSV" filename="furniture.csv" cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition"]} rows={furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})}/>}/>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1rem"}}>
-          <StatCard label="Total available" value={furniture.reduce((a,f)=>a+Number(f.available||0),0)} color="#2563EB"/>
-          <StatCard label="Damaged"         value={furniture.reduce((a,f)=>a+Number(f.damaged||0),0)}   color="#DC2626"/>
-          <StatCard label="Repairable"      value={furniture.reduce((a,f)=>a+Number(f.repairable||0),0)}color="#D97706"/>
+        <SectionHeader title="Classrooms & Furniture" onAdd={()=>setModal("classroom")}
+          extra={<>
+            <button onClick={()=>setModal("furniture")} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add furniture</button>
+            <ExportBtn label="CSV" filename="classrooms_and_furniture.csv" cols={combinedCols} rows={combinedRows}/>
+          </>}/>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1rem"}}>
+          <StatCard label="Rooms"           value={classrooms.length}                                        color="#7C3AED"/>
+          <StatCard label="Total available" value={furniture.reduce((a,f)=>a+Number(f.available||0),0)}      color="#2563EB"/>
+          <StatCard label="Damaged"         value={furniture.reduce((a,f)=>a+Number(f.damaged||0),0)}        color="#DC2626"/>
+          <StatCard label="Repairable"      value={furniture.reduce((a,f)=>a+Number(f.repairable||0),0)}     color="#D97706"/>
         </div>
-        <Card>
-          <DataTable cols={["School","Room","Category","Type","Available","Damaged","Repairable","Condition","Photo"]} rows={furniture}
-            renderRow={r=>{const cl=classrooms.find(c=>c.id==r.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==r.schoolId);return[sc?.name||"—",cl?.room||"—",r.category,r.ftype,r.available,r.damaged,r.repairable,<Badge val={r.condition}/>,r.photoData?<a href={r.photoData} target="_blank" rel="noreferrer"><img src={r.photoData} alt="photo" style={{width:36,height:36,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>];}}/>
-        </Card>
+        {classrooms.length===0&&<Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No classrooms yet. Use + Add classroom to get started.</p></Card>}
+        <div style={{display:"grid",gap:"1rem"}}>
+          {classrooms.map(c=>{
+            const items=furniture.filter(f=>f.classroomId==c.id);
+            const avail=items.reduce((a,f)=>a+Number(f.available||0),0);
+            const dmg=items.reduce((a,f)=>a+Number(f.damaged||0),0);
+            return (
+              <Card key={c.id}>
+                <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:8}}>
+                  <div>
+                    <p style={{fontWeight:600,fontSize:15,margin:"0 0 2px",color:"#111827"}}>{scName(c.schoolId)} — Room {c.room}</p>
+                    <p style={{fontSize:12,color:"#6B7280",margin:0}}>{c.type}{c.grade?` · Grade ${c.grade}`:""}{c.spec?` · ${c.spec}`:""}{c.learners?` · ${c.learners} learners`:""}{c.isMobile==="Yes"?" · Mobile":""}</p>
+                  </div>
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                    {items.length>0&&<span style={{fontSize:11,color:"#6B7280"}}>{avail} available{dmg>0?<span style={{color:"#DC2626"}}> · {dmg} damaged</span>:""}</span>}
+                  </div>
+                </div>
+                {items.length===0?<p style={{fontSize:13,color:"#9CA3AF",margin:0}}>No furniture captured for this room yet.</p>:(
+                  <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Condition","Photo"]} rows={items}
+                    renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.damaged}</span>:f.damaged,f.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{f.repairable}</span>:f.repairable,<Badge val={f.condition}/>,f.photoData?<a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="photo" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>]}/>
+                )}
+              </Card>
+            );
+          })}
+        </div>
+        {Object.keys(unassignedBySchool).length>0&&<div style={{marginTop:"1.5rem"}}>
+          <h3 style={{fontSize:14,fontWeight:600,margin:"0 0 0.75rem",color:"#374151"}}>Unassigned inventory <span style={{fontWeight:400,color:"#9CA3AF",fontSize:12}}>(not yet placed in a specific room — e.g. from transfers or warehouse dispatch)</span></h3>
+          <div style={{display:"grid",gap:"1rem"}}>
+            {Object.entries(unassignedBySchool).map(([sid,items])=>(
+              <Card key={sid}>
+                <p style={{fontWeight:600,fontSize:14,margin:"0 0 8px",color:"#111827"}}>{scName(sid)}</p>
+                <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Condition"]} rows={items}
+                  renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,<Badge val={f.condition}/>]}/>
+              </Card>
+            ))}
+          </div>
+        </div>}
       </div>
-    );
+    );}
     case "conditions": return (
       <div>
         <SectionHeader title="Mobile Conditional Assessment" onAdd={()=>setModal("condition")} extra={<ExportBtn label="CSV" filename="conditions.csv" cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl?.schoolId),cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})}/>}/>
