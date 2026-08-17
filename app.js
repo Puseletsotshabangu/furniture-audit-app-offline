@@ -1,5 +1,4 @@
 const { useState, useMemo, useEffect, useRef } = React;
-
 // ─────────────────────────────────────────────
 // NAV
 // ─────────────────────────────────────────────
@@ -10,7 +9,8 @@ const NAV = [
   { id:"capture",      label:"School Capture",     icon:"📝" },
   { id:"audits",       label:"Audits",             icon:"📋" },
   { id:"classrooms",   label:"Classrooms & Furniture", icon:"🚪" },
-  { id:"conditions",   label:"Conditions",         icon:"🔍" },
+  { id:"furnsummary",  label:"Furniture Summary",  icon:"🪑" },
+  { id:"conditions",   label:"Mobile Conditional Assessment", icon:"🔍" },
   { id:"repairs",      label:"Repairs",            icon:"🔧" },
   { id:"warehouse",    label:"Warehouse",          icon:"🏭" },
   { id:"distribution", label:"Distribution",       icon:"🚚" },
@@ -24,9 +24,8 @@ const NAV = [
   { id:"kpa3",         label:"  Mobile Audit",     icon:"🚌" },
   { id:"kpa4",         label:"  School Requests",  icon:"🏗️" },
   { id:"kpa5",         label:"  Admin & Payments", icon:"🗂️" },
+  { id:"kpa6",         label:"  School Transfers", icon:"🔄" },
 ];
-
-
 // ─────────────────────────────────────────────
 // DBE FURNITURE (full list from v77)
 // ─────────────────────────────────────────────
@@ -41,6 +40,9 @@ const DBE_FURNITURE = [
   "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top","Single Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top","Single Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
   "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top","Single Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top","Single Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
   "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top","Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top","Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
+  "Double Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top","Double Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top","Double Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
+  "Double Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top","Double Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top","Double Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
+  "Double Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top","Double Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top","Double Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
   "Penny 1 Wooden Chair – Size 1 (Grade R, seat height 260mm)","Penny 1 Wooden Chair – Size 2 (Grade 1–3, seat height 310mm)","Penny 1 Wooden Chair – Size 3 (Grade 4–6, seat height 350mm)",
   "Penny 1 Plastic Chair – Size 1 (Grade R, seat height 260mm)","Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)","Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",
   "Penny 4 Wooden Chair – Size 4 (Grade 7–9, seat height 380mm)","Penny 4 Wooden Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
@@ -59,8 +61,6 @@ const DBE_FURNITURE = [
   "Staff Locker (Single Door)","Staff Locker (Double Door)","Science Lab Table","Lab Stool","Computer Lab Table","Library Table","Library Chair",
   "ECD Activity Table (Grade R)","ECD Chair (Grade R)","Multipurpose Table","Steel Shelf Unit","Storeroom Shelf","Display Cabinet","Notice Board","Whiteboard (Mobile)",
 ];
-
-
 // ─────────────────────────────────────────────
 // EMIS SAMPLE
 // ─────────────────────────────────────────────
@@ -76,7 +76,6 @@ const EMIS_SAMPLE = [
   { emis:"300053201", name:"CURRO KATHU",                    district:"JOHN TAOLO GAETSEWE", phase:"Combined",  sector:"Independent", city:"KATHU",     province:"NC", lat:-27.706974, lng:23.044356, email:"antoinette.v1@curro.co.za",       tel:"2854755",    circuit:"K3",  landOwnership:"Private", examCentre:"",        emailAlt:"", telCode:"087", type:"Ordinary School",         status:"Operational" },
   { emis:"300033401", name:"HANTAM SEKONDERE SKOOL",         district:"NAMAKWA",             phase:"Secondary", sector:"Public",      city:"Calvinia",  province:"NC", lat:-31.464160, lng:19.759684, email:"hantamhigh@gmail.com",             tel:"3411295",    circuit:"N4",  landOwnership:"Govt",    examCentre:"2033401", emailAlt:"", telCode:"027", type:"Ordinary School",         status:"Operational" },
 ];
-
 // ─────────────────────────────────────────────
 // SEED DATA
 // ─────────────────────────────────────────────
@@ -96,14 +95,104 @@ const initLearnerData  = [{id:1,school:"Soweto Primary",district:"Johannesburg S
 const initMobileAudit  = [{id:1,schoolId:1,mobileCount:4,condition:"Fair",structuralIssues:"Roof leaks",electricityAvail:"Yes",ablutions:"No",recommendation:"Repair roof",auditDate:"2026-04-20",auditedBy:"PY Tshabangu"},{id:2,schoolId:3,mobileCount:3,condition:"Poor",structuralIssues:"Floor damage",electricityAvail:"No",ablutions:"No",recommendation:"Replace unit",auditDate:"2026-04-22",auditedBy:"PY Tshabangu"}];
 const initSchoolRequests=[{id:1,schoolId:1,district:"Johannesburg South",requestType:"Furniture",priority:"High",dateReceived:"2026-04-05",status:"In Progress",assignedTo:"PY Tshabangu",dueDate:"2026-06-30",notes:"220 desks needed urgently"},{id:2,schoolId:2,district:"Tshwane North",requestType:"Mobile Unit",priority:"Medium",dateReceived:"2026-04-10",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"2026-07-31",notes:"Request for 2 additional mobiles"},{id:3,schoolId:3,district:"Johannesburg East",requestType:"Repairs",priority:"Low",dateReceived:"2026-04-15",status:"Completed",assignedTo:"PY Tshabangu",dueDate:"2026-05-31",notes:"Classroom door repairs done"}];
 const initAdminTasks   = [{id:1,type:"Payment Verification",ref:"PAY-2026-001",date:"2026-04-08",amount:"R 45,000",supplier:"Edu Furniture Co.",status:"Verified",notes:"All docs checked and signed"},{id:2,type:"Stakeholder Enquiry",ref:"ENQ-2026-012",date:"2026-04-10",amount:"—",supplier:"—",status:"Resolved",notes:"Principal query re: delivery date"},{id:3,type:"Filing / Scanning",ref:"FILE-2026-003",date:"2026-04-12",amount:"—",supplier:"—",status:"Completed",notes:"Q1 project docs scanned and filed"},{id:4,type:"Payment Verification",ref:"PAY-2026-002",date:"2026-04-18",amount:"R 12,500",supplier:"SA School Supplies",status:"Pending",notes:"Awaiting supporting documents"}];
-
-
+const initSchoolTransfers=[{id:1,schoolId:1,direction:"Out",learnerName:"T. Mahlangu",grade:"7",otherSchool:"Riverside Primary",reason:"Relocation",transferDate:"2026-03-12",status:"Completed",processedBy:"PY Tshabangu",notes:"Records forwarded to receiving school"},{id:2,schoolId:2,direction:"In",learnerName:"K. Adams",grade:"10",otherSchool:"Vryburg High",reason:"Parent Request",transferDate:"2026-04-02",status:"Approved",processedBy:"PY Tshabangu",notes:"Awaiting learner file"},{id:3,schoolId:3,direction:"Out",learnerName:"S. Booysen",grade:"5",otherSchool:"Unknown — pending",reason:"Other",transferDate:"2026-04-18",status:"Pending",processedBy:"PY Tshabangu",notes:"Confirming destination school"}];
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
 const uid = () => Date.now() + Math.random();
 const loadFromLS = (key, fallback) => { try { const r=localStorage.getItem(key); return r?JSON.parse(r):fallback; } catch(e){ return fallback; } };
-
+// ─────────────────────────────────────────────
+// CLOUD SYNC (Firebase Firestore) — optional
+// ─────────────────────────────────────────────
+// To turn on cross-device sync for tablets/laptops:
+//   1. Go to https://console.firebase.google.com → Create project (free Spark plan is enough)
+//   2. In the project, click "Build → Firestore Database" → Create database → Start in production mode
+//      (any region is fine) — this is a free tier, no credit card required for Spark.
+//   3. Firestore → Rules tab → paste this (locks writes to signed-in users is overkill for a small
+//      team tool, so this simply allows read/write — you can tighten it later):
+//        rules_version = '2';
+//        service cloud.firestore {
+//          match /databases/{database}/documents {
+//            match /{document=**} { allow read, write: if true; }
+//          }
+//        }
+//   4. Project settings (gear icon) → General → "Your apps" → Add app → Web (</>) → register app
+//      (no hosting needed) → copy the firebaseConfig object it shows you.
+//   5. Paste those 6 values into FIREBASE_CONFIG below, replacing the placeholders.
+//   6. Reload the app on every device — they'll now share the same live data.
+// Until FIREBASE_CONFIG is filled in, the app works exactly as before: each browser keeps its
+// own local copy only (no sync between devices).
+const FIREBASE_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID",
+};
+const FIREBASE_ENABLED = !!(FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.apiKey !== "YOUR_API_KEY" && typeof window!=="undefined" && window.firebase);
+let firestoreDb = null;
+if (FIREBASE_ENABLED) {
+  try {
+    const fbApp = window.firebase.initializeApp(FIREBASE_CONFIG);
+    firestoreDb = window.firebase.firestore(fbApp);
+    try { firestoreDb.enablePersistence({synchronizeTabs:true}).catch(()=>{}); } catch(e){}
+  } catch(e) { console.warn("Firebase init failed, falling back to local-only mode:", e); }
+}
+// useSyncedCollection(name, initialData) behaves like useState(()=>loadFromLS(...)) but, when
+// FIREBASE_CONFIG is filled in, keeps the array live-synced with a Firestore collection across
+// every device that has the app open. Falls back to plain localStorage when not configured.
+function useSyncedCollection(name, initialData) {
+  const [items, setItems] = useState(() => loadFromLS(name, initialData));
+  useEffect(() => {
+    if (!firestoreDb) return;
+    const unsub = firestoreDb.collection(name).onSnapshot(
+      snap => {
+        const list = snap.docs.map(d => d.data());
+        setItems(list);
+        try { localStorage.setItem(name, JSON.stringify(list)); } catch(e){}
+      },
+      err => console.warn(`Sync error (${name}):`, err)
+    );
+    return unsub;
+  }, [name]);
+  useEffect(() => {
+    if (firestoreDb) return; // Firestore mode: local cache is written by the listener above instead
+    try { localStorage.setItem(name, JSON.stringify(items)); } catch(e){}
+  }, [items, name]);
+  const mutate = useMemo(() => ({
+    addOne: (record) => {
+      const withId = { ...record, id: record.id ?? uid() };
+      if (firestoreDb) firestoreDb.collection(name).doc(String(withId.id)).set(withId).catch(e=>console.error(`Sync write failed (${name}):`,e));
+      else setItems(p => [...p, withId]);
+      return withId;
+    },
+    addMany: (records) => {
+      if (!records || !records.length) return;
+      const withIds = records.map(r => ({ ...r, id: r.id ?? uid() }));
+      if (firestoreDb) {
+        const batch = firestoreDb.batch();
+        withIds.forEach(r => batch.set(firestoreDb.collection(name).doc(String(r.id)), r));
+        batch.commit().catch(e=>console.error(`Sync batch write failed (${name}):`,e));
+      } else {
+        setItems(p => [...p, ...withIds]);
+      }
+    },
+    replaceAll: (records) => {
+      if (firestoreDb) {
+        firestoreDb.collection(name).get().then(snap => {
+          const batch = firestoreDb.batch();
+          snap.docs.forEach(d => batch.delete(d.ref));
+          records.forEach(r => batch.set(firestoreDb.collection(name).doc(String(r.id)), r));
+          return batch.commit();
+        }).catch(e=>console.error(`Sync restore failed (${name}):`,e));
+      } else {
+        setItems(records);
+      }
+    },
+  }), [name]);
+  return [items, mutate];
+}
 const BADGE_STYLES = {
   High:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],Medium:["linear-gradient(135deg,#FEF3C7,#FDE68A)","#92400E"],Low:["linear-gradient(135deg,#D1FAE5,#A7F3D0)","#065F46"],
   Good:["linear-gradient(135deg,#D1FAE5,#A7F3D0)","#065F46"],Fair:["linear-gradient(135deg,#FEF3C7,#FDE68A)","#92400E"],Poor:["linear-gradient(135deg,#FEE2E2,#FECACA)","#991B1B"],
@@ -116,11 +205,9 @@ const BADGE_STYLES = {
   Primary:["linear-gradient(135deg,#D1FAE5,#A7F3D0)","#065F46"],Secondary:["linear-gradient(135deg,#FEF3C7,#FDE68A)","#92400E"],Combined:["linear-gradient(135deg,#DBEAFE,#BFDBFE)","#1E40AF"],
 };
 const Badge = ({val}) => { const [bg,color]=BADGE_STYLES[val]||["linear-gradient(135deg,#F3F4F6,#E5E7EB)","#374151"]; return <span style={{background:bg,color,padding:"2px 10px",borderRadius:999,fontSize:12,fontWeight:500,whiteSpace:"nowrap",display:"inline-block"}}>{val}</span>; };
-
 const toCSV = (cols,rows) => { const esc=v=>`"${String(v??'').replace(/"/g,'""')}"`; return [cols.join(","),...rows.map(r=>r.map(esc).join(","))].join("\n"); };
 const downloadCSV = (filename,csv) => { const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"})); a.download=filename; a.click(); };
 const STAT_GRADS = {"#2563EB":"linear-gradient(135deg,#EFF6FF,#DBEAFE)","#7C3AED":"linear-gradient(135deg,#F5F3FF,#EDE9FE)","#059669":"linear-gradient(135deg,#ECFDF5,#D1FAE5)","#DC2626":"linear-gradient(135deg,#FFF5F5,#FEE2E2)","#D97706":"linear-gradient(135deg,#FFFBEB,#FEF3C7)"};
-
 // ─────────────────────────────────────────────
 // UI PRIMITIVES
 // ─────────────────────────────────────────────
@@ -130,14 +217,12 @@ const SectionHeader = ({title,onAdd,extra}) => <div style={{display:"flex",align
 const DataTable = ({cols,rows,renderRow}) => <div style={{overflowX:"auto"}}><table style={{width:"100%",borderCollapse:"collapse",fontSize:13}}><thead><tr style={{borderBottom:"0.5px solid #E5E7EB"}}>{cols.map(c=><th key={c} style={{textAlign:"left",padding:"8px 12px",color:"#6B7280",fontWeight:500,whiteSpace:"nowrap"}}>{c}</th>)}</tr></thead><tbody>{rows.length===0?<tr><td colSpan={cols.length} style={{padding:"2rem",textAlign:"center",color:"#9CA3AF"}}>No records yet</td></tr>:rows.map((r,i)=><tr key={i} style={{borderBottom:"0.5px solid #F3F4F6"}}>{renderRow(r).map((cell,j)=><td key={j} style={{padding:"9px 12px",color:"#374151"}}>{cell}</td>)}</tr>)}</tbody></table></div>;
 const ExportBtn = ({label,cols,rows,filename}) => <button onClick={()=>downloadCSV(filename,toCSV(cols,rows))} style={{fontSize:12,color:"#059669",background:"#F0FDF4",border:"0.5px solid #A7F3D0",borderRadius:8,padding:"5px 12px",cursor:"pointer"}}>⬇ {label}</button>;
 const KpaNote = ({weight,target,description}) => <div style={{background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",border:"0.5px solid #BFDBFE",borderRadius:10,padding:"10px 14px",marginBottom:"1.25rem",fontSize:13,color:"#1E40AF"}}><strong>Weight: {weight}</strong> · Target: {target} · {description}</div>;
-
 const inp  = {width:"100%",padding:"7px 10px",border:"0.5px solid #D1D5DB",borderRadius:8,fontSize:13,boxSizing:"border-box",background:"#fff",color:"#111827"};
 const sel  = {...inp};
 const flbl = {fontSize:12,color:"#6B7280",marginBottom:4,display:"block"};
 const Field = ({label,children}) => <div style={{marginBottom:12}}><label style={flbl}>{label}</label>{children}</div>;
 const Row2  = ({children}) => <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>{children}</div>;
 const Row3  = ({children}) => <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12}}>{children}</div>;
-
 const Modal = ({title,onClose,onSave,errors={},children}) => {
   const errList=Object.values(errors).filter(Boolean);
   return (
@@ -157,8 +242,6 @@ const Modal = ({title,onClose,onSave,errors={},children}) => {
     </div>
   );
 };
-
-
 // ─────────────────────────────────────────────
 // SIGNATURE PAD
 // ─────────────────────────────────────────────
@@ -183,7 +266,6 @@ function SignaturePad({value,onChange}) {
     </div>
   );
 }
-
 // ─────────────────────────────────────────────
 // CANVAS CHARTS
 // ─────────────────────────────────────────────
@@ -196,8 +278,6 @@ function HorizBar({label,value,max,color,total}) {
   const pct=max>0?Math.round((value/max)*100):0; const display=total>0?`${Math.round((value/total)*100)}%`:'—';
   return <div style={{marginBottom:10}}><div style={{display:'flex',justifyContent:'space-between',marginBottom:3}}><span style={{fontSize:12,color:'#374151'}}>{label}</span><span style={{fontSize:12,fontWeight:600,color:'#111827'}}>{value} <span style={{color:'#9CA3AF',fontWeight:400}}>({display})</span></span></div><div style={{background:'#F3F4F6',borderRadius:999,height:7,overflow:'hidden'}}><div style={{width:`${pct}%`,height:'100%',background:color,borderRadius:999}}/></div></div>;
 }
-
-
 // ─────────────────────────────────────────────
 // FORMS — CORE (with validation + photos)
 // ─────────────────────────────────────────────
@@ -219,7 +299,6 @@ function SchoolForm({initial,onSave,onClose}) {
     </Modal>
   );
 }
-
 function AuditForm({schools,onSave,onClose}) {
   const [f,setF]=useState({schoolId:"",year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
   const [touched,setTouched]=useState(false);
@@ -244,7 +323,6 @@ function AuditForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function ClassroomForm({schools,onSave,onClose}) {
   const [f,setF]=useState({schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
   const [touched,setTouched]=useState(false);
@@ -262,7 +340,6 @@ function ClassroomForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function FurnitureForm({classrooms,schools,onSave,onClose}) {
   const [f,setF]=useState({schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
   const [touched,setTouched]=useState(false);
@@ -289,7 +366,6 @@ function FurnitureForm({classrooms,schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function ConditionForm({classrooms,schools,onSave,onClose}) {
   const [f,setF]=useState({classroomId:"",flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
   const [touched,setTouched]=useState(false);
@@ -301,7 +377,7 @@ function ConditionForm({classrooms,schools,onSave,onClose}) {
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="Condition assessment" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title="Mobile Conditional Assessment" onClose={onClose} onSave={handleSave} errors={errors}>
       <Field label="Classroom *"><select style={eS("classroomId")} value={f.classroomId} onChange={s("classroomId")}><option value="">Select</option>{classrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field>
       <Row2><Field label="Flooring condition"><select style={sel} value={f.flooring} onChange={s("flooring")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={f.flooringIssues} onChange={s("flooringIssues")} placeholder="e.g. Cracks, Holes"/></Field></Row2>
       <Row2><Field label="Windows condition"><select style={sel} value={f.windows} onChange={s("windows")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={f.windowIssues} onChange={s("windowIssues")} placeholder="e.g. Broken, Missing"/></Field></Row2>
@@ -311,7 +387,6 @@ function ConditionForm({classrooms,schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function RepairForm({furniture,classrooms,schools,onSave,onClose}) {
   const [f,setF]=useState({furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""});
   const [touched,setTouched]=useState(false);
@@ -353,7 +428,6 @@ function RepairForm({furniture,classrooms,schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function StorageForm({schools,onSave,onClose}) {
   const [f,setF]=useState({schoolId:"",room:"",condition:"Good",secure:"Yes",storedType:"",qty:"",usable:"No",desc:""});
   const [touched,setTouched]=useState(false);
@@ -372,7 +446,6 @@ function StorageForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function DistributionForm({schools,onSave,onClose}) {
   const [f,setF]=useState({schoolId:"",destination:"",desc:"",qty:"",source:"",official:"",position:"",receiver:"",role:"",date:"",purpose:"Delivery",ref:"",proofName:"",proofData:"",sigOfficial:"",sigReceiver:""});
   const [touched,setTouched]=useState(false);
@@ -396,7 +469,6 @@ function DistributionForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-
 function WarehouseForm({onSave,onClose}) {
   const [f,setF]=useState({date:"",supplier:"",ftype:"",spec:"",qty:"",condition:"Good",receivedBy:"",ref:"",status:"In Stock",notes:""});
   const [touched,setTouched]=useState(false);
@@ -416,8 +488,75 @@ function WarehouseForm({onSave,onClose}) {
     </Modal>
   );
 }
-
-
+// ─────────────────────────────────────────────
+// FURNITURE SUMMARY — per-school aggregate report
+// ─────────────────────────────────────────────
+function FurnitureSummaryPage({schools,classrooms,furniture}){
+  const getSchoolId = f => { const cl = classrooms.find(c=>c.id==f.classroomId); return (cl && cl.schoolId!=null) ? cl.schoolId : f.schoolId; };
+  const summary = useMemo(()=>schools.map(s=>{
+    const rows = furniture.filter(f=>{const sid=getSchoolId(f);return sid!=null && sid.toString()===s.id.toString();});
+    const available  = rows.reduce((a,f)=>a+Number(f.available||0),0);
+    const damaged     = rows.reduce((a,f)=>a+Number(f.damaged||0),0);
+    const repairable  = rows.reduce((a,f)=>a+Number(f.repairable||0),0);
+    const good        = rows.filter(f=>f.condition==="Good").reduce((a,f)=>a+Number(f.available||0),0);
+    const fair        = rows.filter(f=>f.condition==="Fair").reduce((a,f)=>a+Number(f.available||0),0);
+    const poor        = rows.filter(f=>f.condition==="Poor").reduce((a,f)=>a+Number(f.available||0),0);
+    const byCategory = {};
+    rows.forEach(f=>{const k=f.category||"Uncategorised";byCategory[k]=(byCategory[k]||0)+Number(f.available||0);});
+    const byType = {};
+    rows.forEach(f=>{
+      const key=(f.ftype==="Other"?f.otherType:f.ftype)||"Unspecified";
+      if(!byType[key]) byType[key]={category:f.category||"—",available:0,damaged:0,repairable:0,condition:f.condition};
+      byType[key].available+=Number(f.available||0);
+      byType[key].damaged+=Number(f.damaged||0);
+      byType[key].repairable+=Number(f.repairable||0);
+    });
+    const typeRows = Object.entries(byType).map(([ftype,v])=>({ftype,...v})).sort((a,b)=>b.available-a.available);
+    return {school:s,rows,available,damaged,repairable,total:available+damaged,good,fair,poor,byCategory,typeRows};
+  }),[schools,furniture,classrooms]);
+  const grandAvailable = summary.reduce((a,s)=>a+s.available,0);
+  const grandDamaged   = summary.reduce((a,s)=>a+s.damaged,0);
+  const grandRepairable= summary.reduce((a,s)=>a+s.repairable,0);
+  const schoolsWithData = summary.filter(s=>s.rows.length>0).length;
+  const masterCols=["School","EMIS","District","Distinct Types","Available","Damaged","Repairable","Good Condition","Fair Condition","Poor Condition"];
+  const masterRows=summary.map(s=>[s.school.name,s.school.emis,s.school.district,s.typeRows.length,s.available,s.damaged,s.repairable,s.good,s.fair,s.poor]);
+  return (
+    <div>
+      <SectionHeader title="Furniture Summary — Per School" extra={<ExportBtn label="CSV (all schools)" filename="furniture_summary_per_school.csv" cols={masterCols} rows={masterRows}/>}/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}>
+        <StatCard label="Schools with furniture data" value={schoolsWithData} sub={`of ${schools.length} schools`} color="#2563EB"/>
+        <StatCard label="Total available"             value={grandAvailable} sub="Across all schools"          color="#059669"/>
+        <StatCard label="Total damaged"                value={grandDamaged}   sub="Needs attention"             color="#DC2626"/>
+        <StatCard label="Total repairable"             value={grandRepairable} sub="Can be salvaged"            color="#D97706"/>
+      </div>
+      {schools.length===0&&<Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools registered yet.</p></Card>}
+      <div style={{display:"grid",gap:"1rem"}}>
+        {summary.map(s=>(
+          <Card key={s.school.id}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:12,flexWrap:"wrap",gap:8}}>
+              <div>
+                <p style={{fontWeight:600,fontSize:15,margin:"0 0 2px",color:"#111827"}}>{s.school.name}</p>
+                <p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {s.school.emis||"—"} · {s.school.district||"—"}{s.school.circuit?` · Circuit: ${s.school.circuit}`:""}</p>
+              </div>
+              {s.rows.length>0&&<ExportBtn label="CSV" filename={`furniture_${(s.school.name||"school").replace(/[^a-z0-9]+/gi,"_")}.csv`} cols={["Category","Furniture type","Available","Damaged","Repairable"]} rows={s.typeRows.map(t=>[t.category,t.ftype,t.available,t.damaged,t.repairable])}/>}
+            </div>
+            {s.rows.length===0?<p style={{fontSize:13,color:"#9CA3AF",margin:0}}>No furniture captured for this school yet.</p>:(
+              <>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
+                  {[["Available",s.available,"#059669"],["Damaged",s.damaged,"#DC2626"],["Repairable",s.repairable,"#D97706"],["Distinct types",s.typeRows.length,"#2563EB"]].map(([l,v,c])=>(
+                    <div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"10px 14px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 4px"}}>{l}</p><p style={{fontSize:20,fontWeight:600,margin:0,color:c}}>{v}</p></div>
+                  ))}
+                </div>
+                <DataTable cols={["Category","Furniture type","Available","Damaged","Repairable"]} rows={s.typeRows}
+                  renderRow={t=>[t.category,t.ftype,t.available,t.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{t.damaged}</span>:t.damaged,t.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{t.repairable}</span>:t.repairable]}/>
+              </>
+            )}
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
 // ─────────────────────────────────────────────
 // SCHOOL CAPTURE — tabbed single-school form
 // ─────────────────────────────────────────────
@@ -427,7 +566,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
   const [emisSearch,setEmisSearch]=useState("");
   const [emisMatch,setEmisMatch]=useState(null);
   const [newSchool,setNewSchool]=useState({name:"",emis:"",province:"NC",district:"",circuit:"",capacity:"",mobiles:"",mobileCap:"35",enrolment:"",teachers:"",risk:"Low"});
-
   // Search EMIS database and pre-fill school form
   const searchEmis = val => {
     setEmisSearch(val);
@@ -441,7 +579,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     );
     setEmisMatch(match || null);
   };
-
   const applyEmisMatch = () => {
     if (!emisMatch) return;
     setNewSchool(p => ({...p,
@@ -456,35 +593,32 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     showToast(`✓ Pre-filled from EMIS: ${emisMatch.name}`);
   };
   const [audit,setAudit]=useState({year:new Date().getFullYear(),date:new Date().toISOString().slice(0,10),risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
-  const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",ftype:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"}]);
+  const emptyFurnItem=()=>({ftype:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"});
+  const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",furnitureItems:[emptyFurnItem()]}]);
   const [condRow,setCondRow]=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
   const [repairRows,setRepairRows]=useState([{furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""}]);
-
   const sa=k=>e=>setAudit(p=>({...p,[k]:e.target.value}));
   const sc=k=>e=>setNewSchool(p=>({...p,[k]:e.target.value}));
-  const tabs=["1. School","2. Audit","3. Classrooms & Furniture","4. Conditions","5. Repairs"];
-
+  const tabs=["1. School","2. Audit","3. Classrooms & Furniture","4. Mobile Assessment","5. Repairs"];
   const handleSaveAll=()=>{
     const schoolId=selectedSchoolId||uid();
     const school=selectedSchoolId?null:{...newSchool,id:schoolId};
     const auditRecord={...audit,schoolId,id:uid()};
-    const classroomRecords=clsRows.filter(r=>r.room).map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile}));
-    const furnitureRecords=clsRows.filter(r=>r.room&&r.ftype).map((r,i)=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:r.ftype,category:r.category,available:r.available,damaged:r.damaged,repairable:r.repairable,condition:r.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""}));
+    const roomRows=clsRows.filter(r=>r.room);
+    const classroomRecords=roomRows.map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile}));
+    const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
     const condRecord=condRow.flooring?{...condRow,id:uid(),classroomId:classroomRecords[0]?.id||""}:null;
     const repairRecords=repairRows.filter(r=>r.furnitureId&&r.qty).map(r=>({...r,id:uid()}));
     onSaveAll({school,audit:auditRecord,classrooms:classroomRecords,furniture:furnitureRecords,condition:condRecord,repairs:repairRecords});
     showToast("✓ School capture saved successfully.");
   };
-
   const tabStyle=i=>({padding:"10px 20px",borderRadius:"10px 10px 0 0",border:"0.5px solid #E0E7EF",borderBottom:tab===i?"none":"0.5px solid #E0E7EF",background:tab===i?"#fff":"#F3F6FB",color:tab===i?"#1e40af":"#6B7280",fontWeight:tab===i?600:400,cursor:"pointer",fontSize:13});
-
   return (
     <div>
       <div style={{background:"linear-gradient(135deg,#1e3a5f,#1e40af)",borderRadius:14,padding:"1.5rem",marginBottom:"1.5rem",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div><p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"0 0 2px",textTransform:"uppercase",letterSpacing:"0.08em"}}>School Capture</p><h2 style={{fontSize:20,fontWeight:700,margin:"0 0 4px",color:"#fff"}}>Capture all school data in one place</h2><p style={{fontSize:13,color:"rgba(255,255,255,0.7)",margin:0}}>Select an existing school or add a new one, then fill in all sections.</p></div>
         <button onClick={handleSaveAll} style={{padding:"12px 28px",borderRadius:10,border:"none",background:"#fff",color:"#1e40af",fontSize:14,fontWeight:700,cursor:"pointer"}}>Save all</button>
       </div>
-
       <Card style={{marginBottom:"1rem"}}>
         <p style={{fontSize:11,color:"#6B7280",textTransform:"uppercase",letterSpacing:"0.05em",margin:"0 0 8px"}}>Select or add a school</p>
         <div style={{display:"grid",gridTemplateColumns:"1fr auto",gap:12,alignItems:"center"}}>
@@ -495,12 +629,10 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
           <span style={{fontSize:13,color:"#6B7280"}}>or fill in tab 1</span>
         </div>
       </Card>
-
       <div style={{display:"flex",gap:0,marginBottom:0,overflowX:"auto"}}>
         {tabs.map((t,i)=><button key={i} onClick={()=>setTab(i)} style={tabStyle(i)}>{t}</button>)}
       </div>
       <div style={{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:"0 14px 14px 14px",padding:"1.5rem"}}>
-
         {tab===0&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>School details</h3>
           {selectedSchoolId?<p style={{color:"#059669",fontSize:13}}>✓ Using existing school: <strong>{schools.find(s=>s.id==selectedSchoolId)?.name}</strong></p>:<>
@@ -527,7 +659,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
             <Row3><Field label="Enrolment"><input style={inp} type="number" value={newSchool.enrolment} onChange={sc("enrolment")}/></Field><Field label="Teachers"><input style={inp} type="number" value={newSchool.teachers} onChange={sc("teachers")}/></Field><Field label="Risk level"><select style={sel} value={newSchool.risk} onChange={sc("risk")}>{["Low","Medium","High"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
           </>}
         </div>}
-
         {tab===1&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Audit details</h3>
           <Row2><Field label="Year"><input style={inp} type="number" value={audit.year} onChange={sa("year")}/></Field><Field label="Date"><input style={inp} type="date" value={audit.date} onChange={sa("date")}/></Field></Row2>
@@ -541,7 +672,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
             {audit.hallAvailable==="Yes"&&<><Row3><Field label="Seating capacity"><input style={inp} type="number" value={audit.hallCapacity} onChange={sa("hallCapacity")}/></Field><Field label="Electricity"><select style={sel} value={audit.hallElectricity} onChange={sa("hallElectricity")}>{["Yes","No","Partial"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Toilets adjacent?"><select style={sel} value={audit.hallToilets} onChange={sa("hallToilets")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Row3><Field label="Floor condition"><select style={sel} value={audit.hallFloor} onChange={sa("hallFloor")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Roof condition"><select style={sel} value={audit.hallRoof} onChange={sa("hallRoof")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Current usage"><input style={inp} value={audit.hallUsage} onChange={sa("hallUsage")} placeholder="e.g. Assemblies, Exams"/></Field></Row3><Field label="Known issues"><input style={inp} value={audit.hallIssues} onChange={sa("hallIssues")}/></Field></>}
           </div>
         </div>}
-
         {tab===2&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Classrooms & Furniture</h3>
           {clsRows.map((row,i)=>(
@@ -554,19 +684,35 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
               </Row3>
               <Row3>
                 <Field label="Learners"><input style={inp} type="number" value={row.learners} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,learners:e.target.value}:r))}/></Field>
-                <Field label="DBE Furniture type"><select style={sel} value={row.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,ftype:e.target.value}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}</select></Field>
-                <Field label="Available"><input style={inp} type="number" value={row.available} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,available:e.target.value}:r))}/></Field>
+                <Field label="Spec (e.g. 4E1)"><input style={inp} value={row.spec} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,spec:e.target.value}:r))}/></Field>
+                <Field label="Is mobile?"><select style={sel} value={row.isMobile} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,isMobile:e.target.value}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
               </Row3>
-              <Row3>
-                <Field label="Damaged"><input style={inp} type="number" value={row.damaged} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,damaged:e.target.value}:r))}/></Field>
-                <Field label="Repairable"><input style={inp} type="number" value={row.repairable} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,repairable:e.target.value}:r))}/></Field>
-                <Field label="Condition"><select style={sel} value={row.condition} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:e.target.value}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
-              </Row3>
+              <div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
+                <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Furniture in this room</p>
+                {(row.furnitureItems||[]).map((item,j)=>(
+                  <div key={j} style={{background:"#fff",borderRadius:8,padding:"0.75rem",marginBottom:"0.5rem",border:"0.5px solid #E5E7EB"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                      <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Furniture type {j+1}</p>
+                      {row.furnitureItems.length>1&&<button onClick={()=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.filter((_,y)=>y!==j)}:r))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
+                    </div>
+                    <Row3>
+                      <Field label="Category"><select style={sel} value={item.category} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,category:e.target.value}:it)}:r))}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                      <Field label="DBE Furniture type"><select style={sel} value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}</select></Field>
+                      <Field label="Available"><input style={inp} type="number" value={item.available} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,available:e.target.value}:it)}:r))}/></Field>
+                    </Row3>
+                    <Row3>
+                      <Field label="Damaged"><input style={inp} type="number" value={item.damaged} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,damaged:e.target.value}:it)}:r))}/></Field>
+                      <Field label="Repairable"><input style={inp} type="number" value={item.repairable} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,repairable:e.target.value}:it)}:r))}/></Field>
+                      <Field label="Condition"><select style={sel} value={item.condition} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,condition:e.target.value}:it)}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                    </Row3>
+                  </div>
+                ))}
+                <button onClick={()=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:[...(r.furnitureItems||[]),emptyFurnItem()]}:r))} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>
+              </div>
             </div>
           ))}
-          <button onClick={()=>setClsRows(p=>[...p,{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",ftype:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
+          <button onClick={()=>setClsRows(p=>[...p,{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",furnitureItems:[emptyFurnItem()]}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
         </div>}
-
         {tab===3&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Condition assessment</h3>
           <Row2><Field label="Flooring"><select style={sel} value={condRow.flooring} onChange={e=>setCondRow(p=>({...p,flooring:e.target.value}))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={condRow.flooringIssues} onChange={e=>setCondRow(p=>({...p,flooringIssues:e.target.value}))}/></Field></Row2>
@@ -574,7 +720,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
           <Row3><Field label="Locks"><select style={sel} value={condRow.locks} onChange={e=>setCondRow(p=>({...p,locks:e.target.value}))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity"><select style={sel} value={condRow.electricity} onChange={e=>setCondRow(p=>({...p,electricity:e.target.value}))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Mobile condition"><input style={inp} value={condRow.mobile} onChange={e=>setCondRow(p=>({...p,mobile:e.target.value}))}/></Field></Row3>
           <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={condRow.comments} onChange={e=>setCondRow(p=>({...p,comments:e.target.value}))}/></Field>
         </div>}
-
         {tab===4&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Repairs</h3>
           {repairRows.map((row,i)=>(
@@ -587,7 +732,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
           ))}
           <button onClick={()=>setRepairRows(p=>[...p,{furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add repair</button>
         </div>}
-
         <div style={{display:"flex",justifyContent:"space-between",marginTop:"1.5rem",paddingTop:"1rem",borderTop:"0.5px solid #E5E7EB"}}>
           <button onClick={()=>setTab(t=>Math.max(0,t-1))} disabled={tab===0} style={{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:tab===0?"not-allowed":"pointer",color:tab===0?"#9CA3AF":"#374151"}}>← Back</button>
           {tab<4?<button onClick={()=>setTab(t=>t+1)} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Next →</button>:<button onClick={handleSaveAll} style={{padding:"8px 24px",borderRadius:8,border:"none",background:"#059669",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>✓ Save all</button>}
@@ -596,8 +740,6 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     </div>
   );
 }
-
-
 // ─────────────────────────────────────────────
 // KPA FORMS (from v77, unchanged)
 // ─────────────────────────────────────────────
@@ -606,15 +748,12 @@ function LearnerDataForm({onSave,onClose}){const [f,setF]=useState({school:"",di
 function MobileAuditForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:"",auditDate:"",auditedBy:"PY Tshabangu"});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Mobile classroom audit" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Number of mobiles"><input style={inp} type="number" value={f.mobileCount} onChange={s("mobileCount")}/></Field></Row2><Row3><Field label="Overall condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={f.electricityAvail} onChange={s("electricityAvail")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Ablutions?"><select style={sel} value={f.ablutions} onChange={s("ablutions")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Field label="Structural issues"><input style={inp} value={f.structuralIssues} onChange={s("structuralIssues")} placeholder="e.g. Roof leaks, floor damage"/></Field><Field label="Recommendation"><input style={inp} value={f.recommendation} onChange={s("recommendation")} placeholder="e.g. Repair, Replace, Monitor"/></Field><Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Audited by"><input style={inp} value={f.auditedBy} onChange={s("auditedBy")}/></Field></Row2></Modal>);}
 function SchoolRequestForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",district:"",requestType:"Furniture",priority:"Medium",dateReceived:"",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log school request" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field></Row2><Row3><Field label="Request type"><select style={sel} value={f.requestType} onChange={s("requestType")}>{["Furniture","Mobile Unit","Repairs","Infrastructure","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Priority"><select style={sel} value={f.priority} onChange={s("priority")}>{["High","Medium","Low"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed","Declined"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Row2><Field label="Date received"><input style={inp} type="date" value={f.dateReceived} onChange={s("dateReceived")}/></Field><Field label="Due date"><input style={inp} type="date" value={f.dueDate} onChange={s("dueDate")}/></Field></Row2><Field label="Assigned to"><input style={inp} value={f.assignedTo} onChange={s("assignedTo")}/></Field><Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
 function AdminTaskForm({onSave,onClose}){const [f,setF]=useState({type:"Payment Verification",ref:"",date:"",amount:"",supplier:"",status:"Pending",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log admin task" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing / Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2><Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Verified","Completed","Resolved"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Amount (if payment)"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45,000"/></Field><Field label="Supplier / party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2><Field label="Notes / evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
-
-
+function TransferForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",direction:"Out",learnerName:"",grade:"",otherSchool:"",reason:"Relocation",transferDate:"",status:"Pending",processedBy:"PY Tshabangu",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log school transfer" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="NC DoE school"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Direction"><select style={sel} value={f.direction} onChange={s("direction")}>{["Out","In"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Learner name"><input style={inp} value={f.learnerName} onChange={s("learnerName")}/></Field><Field label="Grade"><input style={inp} value={f.grade} onChange={s("grade")}/></Field></Row2><Field label={f.direction==="Out"?"Receiving school":"Sending school"}><input style={inp} value={f.otherSchool} onChange={s("otherSchool")} placeholder="School name (may be outside NC DoE system)"/></Field><Row2><Field label="Reason"><select style={sel} value={f.reason} onChange={s("reason")}>{["Relocation","Parent Request","Expulsion","Repeating Grade","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Transfer date"><input style={inp} type="date" value={f.transferDate} onChange={s("transferDate")}/></Field></Row2><Row2><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","Approved","Completed","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Processed by"><input style={inp} value={f.processedBy} onChange={s("processedBy")}/></Field></Row2><Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
 // ─────────────────────────────────────────────
 // EMIS PAGE (from v77)
 // ─────────────────────────────────────────────
 function EmisPage({onImport,onDataLoaded}){const [search,setSearch]=useState("");const [distFilter,setDistFilter]=useState("All");const [phaseFilter,setPhaseFilter]=useState("All");const [sectorFilter,setSectorFilter]=useState("All");const [selected,setSelected]=useState(null);const [uploadedData,setUploadedData]=useState([]);const [uploadMsg,setUploadMsg]=useState("");const allData=uploadedData.length>0?uploadedData:EMIS_SAMPLE;const districts=["All",...new Set(allData.map(s=>s.district))].sort();const handleUpload=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=ev=>{const text=ev.target.result;const sep=text.indexOf("\t")>-1?"\t":text.indexOf(";")>-1?";":",";const lines=text.split(/\r?\n/).filter(Boolean);const hdrs=lines[0].split(sep).map(h=>h.trim().toLowerCase().replace(/['"]/g,""));const get=(row,...keys)=>{for(const k of keys){const i=hdrs.indexOf(k.toLowerCase());if(i>=0&&row[i]!==undefined)return row[i].toString().trim().replace(/^"|"$/g,"");}return "";};const phMap={primary:"Primary",secondary:"Secondary",combined:"Combined",intermediate:"Intermediate","special needs education":"Special Needs Education"};const parsed=lines.slice(1).map(line=>{const row=sep==="\t"?line.split("\t"):(line.match(/(".*?"|[^,]+)(?=,|$)/g)||line.split(","));const emis=get(row,"emiscode","emis code","emis","EmisCode");const name=get(row,"institution name","name","school name","Institution name");if(!emis&&!name)return null;const phRaw=get(row,"institution phase","phase");return{emis,name,district:get(row,"district"),phase:phMap[phRaw.toLowerCase()]||phRaw,type:get(row,"institution type","type"),sector:get(row,"sector","legal status").toLowerCase().includes("public")?"Public":"Independent",status:get(row,"practical status of the institution","status"),city:get(row,"city/town","city","town"),province:get(row,"province","PROVINCE")||"NC",lat:parseFloat(get(row,"latitude","lat"))||0,lng:parseFloat(get(row,"longitude","lng"))||0,email:get(row,"email"),emailAlt:get(row,"emailalt","email alt"),tel:get(row,"telephone1","tel1","telephone"),telCode:get(row,"telcode1","telcode"),circuit:get(row,"circuit"),landOwnership:get(row,"landownership","land ownership"),examCentre:get(row,"examcentre","exam centre")};}).filter(r=>{if(!r||(!r.emis&&!r.name))return false;const prov=(r.province||"").trim().toUpperCase();const provStripped=prov.replace(/[^A-Z]/g,"");return prov==="NC"||provStripped==="NC"||provStripped==="NORTHERNCAPE"||provStripped==="NORTHERN"||prov.startsWith("NC");});setUploadedData(parsed);if(onDataLoaded)onDataLoaded(parsed);setUploadMsg(`✓ Loaded ${parsed.length} NC schools from ${file.name}`);};reader.readAsText(file);};const filtered=useMemo(()=>allData.filter(s=>{const q=search.toLowerCase();return(!q||s.name.toLowerCase().includes(q)||s.emis.includes(q)||(s.city||"").toLowerCase().includes(q))&&(distFilter==="All"||s.district===distFilter)&&(phaseFilter==="All"||s.phase===phaseFilter)&&(sectorFilter==="All"||s.sector===sectorFilter);}),[search,distFilter,phaseFilter,sectorFilter,allData]);
 return(<div><SectionHeader title="EMIS School Database" extra={<ExportBtn label="CSV" filename="emis_schools.csv" cols={["EMIS","Name","District","Phase","Sector","City","Province","Email","Tel"]} rows={allData.map(s=>[s.emis,s.name,s.district,s.phase,s.sector,s.city,s.province,s.email,s.tel])}/>}/><Card style={{marginBottom:"1.25rem",background:"linear-gradient(135deg,#EFF6FF,#DBEAFE)",borderColor:"#BFDBFE"}}><div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}><div><p style={{fontWeight:600,fontSize:14,color:"#1E40AF",margin:"0 0 2px"}}>📂 Upload full EMIS dataset</p><p style={{fontSize:12,color:"#3B82F6",margin:0}}>Upload your NC EMIS master list (.txt or .csv). Currently showing {allData.length} schools.</p>{uploadMsg&&<p style={{fontSize:12,color:"#065F46",fontWeight:600,margin:"4px 0 0"}}>{uploadMsg}</p>}</div><label style={{padding:"8px 18px",borderRadius:8,background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600,whiteSpace:"nowrap"}}>Choose file<input type="file" accept=".txt,.csv,.tsv" onChange={handleUpload} style={{display:"none"}}/></label></div></Card><div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}><StatCard label="Total records" value={allData.length} sub="Northern Cape" color="#2563EB"/><StatCard label="Public" value={allData.filter(s=>s.sector==="Public").length} color="#059669"/><StatCard label="Independent" value={allData.filter(s=>s.sector==="Independent").length} color="#7C3AED"/><StatCard label="Districts" value={new Set(allData.map(s=>s.district)).size} color="#D97706"/></div><Card style={{marginBottom:"1rem"}}><div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 1fr",gap:10}}><div><label style={flbl}>Search name / EMIS / town</label><input style={inp} placeholder="Search..." value={search} onChange={e=>setSearch(e.target.value)}/></div><div><label style={flbl}>District</label><select style={sel} value={distFilter} onChange={e=>setDistFilter(e.target.value)}>{districts.map(d=><option key={d}>{d}</option>)}</select></div><div><label style={flbl}>Phase</label><select style={sel} value={phaseFilter} onChange={e=>setPhaseFilter(e.target.value)}>{["All","Primary","Secondary","Combined","Intermediate"].map(p=><option key={p}>{p}</option>)}</select></div><div><label style={flbl}>Sector</label><select style={sel} value={sectorFilter} onChange={e=>setSectorFilter(e.target.value)}>{["All","Public","Independent"].map(x=><option key={x}>{x}</option>)}</select></div></div></Card><Card><p style={{fontSize:12,color:"#6B7280",margin:"0 0 10px"}}>Showing {filtered.length} of {allData.length} schools</p><DataTable cols={["EMIS","School Name","District","Phase","Sector","City","Action"]} rows={filtered} renderRow={s=>[<span style={{fontSize:12,color:"#6B7280"}}>{s.emis}</span>,<span style={{fontWeight:500}}>{s.name}</span>,s.district,<Badge val={s.phase}/>,<Badge val={s.sector}/>,s.city,<button onClick={()=>setSelected(s)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>View</button>]}/></Card>{selected&&(<Card style={{marginTop:"1rem",borderColor:"#BFDBFE"}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}><div><p style={{fontWeight:600,fontSize:15,margin:"0 0 2px"}}>{selected.name}</p><p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {selected.emis} · {selected.district}</p></div><button onClick={()=>setSelected(null)} style={{background:"none",border:"none",color:"#9CA3AF",cursor:"pointer",fontSize:18}}>✕</button></div><div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>{[["Phase",selected.phase],["Sector",selected.sector],["City/Town",selected.city],["Circuit",selected.circuit||"—"],["Land Ownership",selected.landOwnership||"—"],["Status",selected.status||"—"],["Email",selected.email||"—"],["Alt Email",selected.emailAlt||"—"],["Tel",selected.telCode&&selected.tel?`(${selected.telCode}) ${selected.tel}`:selected.tel||"—"],["Exam Centre",selected.examCentre||"—"],["Latitude",selected.lat||"—"],["Longitude",selected.lng||"—"]].map(([l,v])=><div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"8px 10px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 2px"}}>{l}</p><p style={{fontSize:13,fontWeight:500,margin:0,wordBreak:"break-all"}}>{v}</p></div>)}</div><button onClick={()=>{onImport(selected);setSelected(null);}} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Import into Audit Schools →</button></Card>)}</div>);}
-
-
 // ─────────────────────────────────────────────
 // EXPORT PAGE (with backup + merge)
 // ─────────────────────────────────────────────
@@ -634,7 +773,7 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     {label:"Audits",desc:"All school audit records",icon:"📋",file:"audits.csv",cols:["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Hall Capacity","Recommendations"],rows:audits.map(a=>{const sc=schools.find(s=>s.id==a.schoolId);return[sc?.name||"",a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.hallCapacity||"",a.recommendations];})},
     {label:"Classrooms",desc:"All classroom records",icon:"🚪",file:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>{const sc=schools.find(s=>s.id==c.schoolId);return[sc?.name||"",c.room,c.type,c.grade,c.spec,c.learners,c.isMobile];})},
     {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})},
-    {label:"Conditions",desc:"Infrastructure assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
+    {label:"Mobile Conditional Assessment",desc:"Infrastructure & mobile classroom assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
     {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","Room","Furniture","Spec","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",r.ftype||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})},
     {label:"Warehouse",desc:"New furniture deliveries",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"],rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])},
     {label:"Storage",desc:"Storage room records",icon:"📦",file:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.room,r.condition,r.secure,r.storedType,r.qty,r.usable];})},
@@ -674,8 +813,6 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     </div>
   );
 }
-
-
 // ─────────────────────────────────────────────
 // DASHBOARD (with charts + audit completion)
 // ─────────────────────────────────────────────
@@ -710,7 +847,6 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
         <StatCard label="Warehouse in stock"  value={inStock}         sub="Ready to dispatch"    color="#2563EB"/>
         <StatCard label="Repairs in progress" value={whProg}          sub="At warehouse"         color="#D97706"/>
       </div>
-
       {/* Charts row 1 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
         <Card>
@@ -724,7 +860,6 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
           {schools.length>0&&<div style={{marginTop:12}}><HorizBar label="High" value={riskCounts.High} max={schools.length} total={schools.length} color="#DC2626"/><HorizBar label="Medium" value={riskCounts.Medium} max={schools.length} total={schools.length} color="#D97706"/><HorizBar label="Low" value={riskCounts.Low} max={schools.length} total={schools.length} color="#059669"/></div>}
         </Card>
       </div>
-
       {/* Charts row 2 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
         <Card>
@@ -736,7 +871,6 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
           <PieChart size={140} slices={[{label:"Sent for repair",value:whIn,color:"#7C3AED"},{label:"Completed",value:whDone,color:"#059669"},{label:"In progress",value:whProg,color:"#D97706"}]}/>
         </Card>
       </div>
-
       {/* Audit completion tracker */}
       <Card style={{marginBottom:"1rem"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem"}}>
@@ -776,7 +910,6 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
           })}
         </div>
       </Card>
-
       <Card>
         <h3 style={{fontSize:15,fontWeight:500,margin:"0 0 1rem",color:"#111827"}}>Recent audits</h3>
         <DataTable cols={["School","Year","Date","Risk","Overcapacity"]} rows={audits.slice(-5).reverse()}
@@ -785,18 +918,17 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
     </div>
   );
 }
-
-
 // ─────────────────────────────────────────────
 // KPA DASHBOARD
 // ─────────────────────────────────────────────
-function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks,setActive}){
+function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks,schoolTransfers,setActive}){
   const kpas=[
     {id:"kpa1",icon:"🖥️",label:"KPA 1 — Data Uploads",weight:"30%",color:"#2563EB",done:uploads.filter(u=>u.status==="Completed").length,total:uploads.length},
     {id:"kpa2",icon:"📈",label:"KPA 2 — Learner Data",weight:"20%",color:"#7C3AED",done:learnerData.filter(u=>u.status==="Validated").length,total:learnerData.length},
     {id:"kpa3",icon:"🚌",label:"KPA 3 — Mobile Audit",weight:"20%",color:"#059669",done:mobileAudit.filter(u=>u.condition==="Good").length,total:mobileAudit.length},
     {id:"kpa4",icon:"🏗️",label:"KPA 4 — School Requests",weight:"15%",color:"#D97706",done:schoolRequests.filter(u=>u.status==="Completed").length,total:schoolRequests.length},
     {id:"kpa5",icon:"🗂️",label:"KPA 5 — Admin & Payments",weight:"15%",color:"#DC2626",done:adminTasks.filter(u=>["Verified","Completed","Resolved"].includes(u.status)).length,total:adminTasks.length},
+    {id:"kpa6",icon:"🔄",label:"KPA 6 — School Transfers",weight:"—",color:"#0EA5E9",done:schoolTransfers.filter(u=>u.status==="Completed").length,total:schoolTransfers.length},
   ];
   return(
     <div>
@@ -805,7 +937,7 @@ function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks
         <h2 style={{fontSize:20,fontWeight:700,margin:"0 0 4px"}}>EPMDS Performance Dashboard</h2>
         <p style={{fontSize:13,color:"rgba(255,255,255,0.7)",margin:"0 0 1rem"}}>PY Tshabangu · Senior Administration Officer · Physical Resources Planning · 2026/2027</p>
         <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10}}>
-          {[["Total Weight","100%"],["KPAs","5"],["Cycle","2026/2027"],["Supervisor","A Ralph"],["Own Rating","3 — Fully Effective"]].map(([l,v])=>(
+          {[["Total Weight","100%"],["KPAs","6"],["Cycle","2026/2027"],["Supervisor","A Ralph"],["Own Rating","3 — Fully Effective"]].map(([l,v])=>(
             <div key={l} style={{background:"rgba(255,255,255,0.12)",borderRadius:10,padding:"10px 12px"}}><p style={{fontSize:11,color:"rgba(255,255,255,0.6)",margin:"0 0 2px"}}>{l}</p><p style={{fontSize:14,fontWeight:600,margin:0}}>{v}</p></div>
           ))}
         </div>
@@ -824,8 +956,6 @@ function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks
     </div>
   );
 }
-
-
 // ─────────────────────────────────────────────
 // MAIN APP
 // ─────────────────────────────────────────────
@@ -833,95 +963,72 @@ function App(){
   const [active,         setActive]         = useState("dashboard");
   const [modal,          setModal]          = useState(null);
   const [emisData,       setEmisData]       = useState([]);
-  const [schools,        setSchools]        = useState(()=>loadFromLS("schools",initSchools));
-  const [audits,         setAudits]         = useState(()=>loadFromLS("audits",initAudits));
-  const [classrooms,     setClassrooms]     = useState(()=>loadFromLS("classrooms",initClassrooms));
-  const [furniture,      setFurniture]      = useState(()=>loadFromLS("furniture",initFurniture));
-  const [repairs,        setRepairs]        = useState(()=>loadFromLS("repairs",initRepairs));
-  const [storage,        setStorage]        = useState(()=>loadFromLS("storage",initStorage));
-  const [distribution,   setDistribution]   = useState(()=>loadFromLS("distribution",initDistribution));
-  const [conditions,     setConditions]     = useState(()=>loadFromLS("conditions",initConditions));
-  const [warehouse,      setWarehouse]      = useState(()=>loadFromLS("warehouse",initWarehouse));
-  const [uploads,        setUploads]        = useState(()=>loadFromLS("uploads",initUploads));
-  const [learnerData,    setLearnerData]    = useState(()=>loadFromLS("learnerData",initLearnerData));
-  const [mobileAudit,    setMobileAudit]    = useState(()=>loadFromLS("mobileAudit",initMobileAudit));
-  const [schoolRequests, setSchoolRequests] = useState(()=>loadFromLS("schoolRequests",initSchoolRequests));
-  const [adminTasks,     setAdminTasks]     = useState(()=>loadFromLS("adminTasks",initAdminTasks));
+  const [schools,        schoolsM]        = useSyncedCollection("schools",initSchools);
+  const [audits,         auditsM]         = useSyncedCollection("audits",initAudits);
+  const [classrooms,     classroomsM]     = useSyncedCollection("classrooms",initClassrooms);
+  const [furniture,      furnitureM]      = useSyncedCollection("furniture",initFurniture);
+  const [repairs,        repairsM]        = useSyncedCollection("repairs",initRepairs);
+  const [storage,        storageM]        = useSyncedCollection("storage",initStorage);
+  const [distribution,   distributionM]   = useSyncedCollection("distribution",initDistribution);
+  const [conditions,     conditionsM]     = useSyncedCollection("conditions",initConditions);
+  const [warehouse,      warehouseM]      = useSyncedCollection("warehouse",initWarehouse);
+  const [uploads,        uploadsM]        = useSyncedCollection("uploads",initUploads);
+  const [learnerData,    learnerDataM]    = useSyncedCollection("learnerData",initLearnerData);
+  const [mobileAudit,    mobileAuditM]    = useSyncedCollection("mobileAudit",initMobileAudit);
+  const [schoolRequests, schoolRequestsM] = useSyncedCollection("schoolRequests",initSchoolRequests);
+  const [adminTasks,     adminTasksM]     = useSyncedCollection("adminTasks",initAdminTasks);
+  const [schoolTransfers,schoolTransfersM]= useSyncedCollection("schoolTransfers",initSchoolTransfers);
   const [toast,          setToast]          = useState(null);
-
-  // Persist to localStorage
-  useEffect(()=>localStorage.setItem("schools",       JSON.stringify(schools)),        [schools]);
-  useEffect(()=>localStorage.setItem("audits",        JSON.stringify(audits)),         [audits]);
-  useEffect(()=>localStorage.setItem("classrooms",    JSON.stringify(classrooms)),     [classrooms]);
-  useEffect(()=>localStorage.setItem("furniture",     JSON.stringify(furniture)),      [furniture]);
-  useEffect(()=>localStorage.setItem("repairs",       JSON.stringify(repairs)),        [repairs]);
-  useEffect(()=>localStorage.setItem("storage",       JSON.stringify(storage)),        [storage]);
-  useEffect(()=>localStorage.setItem("distribution",  JSON.stringify(distribution)),   [distribution]);
-  useEffect(()=>localStorage.setItem("conditions",    JSON.stringify(conditions)),     [conditions]);
-  useEffect(()=>localStorage.setItem("warehouse",     JSON.stringify(warehouse)),      [warehouse]);
-  useEffect(()=>localStorage.setItem("uploads",       JSON.stringify(uploads)),        [uploads]);
-  useEffect(()=>localStorage.setItem("learnerData",   JSON.stringify(learnerData)),    [learnerData]);
-  useEffect(()=>localStorage.setItem("mobileAudit",   JSON.stringify(mobileAudit)),    [mobileAudit]);
-  useEffect(()=>localStorage.setItem("schoolRequests",JSON.stringify(schoolRequests)), [schoolRequests]);
-  useEffect(()=>localStorage.setItem("adminTasks",    JSON.stringify(adminTasks)),     [adminTasks]);
-
-  const add = setter => data => { setter(p=>[...p,{...data,id:uid()}]); setModal(null); };
+  const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
-
   const restoreAll = data => {
-    if(data.schools)      setSchools(data.schools);
-    if(data.audits)       setAudits(data.audits);
-    if(data.classrooms)   setClassrooms(data.classrooms);
-    if(data.furniture)    setFurniture(data.furniture);
-    if(data.conditions)   setConditions(data.conditions);
-    if(data.repairs)      setRepairs(data.repairs);
-    if(data.warehouse)    setWarehouse(data.warehouse);
-    if(data.storage)      setStorage(data.storage);
-    if(data.distribution) setDistribution(data.distribution);
+    if(data.schools)      schoolsM.replaceAll(data.schools);
+    if(data.audits)       auditsM.replaceAll(data.audits);
+    if(data.classrooms)   classroomsM.replaceAll(data.classrooms);
+    if(data.furniture)    furnitureM.replaceAll(data.furniture);
+    if(data.conditions)   conditionsM.replaceAll(data.conditions);
+    if(data.repairs)      repairsM.replaceAll(data.repairs);
+    if(data.warehouse)    warehouseM.replaceAll(data.warehouse);
+    if(data.storage)      storageM.replaceAll(data.storage);
+    if(data.distribution) distributionM.replaceAll(data.distribution);
     showToast("✓ Backup restored successfully.");
   };
-
   const mergeAll = preview => {
     preview.forEach(({key,newRecs})=>{
       if(!newRecs||!newRecs.length) return;
-      if(key==="schools")      setSchools(p=>[...p,...newRecs]);
-      if(key==="audits")       setAudits(p=>[...p,...newRecs]);
-      if(key==="classrooms")   setClassrooms(p=>[...p,...newRecs]);
-      if(key==="furniture")    setFurniture(p=>[...p,...newRecs]);
-      if(key==="conditions")   setConditions(p=>[...p,...newRecs]);
-      if(key==="repairs")      setRepairs(p=>[...p,...newRecs]);
-      if(key==="warehouse")    setWarehouse(p=>[...p,...newRecs]);
-      if(key==="storage")      setStorage(p=>[...p,...newRecs]);
-      if(key==="distribution") setDistribution(p=>[...p,...newRecs]);
+      if(key==="schools")      schoolsM.addMany(newRecs);
+      if(key==="audits")       auditsM.addMany(newRecs);
+      if(key==="classrooms")   classroomsM.addMany(newRecs);
+      if(key==="furniture")    furnitureM.addMany(newRecs);
+      if(key==="conditions")   conditionsM.addMany(newRecs);
+      if(key==="repairs")      repairsM.addMany(newRecs);
+      if(key==="warehouse")    warehouseM.addMany(newRecs);
+      if(key==="storage")      storageM.addMany(newRecs);
+      if(key==="distribution") distributionM.addMany(newRecs);
     });
     showToast(`✓ Merged ${preview.reduce((s,r)=>s+r.added,0)} new records.`);
   };
-
   const importSchool = emis => {
     if(schools.find(s=>s.emis===emis.emis)){showToast(`"${emis.name}" already exists.`);return;}
-    setSchools(p=>[...p,{id:uid(),name:emis.name,emis:emis.emis,province:emis.province,district:emis.district,circuit:emis.circuit||"",capacity:"",mobiles:"",mobileCap:35,enrolment:"",teachers:"",risk:"Low"}]);
+    schoolsM.addOne({name:emis.name,emis:emis.emis,province:emis.province,district:emis.district,circuit:emis.circuit||"",capacity:"",mobiles:"",mobileCap:35,enrolment:"",teachers:"",risk:"Low"});
     showToast(`✓ "${emis.name}" imported.`);
     setActive("schools");
   };
-
   const saveCaptureAll = ({school,audit,classrooms:cls,furniture:fu,condition,repairs:reps})=>{
-    if(school) setSchools(p=>[...p,school]);
-    if(audit)  setAudits(p=>[...p,audit]);
-    if(cls?.length)  setClassrooms(p=>[...p,...cls]);
-    if(fu?.length)   setFurniture(p=>[...p,...fu]);
-    if(condition)    setConditions(p=>[...p,condition]);
-    if(reps?.length) setRepairs(p=>[...p,...reps]);
+    if(school) schoolsM.addOne(school);
+    if(audit)  auditsM.addOne(audit);
+    if(cls?.length)  classroomsM.addMany(cls);
+    if(fu?.length)   furnitureM.addMany(fu);
+    if(condition)    conditionsM.addOne(condition);
+    if(reps?.length) repairsM.addMany(reps);
   };
-
   const scName = id => schools.find(s=>s.id==id)?.name||"—";
-
   const renderPage = () => { switch(active){
-
     case "dashboard": return <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>;
     case "emis":      return <EmisPage onImport={importSchool} onDataLoaded={setEmisData}/>;
     case "capture":   return <SchoolCapturePage schools={schools} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} onSaveAll={saveCaptureAll} showToast={showToast} emisData={emisData}/>;
+    case "furnsummary": return <FurnitureSummaryPage schools={schools} classrooms={classrooms} furniture={furniture}/>;
     case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution} onRestore={restoreAll} onMerge={mergeAll}/>;
-
     case "schools": return (
       <div>
         <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
@@ -948,7 +1055,6 @@ function App(){
         </div>
       </div>
     );
-
     case "audits": return (
       <div>
         <SectionHeader title="Audits" onAdd={()=>setModal("audit")} extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.recommendations])}/>}/>
@@ -958,7 +1064,6 @@ function App(){
         </Card>
       </div>
     );
-
     case "classrooms": return (
       <div>
         <SectionHeader title="Classrooms & Furniture" onAdd={()=>setModal("classroom")} extra={<ExportBtn label="CSV" filename="classrooms.csv" cols={["School","Room","Type","Grade","Spec","Learners","Mobile"]} rows={classrooms.map(c=>[scName(c.schoolId),c.room,c.type,c.grade,c.spec,c.learners,c.isMobile])}/>}/>
@@ -979,17 +1084,15 @@ function App(){
         </Card>
       </div>
     );
-
     case "conditions": return (
       <div>
-        <SectionHeader title="Condition assessments" onAdd={()=>setModal("condition")} extra={<ExportBtn label="CSV" filename="conditions.csv" cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl?.schoolId),cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})}/>}/>
+        <SectionHeader title="Mobile Conditional Assessment" onAdd={()=>setModal("condition")} extra={<ExportBtn label="CSV" filename="conditions.csv" cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks"]} rows={conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);return[scName(cl?.schoolId),cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})}/>}/>
         <Card>
           <DataTable cols={["School","Room","Flooring","Issues","Windows","Electricity","Locks","Photos"]} rows={conditions}
             renderRow={c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const photos=c.photos||[];return[scName(cl?.schoolId),cl?.room||"?",<Badge val={c.flooring}/>,c.flooringIssues||"—",<Badge val={c.windows}/>,<Badge val={c.electricity}/>,<Badge val={c.locks}/>,photos.length>0?<div style={{display:"flex",gap:4}}>{photos.map((ph,i)=><a key={i} href={ph.data} target="_blank" rel="noreferrer"><img src={ph.data} alt="" style={{width:36,height:36,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>)}</div>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>];}}/>
         </Card>
       </div>
     );
-
     case "repairs": return (
       <div>
         <SectionHeader title="Repairs & refurbishment" onAdd={()=>setModal("repair")} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","Room","Furniture","Spec","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",r.ftype||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
@@ -1002,7 +1105,6 @@ function App(){
         </Card>
       </div>
     );
-
     case "warehouse": return (
       <div>
         <SectionHeader title="Warehouse — new furniture" onAdd={()=>setModal("warehouse")} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"]} rows={warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])}/>}/>
@@ -1017,7 +1119,6 @@ function App(){
         </Card>
       </div>
     );
-
     case "storage": return (
       <div>
         <SectionHeader title="Storage" onAdd={()=>setModal("storage")} extra={<ExportBtn label="CSV" filename="storage.csv" cols={["School","Room","Condition","Secure","Stored Type","Qty","Usable"]} rows={storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])}/>}/>
@@ -1027,7 +1128,6 @@ function App(){
         </Card>
       </div>
     );
-
     case "distribution": return (
       <div>
         <SectionHeader title="Distribution" onAdd={()=>setModal("distribution")} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["School","Purpose","Description","Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"]} rows={distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"])}/>}/>
@@ -1037,7 +1137,6 @@ function App(){
         </Card>
       </div>
     );
-
     case "capacity": return (
       <div>
         <SectionHeader title="Capacity analysis" extra={<ExportBtn label="CSV" filename="capacity.csv" cols={["School","Enrolment","Capacity","With Mobiles","Utilisation","Overcapacity"]} rows={schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.enrolment,s.capacity,mob,pct+"%",Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})}/>}/>
@@ -1055,7 +1154,6 @@ function App(){
         </div>
       </div>
     );
-
     case "ratio": return (
       <div>
         <SectionHeader title="Teacher / Learner ratio analysis" extra={<ExportBtn label="CSV" filename="ratio.csv" cols={["School","Enrolment","Teachers","Ratio","Status"]} rows={schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.enrolment,s.teachers,r?`1:${r}`:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];})}/>}/>
@@ -1081,8 +1179,7 @@ function App(){
         </div>
       </div>
     );
-
-    case "kpa":  return <KpaDashboard uploads={uploads} learnerData={learnerData} mobileAudit={mobileAudit} schoolRequests={schoolRequests} adminTasks={adminTasks} setActive={setActive}/>;
+    case "kpa":  return <KpaDashboard uploads={uploads} learnerData={learnerData} mobileAudit={mobileAudit} schoolRequests={schoolRequests} adminTasks={adminTasks} schoolTransfers={schoolTransfers} setActive={setActive}/>;
     case "kpa1": return (
       <div><SectionHeader title="KPA 1 — Data Uploads (NEIMS / EFMS / GOVERP)" onAdd={()=>setModal("upload")} extra={<ExportBtn label="CSV" filename="kpa1_uploads.csv" cols={["System","Date","Status","Records","Verified By","Notes"]} rows={uploads.map(u=>[u.system,u.date,u.status,u.records,u.verifiedBy,u.notes])}/>}/>
       <KpaNote weight="30%" target="Daily" description="Verify and monitor captured data across NEIMS, EFMS and GOVERP."/>
@@ -1113,33 +1210,40 @@ function App(){
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total tasks" value={adminTasks.length} color="#DC2626"/><StatCard label="Payment verifications" value={adminTasks.filter(t=>t.type==="Payment Verification").length} color="#2563EB"/><StatCard label="Completed" value={adminTasks.filter(t=>["Verified","Completed","Resolved"].includes(t.status)).length} color="#059669"/><StatCard label="Pending" value={adminTasks.filter(t=>t.status==="Pending").length} color="#D97706"/></div>
       <Card><DataTable cols={["Type","Reference","Date","Amount","Supplier / Party","Status","Notes"]} rows={adminTasks} renderRow={t=>[t.type,t.ref,t.date,t.amount||"—",t.supplier||"—",<Badge val={t.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{t.notes}</span>]}/></Card></div>
     );
-
+    case "kpa6": return (
+      <div><SectionHeader title="KPA 6 — School Transfers" onAdd={()=>setModal("transfer")} extra={<ExportBtn label="CSV" filename="kpa6_transfers.csv" cols={["School","Direction","Learner","Grade","Other School","Reason","Date","Status","Processed By","Notes"]} rows={schoolTransfers.map(t=>[scName(t.schoolId),t.direction,t.learnerName,t.grade,t.otherSchool,t.reason,t.transferDate,t.status,t.processedBy,t.notes])}/>}/>
+      <KpaNote weight="—" target="Ongoing" description="Track learner transfers into and out of NC DoE schools, including reason and processing status."/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total transfers" value={schoolTransfers.length} color="#0EA5E9"/><StatCard label="Transfers out" value={schoolTransfers.filter(t=>t.direction==="Out").length} color="#DC2626"/><StatCard label="Transfers in" value={schoolTransfers.filter(t=>t.direction==="In").length} color="#059669"/><StatCard label="Pending" value={schoolTransfers.filter(t=>t.status==="Pending").length} color="#D97706"/></div>
+      <Card><DataTable cols={["School","Direction","Learner","Grade","Other School","Reason","Date","Status","Processed By"]} rows={schoolTransfers} renderRow={t=>[scName(t.schoolId),<span style={{fontSize:12,fontWeight:600,color:t.direction==="Out"?"#DC2626":"#059669"}}>{t.direction==="Out"?"↗ Out":"↙ In"}</span>,t.learnerName,t.grade,t.otherSchool,t.reason,t.transferDate,<Badge val={t.status}/>,t.processedBy]}/></Card></div>
+    );
     default: return null;
   }};
-
   return (
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",background:"#F3F6FB"}}>
       {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"#111827",color:"#fff",padding:"10px 20px",borderRadius:10,fontSize:13,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 4px 12px rgba(0,0,0,0.2)"}}>{toast}</div>}
-
-      {modal==="school"       && <SchoolForm        onClose={()=>setModal(null)} onSave={add(setSchools)}/>}
-      {modal==="audit"        && <AuditForm         schools={schools}            onClose={()=>setModal(null)} onSave={add(setAudits)}/>}
-      {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(setClassrooms)}/>}
-      {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(setFurniture)}/>}
-      {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(setConditions)}/>}
-      {modal==="repair"       && <RepairForm        furniture={furniture} classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(setRepairs)}/>}
-      {modal==="warehouse"    && <WarehouseForm                               onClose={()=>setModal(null)} onSave={add(setWarehouse)}/>}
-      {modal==="storage"      && <StorageForm       schools={schools}          onClose={()=>setModal(null)} onSave={add(setStorage)}/>}
-      {modal==="distribution" && <DistributionForm  schools={schools}          onClose={()=>setModal(null)} onSave={add(setDistribution)}/>}
-      {modal==="upload"       && <UploadForm                                   onClose={()=>setModal(null)} onSave={add(setUploads)}/>}
-      {modal==="learner"      && <LearnerDataForm                              onClose={()=>setModal(null)} onSave={add(setLearnerData)}/>}
-      {modal==="mobile"       && <MobileAuditForm   schools={schools}          onClose={()=>setModal(null)} onSave={add(setMobileAudit)}/>}
-      {modal==="request"      && <SchoolRequestForm schools={schools}          onClose={()=>setModal(null)} onSave={add(setSchoolRequests)}/>}
-      {modal==="admin"        && <AdminTaskForm                                onClose={()=>setModal(null)} onSave={add(setAdminTasks)}/>}
-
+      {modal==="school"       && <SchoolForm        onClose={()=>setModal(null)} onSave={add(schoolsM)}/>}
+      {modal==="audit"        && <AuditForm         schools={schools}            onClose={()=>setModal(null)} onSave={add(auditsM)}/>}
+      {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(classroomsM)}/>}
+      {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
+      {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
+      {modal==="repair"       && <RepairForm        furniture={furniture} classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(repairsM)}/>}
+      {modal==="warehouse"    && <WarehouseForm                               onClose={()=>setModal(null)} onSave={add(warehouseM)}/>}
+      {modal==="storage"      && <StorageForm       schools={schools}          onClose={()=>setModal(null)} onSave={add(storageM)}/>}
+      {modal==="distribution" && <DistributionForm  schools={schools}          onClose={()=>setModal(null)} onSave={add(distributionM)}/>}
+      {modal==="upload"       && <UploadForm                                   onClose={()=>setModal(null)} onSave={add(uploadsM)}/>}
+      {modal==="learner"      && <LearnerDataForm                              onClose={()=>setModal(null)} onSave={add(learnerDataM)}/>}
+      {modal==="mobile"       && <MobileAuditForm   schools={schools}          onClose={()=>setModal(null)} onSave={add(mobileAuditM)}/>}
+      {modal==="request"      && <SchoolRequestForm schools={schools}          onClose={()=>setModal(null)} onSave={add(schoolRequestsM)}/>}
+      {modal==="admin"        && <AdminTaskForm                                onClose={()=>setModal(null)} onSave={add(adminTasksM)}/>}
+      {modal==="transfer"     && <TransferForm    schools={schools}          onClose={()=>setModal(null)} onSave={add(schoolTransfersM)}/>}
       <aside style={{width:220,background:"linear-gradient(180deg,#1e3a5f,#1e40af)",padding:"1.5rem 0",flexShrink:0,overflowY:"auto"}}>
         <div style={{padding:"0 1.25rem 1.5rem",borderBottom:"0.5px solid rgba(255,255,255,0.1)",marginBottom:"1rem"}}>
           <p style={{fontWeight:700,fontSize:14,color:"#fff",margin:"0 0 2px"}}>SchoolAudit</p>
-          <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:0}}>Northern Cape DoE</p>
+          <p style={{fontSize:11,color:"rgba(255,255,255,0.5)",margin:"0 0 6px"}}>Northern Cape DoE</p>
+          <span style={{display:"inline-flex",alignItems:"center",gap:5,fontSize:10,color:firestoreDb?"#6EE7B7":"rgba(255,255,255,0.45)",background:firestoreDb?"rgba(16,185,129,0.15)":"rgba(255,255,255,0.08)",padding:"2px 8px",borderRadius:999}}>
+            <span style={{width:6,height:6,borderRadius:"50%",background:firestoreDb?"#10B981":"#9CA3AF"}}/>
+            {firestoreDb?"Synced across devices":"Local only — see Export"}
+          </span>
         </div>
         {NAV.map(n=>(
           <button key={n.id} onClick={()=>setActive(n.id)} style={{display:"flex",alignItems:"center",gap:10,width:"100%",padding:"7px 1.25rem",background:active===n.id?"rgba(255,255,255,0.15)":"none",color:active===n.id?"#fff":"rgba(255,255,255,0.65)",border:"none",borderLeft:active===n.id?"2px solid #60A5FA":"2px solid transparent",cursor:"pointer",fontSize:13,fontWeight:active===n.id?600:400,textAlign:"left",transition:"background 0.15s"}}>
@@ -1147,13 +1251,11 @@ function App(){
           </button>
         ))}
       </aside>
-
       <main style={{flex:1,padding:"2rem",maxWidth:1100,overflowY:"auto"}}>
         {renderPage()}
       </main>
     </div>
   );
 }
-
 const root=document.getElementById("root");
 if(root) ReactDOM.createRoot(root).render(<App/>);
