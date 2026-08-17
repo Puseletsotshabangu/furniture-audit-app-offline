@@ -39,6 +39,12 @@
   <script src="react.production.min.js"></script>
   <script src="react-dom.production.min.js"></script>
   <script src="vendor/babel.min.js"></script>
+  <!-- Optional cloud sync (Firebase Firestore) — see the CLOUD SYNC comment block at the top of
+       app.js for setup steps. These two scripts load the Firebase SDK; the app only uses it once
+       FIREBASE_CONFIG in app.js has been filled in with your project's keys. Safe to leave in
+       even if you never set up Firebase — app.js falls back to local-only storage automatically. -->
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script type="text/babel" data-presets="react" src="app.js"></script>
   <script>
     if ("serviceWorker" in navigator) {
