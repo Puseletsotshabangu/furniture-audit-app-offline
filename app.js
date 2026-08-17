@@ -95,7 +95,7 @@ const initLearnerData  = [{id:1,school:"Soweto Primary",district:"Johannesburg S
 const initMobileAudit  = [{id:1,schoolId:1,mobileCount:4,condition:"Fair",structuralIssues:"Roof leaks",electricityAvail:"Yes",ablutions:"No",recommendation:"Repair roof",auditDate:"2026-04-20",auditedBy:"PY Tshabangu"},{id:2,schoolId:3,mobileCount:3,condition:"Poor",structuralIssues:"Floor damage",electricityAvail:"No",ablutions:"No",recommendation:"Replace unit",auditDate:"2026-04-22",auditedBy:"PY Tshabangu"}];
 const initSchoolRequests=[{id:1,schoolId:1,district:"Johannesburg South",requestType:"Furniture",priority:"High",dateReceived:"2026-04-05",status:"In Progress",assignedTo:"PY Tshabangu",dueDate:"2026-06-30",notes:"220 desks needed urgently"},{id:2,schoolId:2,district:"Tshwane North",requestType:"Mobile Unit",priority:"Medium",dateReceived:"2026-04-10",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"2026-07-31",notes:"Request for 2 additional mobiles"},{id:3,schoolId:3,district:"Johannesburg East",requestType:"Repairs",priority:"Low",dateReceived:"2026-04-15",status:"Completed",assignedTo:"PY Tshabangu",dueDate:"2026-05-31",notes:"Classroom door repairs done"}];
 const initAdminTasks   = [{id:1,type:"Payment Verification",ref:"PAY-2026-001",date:"2026-04-08",amount:"R 45,000",supplier:"Edu Furniture Co.",status:"Verified",notes:"All docs checked and signed"},{id:2,type:"Stakeholder Enquiry",ref:"ENQ-2026-012",date:"2026-04-10",amount:"—",supplier:"—",status:"Resolved",notes:"Principal query re: delivery date"},{id:3,type:"Filing / Scanning",ref:"FILE-2026-003",date:"2026-04-12",amount:"—",supplier:"—",status:"Completed",notes:"Q1 project docs scanned and filed"},{id:4,type:"Payment Verification",ref:"PAY-2026-002",date:"2026-04-18",amount:"R 12,500",supplier:"SA School Supplies",status:"Pending",notes:"Awaiting supporting documents"}];
-const initSchoolTransfers=[{id:1,schoolId:1,direction:"Out",learnerName:"T. Mahlangu",grade:"7",otherSchool:"Riverside Primary",reason:"Relocation",transferDate:"2026-03-12",status:"Completed",processedBy:"PY Tshabangu",notes:"Records forwarded to receiving school"},{id:2,schoolId:2,direction:"In",learnerName:"K. Adams",grade:"10",otherSchool:"Vryburg High",reason:"Parent Request",transferDate:"2026-04-02",status:"Approved",processedBy:"PY Tshabangu",notes:"Awaiting learner file"},{id:3,schoolId:3,direction:"Out",learnerName:"S. Booysen",grade:"5",otherSchool:"Unknown — pending",reason:"Other",transferDate:"2026-04-18",status:"Pending",processedBy:"PY Tshabangu",notes:"Confirming destination school"}];
+const initSchoolTransfers=[{id:1,fromSchoolId:1,toSchoolId:2,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:20,transferDate:"2026-03-18",refNumber:"TRF-2026-001",condition:"Good",status:"Completed",processedBy:"PY Tshabangu",notes:"Redistribution of surplus desks to reduce overcrowding"},{id:2,fromSchoolId:3,toSchoolId:1,category:"Teacher",ftype:"Teacher's Desk (Single Pedestal)",otherType:"",qty:5,transferDate:"2026-04-05",refNumber:"TRF-2026-002",condition:"Fair",status:"Approved",processedBy:"PY Tshabangu",notes:"Awaiting transport confirmation"},{id:3,fromSchoolId:2,toSchoolId:3,category:"Specialised",ftype:"Science Lab Table",otherType:"",qty:8,transferDate:"2026-04-20",refNumber:"TRF-2026-003",condition:"Good",status:"Pending",processedBy:"PY Tshabangu",notes:"Pending district approval"}];
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
@@ -188,6 +188,13 @@ function useSyncedCollection(name, initialData) {
         }).catch(e=>console.error(`Sync restore failed (${name}):`,e));
       } else {
         setItems(records);
+      }
+    },
+    updateOne: (id, patch) => {
+      if (firestoreDb) {
+        firestoreDb.collection(name).doc(String(id)).set(patch, {merge:true}).catch(e=>console.error(`Sync update failed (${name}):`,e));
+      } else {
+        setItems(p => p.map(it => it.id===id ? {...it, ...patch} : it));
       }
     },
   }), [name]);
@@ -748,7 +755,58 @@ function LearnerDataForm({onSave,onClose}){const [f,setF]=useState({school:"",di
 function MobileAuditForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:"",auditDate:"",auditedBy:"PY Tshabangu"});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Mobile classroom audit" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Number of mobiles"><input style={inp} type="number" value={f.mobileCount} onChange={s("mobileCount")}/></Field></Row2><Row3><Field label="Overall condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={f.electricityAvail} onChange={s("electricityAvail")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Ablutions?"><select style={sel} value={f.ablutions} onChange={s("ablutions")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Field label="Structural issues"><input style={inp} value={f.structuralIssues} onChange={s("structuralIssues")} placeholder="e.g. Roof leaks, floor damage"/></Field><Field label="Recommendation"><input style={inp} value={f.recommendation} onChange={s("recommendation")} placeholder="e.g. Repair, Replace, Monitor"/></Field><Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Audited by"><input style={inp} value={f.auditedBy} onChange={s("auditedBy")}/></Field></Row2></Modal>);}
 function SchoolRequestForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",district:"",requestType:"Furniture",priority:"Medium",dateReceived:"",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log school request" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field></Row2><Row3><Field label="Request type"><select style={sel} value={f.requestType} onChange={s("requestType")}>{["Furniture","Mobile Unit","Repairs","Infrastructure","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Priority"><select style={sel} value={f.priority} onChange={s("priority")}>{["High","Medium","Low"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed","Declined"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Row2><Field label="Date received"><input style={inp} type="date" value={f.dateReceived} onChange={s("dateReceived")}/></Field><Field label="Due date"><input style={inp} type="date" value={f.dueDate} onChange={s("dueDate")}/></Field></Row2><Field label="Assigned to"><input style={inp} value={f.assignedTo} onChange={s("assignedTo")}/></Field><Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
 function AdminTaskForm({onSave,onClose}){const [f,setF]=useState({type:"Payment Verification",ref:"",date:"",amount:"",supplier:"",status:"Pending",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log admin task" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing / Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2><Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Verified","Completed","Resolved"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Amount (if payment)"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45,000"/></Field><Field label="Supplier / party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2><Field label="Notes / evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
-function TransferForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",direction:"Out",learnerName:"",grade:"",otherSchool:"",reason:"Relocation",transferDate:"",status:"Pending",processedBy:"PY Tshabangu",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log school transfer" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="NC DoE school"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Direction"><select style={sel} value={f.direction} onChange={s("direction")}>{["Out","In"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Learner name"><input style={inp} value={f.learnerName} onChange={s("learnerName")}/></Field><Field label="Grade"><input style={inp} value={f.grade} onChange={s("grade")}/></Field></Row2><Field label={f.direction==="Out"?"Receiving school":"Sending school"}><input style={inp} value={f.otherSchool} onChange={s("otherSchool")} placeholder="School name (may be outside NC DoE system)"/></Field><Row2><Field label="Reason"><select style={sel} value={f.reason} onChange={s("reason")}>{["Relocation","Parent Request","Expulsion","Repeating Grade","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Transfer date"><input style={inp} type="date" value={f.transferDate} onChange={s("transferDate")}/></Field></Row2><Row2><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","Approved","Completed","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Processed by"><input style={inp} value={f.processedBy} onChange={s("processedBy")}/></Field></Row2><Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
+function TransferForm({schools,classrooms,furniture,onSave,onClose}){
+  const [f,setF]=useState({fromSchoolId:"",toSchoolId:"",category:"Learner",ftype:"",otherType:"",qty:"",transferDate:new Date().toISOString().slice(0,10),refNumber:"",condition:"Good",status:"Pending",processedBy:"PY Tshabangu",notes:""});
+  const [touched,setTouched]=useState(false);
+  const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
+  const getSchoolId = fu => { const cl=classrooms.find(c=>c.id==fu.classroomId); return (cl&&cl.schoolId!=null)?cl.schoolId:fu.schoolId; };
+  const sourceStock = useMemo(()=>{
+    if(!f.fromSchoolId||!f.ftype) return null;
+    const rows = furniture.filter(fu=>{
+      const sid=getSchoolId(fu);
+      const itemMatches = f.ftype==="Other" ? (fu.ftype==="Other" && (fu.otherType||"")===(f.otherType||"")) : fu.ftype===f.ftype;
+      return sid!=null && sid.toString()===f.fromSchoolId.toString() && itemMatches;
+    });
+    return rows.reduce((a,fu)=>a+Number(fu.available||0),0);
+  },[f.fromSchoolId,f.ftype,f.otherType,furniture,classrooms]);
+  const validate=d=>({
+    fromSchoolId:!d.fromSchoolId?"Source school is required":"",
+    toSchoolId:!d.toSchoolId?"Destination school is required":(d.toSchoolId===d.fromSchoolId?"Destination must differ from source":""),
+    ftype:!d.ftype?"Item type is required":"",
+    otherType:d.ftype==="Other"&&!d.otherType?.trim()?"Specify the item":"",
+    qty:d.qty===""||Number(d.qty)<=0?"Quantity must be greater than 0":"",
+  });
+  const errors=touched?validate(f):{};
+  const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
+  const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
+  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
+  return (
+    <Modal title="Log school-to-school transfer" onClose={onClose} onSave={handleSave} errors={errors}>
+      <Row2>
+        <Field label="From school (source) *"><select style={eS("fromSchoolId")} value={f.fromSchoolId} onChange={s("fromSchoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+        <Field label="To school (destination) *"><select style={eS("toSchoolId")} value={f.toSchoolId} onChange={s("toSchoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+      </Row2>
+      <Row2>
+        <Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Item / DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (equipment, computers, printers, etc.)</option></select></Field>
+      </Row2>
+      {f.ftype==="Other"&&<Field label="Specify item *"><input style={eI("otherType")} value={f.otherType} onChange={s("otherType")} placeholder="e.g. Computer, Printer, Projector"/></Field>}
+      {f.fromSchoolId&&f.ftype&&<p style={{fontSize:12,color:sourceStock!==null&&Number(f.qty)>sourceStock?"#DC2626":"#6B7280",margin:"-4px 0 10px"}}>Current recorded stock at source: <strong>{sourceStock ?? 0}</strong> available{sourceStock!==null&&Number(f.qty)>sourceStock?" — quantity exceeds recorded stock":""}</p>}
+      <Row3>
+        <Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field>
+        <Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Transfer date"><input style={inp} type="date" value={f.transferDate} onChange={s("transferDate")}/></Field>
+      </Row3>
+      <Row3>
+        <Field label="Approval / reference number"><input style={inp} value={f.refNumber} onChange={s("refNumber")} placeholder="e.g. TRF-2026-004"/></Field>
+        <Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","Approved","Completed","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Processed by"><input style={inp} value={f.processedBy} onChange={s("processedBy")}/></Field>
+      </Row3>
+      <Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
+      <p style={{fontSize:11,color:"#6B7280",margin:0}}>Saving this will automatically update furniture inventory: the quantity is subtracted from the source school and added to the destination school.</p>
+    </Modal>
+  );
+}
 // ─────────────────────────────────────────────
 // EMIS PAGE (from v77)
 // ─────────────────────────────────────────────
@@ -1023,6 +1081,25 @@ function App(){
     if(reps?.length) repairsM.addMany(reps);
   };
   const scName = id => schools.find(s=>s.id==id)?.name||"—";
+  const logTransfer = (data) => {
+    const qty = Number(data.qty)||0;
+    const getFuSchoolId = fu => { const cl=classrooms.find(c=>c.id==fu.classroomId); return (cl&&cl.schoolId!=null)?cl.schoolId:fu.schoolId; };
+    const itemMatches = fu => data.ftype==="Other" ? (fu.ftype==="Other" && (fu.otherType||"")===(data.otherType||"")) : fu.ftype===data.ftype;
+    // 1) record the transfer itself
+    schoolTransfersM.addOne(data);
+    // 2) reduce inventory at the source school
+    const srcRecord = furniture.find(fu => { const sid=getFuSchoolId(fu); return sid!=null && sid.toString()===data.fromSchoolId.toString() && itemMatches(fu); });
+    if (srcRecord) furnitureM.updateOne(srcRecord.id, { available: Math.max(0, Number(srcRecord.available||0) - qty) });
+    // 3) increase (or create) inventory at the destination school
+    const destRecord = furniture.find(fu => { const sid=getFuSchoolId(fu); return sid!=null && sid.toString()===data.toSchoolId.toString() && itemMatches(fu); });
+    if (destRecord) {
+      furnitureM.updateOne(destRecord.id, { available: Number(destRecord.available||0) + qty });
+    } else {
+      furnitureM.addOne({schoolId:data.toSchoolId,classroomId:"",category:data.category,ftype:data.ftype,spec:"",chairType:"",available:qty,damaged:0,repairable:0,otherType:data.otherType||"",otherQty:0,condition:data.condition,photoName:"",photoData:""});
+    }
+    setModal(null);
+    showToast(`✓ Transfer logged — ${qty} × ${data.ftype==="Other"?data.otherType:data.ftype} moved from ${scName(data.fromSchoolId)} to ${scName(data.toSchoolId)}.`);
+  };
   const renderPage = () => { switch(active){
     case "dashboard": return <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>;
     case "emis":      return <EmisPage onImport={importSchool} onDataLoaded={setEmisData}/>;
@@ -1211,10 +1288,10 @@ function App(){
       <Card><DataTable cols={["Type","Reference","Date","Amount","Supplier / Party","Status","Notes"]} rows={adminTasks} renderRow={t=>[t.type,t.ref,t.date,t.amount||"—",t.supplier||"—",<Badge val={t.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{t.notes}</span>]}/></Card></div>
     );
     case "kpa6": return (
-      <div><SectionHeader title="KPA 6 — School Transfers" onAdd={()=>setModal("transfer")} extra={<ExportBtn label="CSV" filename="kpa6_transfers.csv" cols={["School","Direction","Learner","Grade","Other School","Reason","Date","Status","Processed By","Notes"]} rows={schoolTransfers.map(t=>[scName(t.schoolId),t.direction,t.learnerName,t.grade,t.otherSchool,t.reason,t.transferDate,t.status,t.processedBy,t.notes])}/>}/>
-      <KpaNote weight="—" target="Ongoing" description="Track learner transfers into and out of NC DoE schools, including reason and processing status."/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total transfers" value={schoolTransfers.length} color="#0EA5E9"/><StatCard label="Transfers out" value={schoolTransfers.filter(t=>t.direction==="Out").length} color="#DC2626"/><StatCard label="Transfers in" value={schoolTransfers.filter(t=>t.direction==="In").length} color="#059669"/><StatCard label="Pending" value={schoolTransfers.filter(t=>t.status==="Pending").length} color="#D97706"/></div>
-      <Card><DataTable cols={["School","Direction","Learner","Grade","Other School","Reason","Date","Status","Processed By"]} rows={schoolTransfers} renderRow={t=>[scName(t.schoolId),<span style={{fontSize:12,fontWeight:600,color:t.direction==="Out"?"#DC2626":"#059669"}}>{t.direction==="Out"?"↗ Out":"↙ In"}</span>,t.learnerName,t.grade,t.otherSchool,t.reason,t.transferDate,<Badge val={t.status}/>,t.processedBy]}/></Card></div>
+      <div><SectionHeader title="KPA 6 — School Transfers" onAdd={()=>setModal("transfer")} extra={<ExportBtn label="CSV" filename="kpa6_transfers.csv" cols={["From School","To School","Category","Item","Quantity","Condition","Transfer Date","Reference","Status","Processed By","Notes"]} rows={schoolTransfers.map(t=>[scName(t.fromSchoolId),scName(t.toSchoolId),t.category,t.ftype==="Other"?t.otherType:t.ftype,t.qty,t.condition,t.transferDate,t.refNumber,t.status,t.processedBy,t.notes])}/>}/>
+      <KpaNote weight="—" target="Ongoing" description="Record furniture and equipment moved between NC DoE schools, keeping both schools' inventories accurate and providing an audit trail."/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total transfers" value={schoolTransfers.length} color="#0EA5E9"/><StatCard label="Items transferred" value={schoolTransfers.reduce((a,t)=>a+Number(t.qty||0),0)} color="#2563EB"/><StatCard label="Completed" value={schoolTransfers.filter(t=>t.status==="Completed").length} color="#059669"/><StatCard label="Pending / Approved" value={schoolTransfers.filter(t=>t.status==="Pending"||t.status==="Approved").length} color="#D97706"/></div>
+      <Card><DataTable cols={["From School","To School","Item","Qty","Condition","Date","Reference","Status","Processed By"]} rows={schoolTransfers} renderRow={t=>[scName(t.fromSchoolId),scName(t.toSchoolId),<span>{t.ftype==="Other"?t.otherType:t.ftype}{t.category?<span style={{fontSize:11,color:"#6B7280"}}> ({t.category})</span>:""}</span>,t.qty,<Badge val={t.condition}/>,t.transferDate,t.refNumber||"—",<Badge val={t.status}/>,t.processedBy]}/></Card></div>
     );
     default: return null;
   }};
@@ -1235,7 +1312,7 @@ function App(){
       {modal==="mobile"       && <MobileAuditForm   schools={schools}          onClose={()=>setModal(null)} onSave={add(mobileAuditM)}/>}
       {modal==="request"      && <SchoolRequestForm schools={schools}          onClose={()=>setModal(null)} onSave={add(schoolRequestsM)}/>}
       {modal==="admin"        && <AdminTaskForm                                onClose={()=>setModal(null)} onSave={add(adminTasksM)}/>}
-      {modal==="transfer"     && <TransferForm    schools={schools}          onClose={()=>setModal(null)} onSave={add(schoolTransfersM)}/>}
+      {modal==="transfer"     && <TransferForm    schools={schools} classrooms={classrooms} furniture={furniture} onClose={()=>setModal(null)} onSave={logTransfer}/>}
       <aside style={{width:220,background:"linear-gradient(180deg,#1e3a5f,#1e40af)",padding:"1.5rem 0",flexShrink:0,overflowY:"auto"}}>
         <div style={{padding:"0 1.25rem 1.5rem",borderBottom:"0.5px solid rgba(255,255,255,0.1)",marginBottom:"1rem"}}>
           <p style={{fontWeight:700,fontSize:14,color:"#fff",margin:"0 0 2px"}}>SchoolAudit</p>
