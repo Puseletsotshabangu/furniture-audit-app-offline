@@ -93,9 +93,62 @@ const initWarehouse    = [{id:1,date:"2024-03-01",supplier:"Edu Furniture Co.",f
 const initUploads      = [{id:1,system:"NEIMS",date:"2026-04-01",status:"Completed",records:342,verifiedBy:"PY Tshabangu",notes:"Aligned with EFMS data"},{id:2,system:"EFMS",date:"2026-04-03",status:"Completed",records:298,verifiedBy:"PY Tshabangu",notes:"Cross-checked against GOVERP"},{id:3,system:"GOVERP",date:"2026-04-05",status:"In Progress",records:180,verifiedBy:"PY Tshabangu",notes:"Pending district confirmation"}];
 const initLearnerData  = [{id:1,school:"Soweto Primary",district:"Johannesburg South",source:"10th Day Snap Survey",date:"2026-04-10",enrolment:1200,verified:1180,variance:20,status:"Validated"},{id:2,school:"Pretoria North",district:"Tshwane North",source:"GOVERP",date:"2026-04-12",enrolment:850,verified:850,variance:0,status:"Validated"},{id:3,school:"Alexandra Comb.",district:"Johannesburg East",source:"Google Forms",date:"2026-04-15",enrolment:1050,verified:1010,variance:40,status:"Queried"}];
 const initMobileAudit  = [{id:1,schoolId:1,mobileCount:4,condition:"Fair",structuralIssues:"Roof leaks",electricityAvail:"Yes",ablutions:"No",recommendation:"Repair roof",auditDate:"2026-04-20",auditedBy:"PY Tshabangu"},{id:2,schoolId:3,mobileCount:3,condition:"Poor",structuralIssues:"Floor damage",electricityAvail:"No",ablutions:"No",recommendation:"Replace unit",auditDate:"2026-04-22",auditedBy:"PY Tshabangu"}];
-const initSchoolRequests=[{id:1,schoolId:1,district:"Johannesburg South",requestType:"Furniture",priority:"High",dateReceived:"2026-04-05",status:"In Progress",assignedTo:"PY Tshabangu",dueDate:"2026-06-30",notes:"220 desks needed urgently"},{id:2,schoolId:2,district:"Tshwane North",requestType:"Mobile Unit",priority:"Medium",dateReceived:"2026-04-10",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"2026-07-31",notes:"Request for 2 additional mobiles"},{id:3,schoolId:3,district:"Johannesburg East",requestType:"Repairs",priority:"Low",dateReceived:"2026-04-15",status:"Completed",assignedTo:"PY Tshabangu",dueDate:"2026-05-31",notes:"Classroom door repairs done"}];
+// ─────────────────────────────────────────────
+// SCHOOL REQUESTS = FURNITURE & INFRASTRUCTURE REQUEST MANAGEMENT
+// ─────────────────────────────────────────────
+const REQUEST_CATEGORIES = ["Furniture","Infrastructure"];
+const REQUEST_TYPES_BY_CATEGORY = {
+  Furniture:      ["Furniture Shortage","Damaged Furniture Replacement","Refurbishment Needed","Other"],
+  Infrastructure: ["Additional Classrooms","Administration Buildings","Sanitation Facilities","Water Supply Infrastructure","Electrical Upgrades","Fencing & Security Infrastructure","Hostels","Maintenance","Other"],
+};
+const REQUEST_PRIORITY_BASIS = ["Need","Safety Requirements","Budget Availability","Learner Numbers","Infrastructure Condition"];
+const initSchoolRequests=[
+  {id:1,refNumber:"GOVERP-2026-0341",schoolId:1,district:"Johannesburg South",category:"Furniture",requestType:"Furniture Shortage",priority:"High",priorityBasis:"Learner Numbers",dateReceived:"2026-04-05",govErpCaptured:"Yes",verified:"Yes",verificationDate:"2026-04-08",status:"In Progress",dueDate:"2026-06-30",completedDate:"",assignedTo:"PY Tshabangu",proofOfDelivery:"No",closedWithDocs:"No",notes:"220 desks needed urgently — enrolment growth of 8% this year"},
+  {id:2,refNumber:"GOVERP-2026-0355",schoolId:2,district:"Tshwane North",category:"Infrastructure",requestType:"Additional Classrooms",priority:"Medium",priorityBasis:"Infrastructure Condition",dateReceived:"2026-04-10",govErpCaptured:"Yes",verified:"Pending",verificationDate:"",status:"Pending",dueDate:"2026-07-31",completedDate:"",assignedTo:"PY Tshabangu",proofOfDelivery:"No",closedWithDocs:"No",notes:"Request for 2 additional mobile classrooms — pending site verification"},
+  {id:3,refNumber:"GOVERP-2026-0298",schoolId:3,district:"Johannesburg East",category:"Furniture",requestType:"Refurbishment Needed",priority:"Low",priorityBasis:"Budget Availability",dateReceived:"2026-04-15",govErpCaptured:"Yes",verified:"Yes",verificationDate:"2026-04-18",status:"Completed",dueDate:"2026-05-31",completedDate:"2026-05-20",assignedTo:"PY Tshabangu",proofOfDelivery:"Yes",closedWithDocs:"Yes",notes:"Classroom door repairs completed — proof of delivery signed by principal"},
+];
 const initAdminTasks   = [{id:1,type:"Payment Verification",ref:"PAY-2026-001",date:"2026-04-08",amount:"R 45,000",supplier:"Edu Furniture Co.",status:"Verified",notes:"All docs checked and signed"},{id:2,type:"Stakeholder Enquiry",ref:"ENQ-2026-012",date:"2026-04-10",amount:"—",supplier:"—",status:"Resolved",notes:"Principal query re: delivery date"},{id:3,type:"Filing / Scanning",ref:"FILE-2026-003",date:"2026-04-12",amount:"—",supplier:"—",status:"Completed",notes:"Q1 project docs scanned and filed"},{id:4,type:"Payment Verification",ref:"PAY-2026-002",date:"2026-04-18",amount:"R 12,500",supplier:"SA School Supplies",status:"Pending",notes:"Awaiting supporting documents"}];
-const initSchoolTransfers=[{id:1,fromSchoolId:1,toSchoolId:2,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:20,transferDate:"2026-03-18",refNumber:"TRF-2026-001",condition:"Good",status:"Completed",processedBy:"PY Tshabangu",notes:"Redistribution of surplus desks to reduce overcrowding"},{id:2,fromSchoolId:3,toSchoolId:1,category:"Teacher",ftype:"Teacher's Desk (Single Pedestal)",otherType:"",qty:5,transferDate:"2026-04-05",refNumber:"TRF-2026-002",condition:"Fair",status:"Approved",processedBy:"PY Tshabangu",notes:"Awaiting transport confirmation"},{id:3,fromSchoolId:2,toSchoolId:3,category:"Specialised",ftype:"Science Lab Table",otherType:"",qty:8,transferDate:"2026-04-20",refNumber:"TRF-2026-003",condition:"Good",status:"Pending",processedBy:"PY Tshabangu",notes:"Pending district approval"}];
+// ─────────────────────────────────────────────
+// SCHOOL TRANSFERS = INFRASTRUCTURE PROJECT HANDOVER
+// ─────────────────────────────────────────────
+const TRANSFER_PHASES = ["Practical Completion","Defects Rectification","Pre-Handover Inspection","School Handover","Final Transfer"];
+const TRANSFER_CHECKLIST = [
+  {key:"practicalCompletion",label:"Practical completion certificate received"},
+  {key:"occupancyCert",       label:"Occupancy certificate received"},
+  {key:"electricalCompliance",label:"Electrical compliance certificate available"},
+  {key:"plumbingCert",        label:"Plumbing certificate available"},
+  {key:"fireCompliance",      label:"Fire compliance certificate available"},
+  {key:"defectsRectified",    label:"Defects rectified"},
+  {key:"furnitureInstalled",  label:"Furniture installed"},
+  {key:"assetRegister",       label:"Asset register completed"},
+  {key:"staffOrientation",    label:"School staff orientation conducted"},
+  {key:"keysHandedOver",      label:"Building keys handed over"},
+];
+const TRANSFER_ASSET_CATEGORIES = [
+  {key:"classrooms",           label:"Classrooms"},
+  {key:"adminOffices",         label:"Administration Offices"},
+  {key:"toilets",              label:"Toilets"},
+  {key:"furniture",            label:"Furniture"},
+  {key:"ictEquipment",         label:"ICT Equipment"},
+  {key:"waterInfrastructure",  label:"Water Infrastructure"},
+  {key:"securityFencing",      label:"Security Fencing"},
+];
+const emptyChecklist = () => Object.fromEntries(TRANSFER_CHECKLIST.map(c=>[c.key,{value:"",remarks:""}]));
+const emptyAssets    = () => Object.fromEntries(TRANSFER_ASSET_CATEGORIES.map(c=>[c.key,{qty:"",condition:"Good"}]));
+const initSchoolTransfers=[
+  {id:1,projectName:"Kimberley North Primary — New Admin Block",emisNumber:"300010701",schoolId:1,district:"Frances Baard",projectBudget:"R 3,200,000",finalCost:"R 3,150,000",contractor:"Kalahari Construction (Pty) Ltd",implementingAgent:"Dept. of Infrastructure — NC DoE",completionDate:"2026-05-20",handoverDate:"2026-06-10",phase:"Final Transfer",
+    checklist:{practicalCompletion:{value:"Yes",remarks:"Certificate issued 2026-05-20"},occupancyCert:{value:"Yes",remarks:""},electricalCompliance:{value:"Yes",remarks:"COC on file"},plumbingCert:{value:"Yes",remarks:""},fireCompliance:{value:"Yes",remarks:""},defectsRectified:{value:"Yes",remarks:"2 minor defects closed out"},furnitureInstalled:{value:"Yes",remarks:""},assetRegister:{value:"Yes",remarks:"Captured on asset register 2026-06-08"},staffOrientation:{value:"Yes",remarks:"Conducted 2026-06-09"},keysHandedOver:{value:"Yes",remarks:""}},
+    assets:{classrooms:{qty:"4",condition:"Good"},adminOffices:{qty:"2",condition:"Good"},toilets:{qty:"6",condition:"Good"},furniture:{qty:"120",condition:"Good"},ictEquipment:{qty:"8",condition:"Good"},waterInfrastructure:{qty:"1",condition:"Good"},securityFencing:{qty:"1",condition:"Fair"}},
+    onTime:"Yes",handoverWithin30Days:"Yes",defectsIdentified:2,defectsResolved:2,satisfactionRating:5,assetRegCompliant:"Yes",
+    principalName:"N. Molefe",principalSig:"",principalDate:"2026-06-10",districtOfficialName:"T. van Wyk",districtOfficialSig:"",districtOfficialDate:"2026-06-10",infraDirName:"PY Tshabangu",infraDirSig:"",infraDirDate:"2026-06-10",contractorName:"J. Adams (Kalahari Construction)",contractorSig:"",contractorDate:"2026-06-10",
+    notes:"Handover completed within SLA. All snag items closed before certificate issued."},
+  {id:2,projectName:"Alexandra Combined — Sanitation Upgrade",emisNumber:"700334567",schoolId:3,district:"Johannesburg East",projectBudget:"R 850,000",finalCost:"",contractor:"Vaal Civils CC",implementingAgent:"Dept. of Infrastructure — NC DoE",completionDate:"2026-07-15",handoverDate:"",phase:"Defects Rectification",
+    checklist:{practicalCompletion:{value:"Yes",remarks:""},occupancyCert:{value:"No",remarks:"Awaiting municipal inspection"},electricalCompliance:{value:"Yes",remarks:""},plumbingCert:{value:"Yes",remarks:""},fireCompliance:{value:"No",remarks:""},defectsRectified:{value:"No",remarks:"3 outstanding — waterproofing"},furnitureInstalled:{value:"N/A",remarks:""},assetRegister:{value:"No",remarks:""},staffOrientation:{value:"No",remarks:""},keysHandedOver:{value:"No",remarks:""}},
+    assets:{classrooms:{qty:"0",condition:"Good"},adminOffices:{qty:"0",condition:"Good"},toilets:{qty:"10",condition:"Fair"},furniture:{qty:"0",condition:"Good"},ictEquipment:{qty:"0",condition:"Good"},waterInfrastructure:{qty:"1",condition:"Fair"},securityFencing:{qty:"0",condition:"Good"}},
+    onTime:"No",handoverWithin30Days:"No",defectsIdentified:3,defectsResolved:0,satisfactionRating:"",assetRegCompliant:"No",
+    principalName:"",principalSig:"",principalDate:"",districtOfficialName:"",districtOfficialSig:"",districtOfficialDate:"",infraDirName:"",infraDirSig:"",infraDirDate:"",contractorName:"",contractorSig:"",contractorDate:"",
+    notes:"Defects liability period in progress; handover pending waterproofing rectification."},
+];
 // ─────────────────────────────────────────────
 // HELPERS
 // ─────────────────────────────────────────────
@@ -753,57 +806,161 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
 function UploadForm({onSave,onClose}){const [f,setF]=useState({system:"NEIMS",date:"",status:"Completed",records:"",verifiedBy:"PY Tshabangu",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log data upload" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="System"><select style={sel} value={f.system} onChange={s("system")}>{["NEIMS","EFMS","GOVERP","HRMS","Google Forms","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Date uploaded"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field></Row2><Row2><Field label="Records uploaded"><input style={inp} type="number" value={f.records} onChange={s("records")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Completed","In Progress","Pending","Failed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Field label="Verified by"><input style={inp} value={f.verifiedBy} onChange={s("verifiedBy")}/></Field><Field label="Notes / evidence"><textarea style={{...inp,minHeight:60,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
 function LearnerDataForm({onSave,onClose}){const [f,setF]=useState({school:"",district:"",source:"10th Day Snap Survey",date:"",enrolment:"",verified:"",variance:"",status:"Pending"});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));const calcVar=()=>setF(p=>({...p,variance:Math.abs(Number(p.enrolment||0)-Number(p.verified||0))}));return(<Modal title="Log learner data verification" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School name"><input style={inp} value={f.school} onChange={s("school")}/></Field><Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field></Row2><Row2><Field label="Data source"><select style={sel} value={f.source} onChange={s("source")}>{["10th Day Snap Survey","GOVERP","HRMS","Google Forms","NEIMS","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Date collected"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field></Row2><Row3><Field label="Reported enrolment"><input style={inp} type="number" value={f.enrolment} onChange={s("enrolment")} onBlur={calcVar}/></Field><Field label="Verified figure"><input style={inp} type="number" value={f.verified} onChange={s("verified")} onBlur={calcVar}/></Field><Field label="Variance (auto)"><input style={{...inp,background:"#F9FAFB",color:"#6B7280"}} value={f.variance} readOnly/></Field></Row3><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Validated","Queried","Pending","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field></Modal>);}
 function MobileAuditForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:"",auditDate:"",auditedBy:"PY Tshabangu"});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Mobile classroom audit" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Number of mobiles"><input style={inp} type="number" value={f.mobileCount} onChange={s("mobileCount")}/></Field></Row2><Row3><Field label="Overall condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={f.electricityAvail} onChange={s("electricityAvail")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Ablutions?"><select style={sel} value={f.ablutions} onChange={s("ablutions")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Field label="Structural issues"><input style={inp} value={f.structuralIssues} onChange={s("structuralIssues")} placeholder="e.g. Roof leaks, floor damage"/></Field><Field label="Recommendation"><input style={inp} value={f.recommendation} onChange={s("recommendation")} placeholder="e.g. Repair, Replace, Monitor"/></Field><Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Audited by"><input style={inp} value={f.auditedBy} onChange={s("auditedBy")}/></Field></Row2></Modal>);}
-function SchoolRequestForm({schools,onSave,onClose}){const [f,setF]=useState({schoolId:"",district:"",requestType:"Furniture",priority:"Medium",dateReceived:"",status:"Pending",assignedTo:"PY Tshabangu",dueDate:"",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log school request" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="School"><select style={sel} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field></Row2><Row3><Field label="Request type"><select style={sel} value={f.requestType} onChange={s("requestType")}>{["Furniture","Mobile Unit","Repairs","Infrastructure","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Priority"><select style={sel} value={f.priority} onChange={s("priority")}>{["High","Medium","Low"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed","Declined"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3><Row2><Field label="Date received"><input style={inp} type="date" value={f.dateReceived} onChange={s("dateReceived")}/></Field><Field label="Due date"><input style={inp} type="date" value={f.dueDate} onChange={s("dueDate")}/></Field></Row2><Field label="Assigned to"><input style={inp} value={f.assignedTo} onChange={s("assignedTo")}/></Field><Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
-function AdminTaskForm({onSave,onClose}){const [f,setF]=useState({type:"Payment Verification",ref:"",date:"",amount:"",supplier:"",status:"Pending",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log admin task" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing / Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2><Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Verified","Completed","Resolved"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Amount (if payment)"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45,000"/></Field><Field label="Supplier / party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2><Field label="Notes / evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
-function TransferForm({schools,classrooms,furniture,onSave,onClose}){
-  const [f,setF]=useState({fromSchoolId:"",toSchoolId:"",category:"Learner",ftype:"",otherType:"",qty:"",transferDate:new Date().toISOString().slice(0,10),refNumber:"",condition:"Good",status:"Pending",processedBy:"PY Tshabangu",notes:""});
+function SchoolRequestForm({schools,onSave,onClose}){
+  const [f,setF]=useState({refNumber:"",schoolId:"",district:"",category:"Furniture",requestType:REQUEST_TYPES_BY_CATEGORY["Furniture"][0],priority:"Medium",priorityBasis:"Need",dateReceived:"",govErpCaptured:"Yes",verified:"Pending",verificationDate:"",status:"Pending",dueDate:"",completedDate:"",assignedTo:"PY Tshabangu",proofOfDelivery:"No",closedWithDocs:"No",notes:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const getSchoolId = fu => { const cl=classrooms.find(c=>c.id==fu.classroomId); return (cl&&cl.schoolId!=null)?cl.schoolId:fu.schoolId; };
-  const sourceStock = useMemo(()=>{
-    if(!f.fromSchoolId||!f.ftype) return null;
-    const rows = furniture.filter(fu=>{
-      const sid=getSchoolId(fu);
-      const itemMatches = f.ftype==="Other" ? (fu.ftype==="Other" && (fu.otherType||"")===(f.otherType||"")) : fu.ftype===f.ftype;
-      return sid!=null && sid.toString()===f.fromSchoolId.toString() && itemMatches;
-    });
-    return rows.reduce((a,fu)=>a+Number(fu.available||0),0);
-  },[f.fromSchoolId,f.ftype,f.otherType,furniture,classrooms]);
+  const onCategoryChange=e=>{const cat=e.target.value;setF(p=>({...p,category:cat,requestType:REQUEST_TYPES_BY_CATEGORY[cat][0]}));};
+  const onSchoolChange=e=>{const id=e.target.value;const sc=schools.find(x=>x.id==id);setF(p=>({...p,schoolId:id,district:sc?sc.district:p.district}));};
   const validate=d=>({
-    fromSchoolId:!d.fromSchoolId?"Source school is required":"",
-    toSchoolId:!d.toSchoolId?"Destination school is required":(d.toSchoolId===d.fromSchoolId?"Destination must differ from source":""),
-    ftype:!d.ftype?"Item type is required":"",
-    otherType:d.ftype==="Other"&&!d.otherType?.trim()?"Specify the item":"",
-    qty:d.qty===""||Number(d.qty)<=0?"Quantity must be greater than 0":"",
+    schoolId:!d.schoolId?"School is required":"",
+    dateReceived:!d.dateReceived?"Date received is required":"",
   });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="Log school-to-school transfer" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title="Log school furniture / infrastructure request" onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2>
-        <Field label="From school (source) *"><select style={eS("fromSchoolId")} value={f.fromSchoolId} onChange={s("fromSchoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
-        <Field label="To school (destination) *"><select style={eS("toSchoolId")} value={f.toSchoolId} onChange={s("toSchoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+        <Field label="GovERP reference number"><input style={inp} value={f.refNumber} onChange={s("refNumber")} placeholder="e.g. GOVERP-2026-0412"/></Field>
+        <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={onSchoolChange}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+      </Row2>
+      <Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field>
+      <Row2>
+        <Field label="Category"><select style={sel} value={f.category} onChange={onCategoryChange}>{REQUEST_CATEGORIES.map(c=><option key={c}>{c}</option>)}</select></Field>
+        <Field label="Request type"><select style={sel} value={f.requestType} onChange={s("requestType")}>{REQUEST_TYPES_BY_CATEGORY[f.category].map(v=><option key={v}>{v}</option>)}</select></Field>
       </Row2>
       <Row2>
-        <Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
-        <Field label="Item / DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (equipment, computers, printers, etc.)</option></select></Field>
+        <Field label="Priority"><select style={sel} value={f.priority} onChange={s("priority")}>{["High","Medium","Low"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Priority basis"><select style={sel} value={f.priorityBasis} onChange={s("priorityBasis")}>{REQUEST_PRIORITY_BASIS.map(v=><option key={v}>{v}</option>)}</select></Field>
       </Row2>
-      {f.ftype==="Other"&&<Field label="Specify item *"><input style={eI("otherType")} value={f.otherType} onChange={s("otherType")} placeholder="e.g. Computer, Printer, Projector"/></Field>}
-      {f.fromSchoolId&&f.ftype&&<p style={{fontSize:12,color:sourceStock!==null&&Number(f.qty)>sourceStock?"#DC2626":"#6B7280",margin:"-4px 0 10px"}}>Current recorded stock at source: <strong>{sourceStock ?? 0}</strong> available{sourceStock!==null&&Number(f.qty)>sourceStock?" — quantity exceeds recorded stock":""}</p>}
       <Row3>
-        <Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field>
-        <Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
-        <Field label="Transfer date"><input style={inp} type="date" value={f.transferDate} onChange={s("transferDate")}/></Field>
+        <Field label="Date received *"><input style={eI("dateReceived")} type="date" value={f.dateReceived} onChange={s("dateReceived")}/></Field>
+        <Field label="Captured on GovERP?"><select style={sel} value={f.govErpCaptured} onChange={s("govErpCaptured")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Verified?"><select style={sel} value={f.verified} onChange={s("verified")}>{["Pending","Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
       </Row3>
       <Row3>
-        <Field label="Approval / reference number"><input style={inp} value={f.refNumber} onChange={s("refNumber")} placeholder="e.g. TRF-2026-004"/></Field>
-        <Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","Approved","Completed","Rejected"].map(v=><option key={v}>{v}</option>)}</select></Field>
-        <Field label="Processed by"><input style={inp} value={f.processedBy} onChange={s("processedBy")}/></Field>
+        <Field label="Verification date"><input style={inp} type="date" value={f.verificationDate} onChange={s("verificationDate")}/></Field>
+        <Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Approved","Completed","Declined"].map(v=><option key={v}>{v}</option>)}</select></Field>
+        <Field label="Assigned to"><input style={inp} value={f.assignedTo} onChange={s("assignedTo")}/></Field>
       </Row3>
+      <Row3>
+        <Field label="Due date (SLA)"><input style={inp} type="date" value={f.dueDate} onChange={s("dueDate")}/></Field>
+        <Field label="Completed date"><input style={inp} type="date" value={f.completedDate} onChange={s("completedDate")}/></Field>
+        <Field label="Proof of delivery obtained?"><select style={sel} value={f.proofOfDelivery} onChange={s("proofOfDelivery")}>{["No","Yes","N/A"].map(v=><option key={v}>{v}</option>)}</select></Field>
+      </Row3>
+      <Field label="Closed with supporting documentation?"><select style={{...sel,maxWidth:260}} value={f.closedWithDocs} onChange={s("closedWithDocs")}>{["No","Yes"].map(v=><option key={v}>{v}</option>)}</select></Field>
       <Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
-      <p style={{fontSize:11,color:"#6B7280",margin:0}}>Saving this will automatically update furniture inventory: the quantity is subtracted from the source school and added to the destination school.</p>
+    </Modal>
+  );
+}
+function AdminTaskForm({onSave,onClose}){const [f,setF]=useState({type:"Payment Verification",ref:"",date:"",amount:"",supplier:"",status:"Pending",notes:""});const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));return(<Modal title="Log admin task" onClose={onClose} onSave={()=>onSave(f)}><Row2><Field label="Task type"><select style={sel} value={f.type} onChange={s("type")}>{["Payment Verification","Stakeholder Enquiry","Filing / Scanning","Training","Correspondence","Other"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")} placeholder="e.g. PAY-2026-001"/></Field></Row2><Row2><Field label="Date"><input style={inp} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Verified","Completed","Resolved"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2><Row2><Field label="Amount (if payment)"><input style={inp} value={f.amount} onChange={s("amount")} placeholder="e.g. R 45,000"/></Field><Field label="Supplier / party"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2><Field label="Notes / evidence"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field></Modal>);}
+function TransferForm({schools,existingProjects,onSave,onClose}){
+  const [f,setF]=useState({
+    projectName:"",emisNumber:"",schoolId:"",district:"",
+    projectBudget:"",finalCost:"",contractor:"",implementingAgent:"",
+    completionDate:"",handoverDate:"",phase:"Practical Completion",
+    checklist:emptyChecklist(),
+    assets:emptyAssets(),
+    onTime:"",handoverWithin30Days:"",defectsIdentified:"",defectsResolved:"",satisfactionRating:"",assetRegCompliant:"",
+    principalName:"",principalSig:"",principalDate:"",
+    districtOfficialName:"",districtOfficialSig:"",districtOfficialDate:"",
+    infraDirName:"",infraDirSig:"",infraDirDate:"",
+    contractorName:"",contractorSig:"",contractorDate:"",
+    notes:"",
+  });
+  const [touched,setTouched]=useState(false);
+  const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
+  const onSchoolChange=e=>{
+    const id=e.target.value; const sc=schools.find(x=>x.id==id);
+    setF(p=>({...p,schoolId:id,emisNumber:sc?sc.emis:p.emisNumber,district:sc?sc.district:p.district}));
+  };
+  const setChecklistField=(key,field)=>e=>setF(p=>({...p,checklist:{...p.checklist,[key]:{...p.checklist[key],[field]:e.target.value}}}));
+  const setAssetField=(key,field)=>e=>setF(p=>({...p,assets:{...p.assets,[key]:{...p.assets[key],[field]:e.target.value}}}));
+  const validate=d=>({
+    projectName:!d.projectName||!d.projectName.trim()?"Project name is required":"",
+    schoolId:!d.schoolId?"School is required":"",
+    completionDate:!d.completionDate?"Completion date is required":"",
+  });
+  const errors=touched?validate(f):{};
+  const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
+  const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
+  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
+  const sectionHdr = txt => <div style={{borderTop:"1px solid #F3F4F6",margin:"1.25rem 0 0.75rem",paddingTop:"0.75rem"}}><p style={{fontSize:12,fontWeight:600,color:"#374151",margin:"0 0 0.75rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>{txt}</p></div>;
+  const miniInp={...inp,padding:"5px 8px",fontSize:12};
+  const miniSel={...sel,padding:"5px 6px",fontSize:12};
+  return (
+    <Modal title="Infrastructure project transfer & handover" onClose={onClose} onSave={handleSave} errors={errors}>
+      <Row2>
+        <Field label="Project name *"><input style={eI("projectName")} list="transfer-project-list" value={f.projectName} onChange={s("projectName")} placeholder="e.g. Kimberley North Primary — New Admin Block"/><datalist id="transfer-project-list">{(existingProjects||[]).map(p=><option key={p} value={p}/>)}</datalist></Field>
+        <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={onSchoolChange}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+      </Row2>
+      <Row2>
+        <Field label="EMIS number"><input style={inp} value={f.emisNumber} onChange={s("emisNumber")}/></Field>
+        <Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field>
+      </Row2>
+      <Row2>
+        <Field label="Project budget"><input style={inp} value={f.projectBudget} onChange={s("projectBudget")} placeholder="e.g. R 3,200,000"/></Field>
+        <Field label="Final project cost"><input style={inp} value={f.finalCost} onChange={s("finalCost")} placeholder="e.g. R 3,150,000"/></Field>
+      </Row2>
+      <Row2>
+        <Field label="Contractor"><input style={inp} value={f.contractor} onChange={s("contractor")}/></Field>
+        <Field label="Implementing agent"><input style={inp} value={f.implementingAgent} onChange={s("implementingAgent")}/></Field>
+      </Row2>
+      <Row3>
+        <Field label="Completion date *"><input style={eI("completionDate")} type="date" value={f.completionDate} onChange={s("completionDate")}/></Field>
+        <Field label="Handover date"><input style={inp} type="date" value={f.handoverDate} onChange={s("handoverDate")}/></Field>
+        <Field label="Current phase"><select style={sel} value={f.phase} onChange={s("phase")}>{TRANSFER_PHASES.map(p=><option key={p}>{p}</option>)}</select></Field>
+      </Row3>
+
+      {sectionHdr("School transfer checklist")}
+      {TRANSFER_CHECKLIST.map(c=>(
+        <div key={c.key} style={{display:"grid",gridTemplateColumns:"1.6fr 80px 1.3fr",gap:8,marginBottom:6,alignItems:"center"}}>
+          <span style={{fontSize:12,color:"#374151"}}>{c.label}</span>
+          <select style={miniSel} value={f.checklist[c.key].value} onChange={setChecklistField(c.key,"value")}><option value="">—</option><option>Yes</option><option>No</option><option>N/A</option></select>
+          <input style={miniInp} placeholder="Remarks" value={f.checklist[c.key].remarks} onChange={setChecklistField(c.key,"remarks")}/>
+        </div>
+      ))}
+
+      {sectionHdr("Asset transfer summary")}
+      {TRANSFER_ASSET_CATEGORIES.map(c=>(
+        <div key={c.key} style={{display:"grid",gridTemplateColumns:"1.6fr 90px 1fr",gap:8,marginBottom:6,alignItems:"center"}}>
+          <span style={{fontSize:12,color:"#374151"}}>{c.label}</span>
+          <input style={miniInp} type="number" placeholder="Qty" value={f.assets[c.key].qty} onChange={setAssetField(c.key,"qty")}/>
+          <select style={miniSel} value={f.assets[c.key].condition} onChange={setAssetField(c.key,"condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select>
+        </div>
+      ))}
+
+      {sectionHdr("Key performance indicators")}
+      <Row2>
+        <Field label="Completed on time?"><select style={sel} value={f.onTime} onChange={s("onTime")}><option value="">—</option><option>Yes</option><option>No</option></select></Field>
+        <Field label="Handed over within 30 days of completion?"><select style={sel} value={f.handoverWithin30Days} onChange={s("handoverWithin30Days")}><option value="">—</option><option>Yes</option><option>No</option></select></Field>
+      </Row2>
+      <Row2>
+        <Field label="Defects identified"><input style={inp} type="number" value={f.defectsIdentified} onChange={s("defectsIdentified")}/></Field>
+        <Field label="Defects resolved (within DLP)"><input style={inp} type="number" value={f.defectsResolved} onChange={s("defectsResolved")}/></Field>
+      </Row2>
+      <Row2>
+        <Field label="School satisfaction rating (1–5)"><input style={inp} type="number" min="1" max="5" value={f.satisfactionRating} onChange={s("satisfactionRating")}/></Field>
+        <Field label="Asset registration compliant?"><select style={sel} value={f.assetRegCompliant} onChange={s("assetRegCompliant")}><option value="">—</option><option>Yes</option><option>No</option></select></Field>
+      </Row2>
+
+      {sectionHdr("Acceptance certificate — signatories")}
+      <Row2><Field label="Principal — name"><input style={inp} value={f.principalName} onChange={s("principalName")}/></Field><Field label="Date"><input style={inp} type="date" value={f.principalDate} onChange={s("principalDate")}/></Field></Row2>
+      <Field label="Principal — signature"><SignaturePad value={f.principalSig} onChange={v=>setF(p=>({...p,principalSig:v}))}/></Field>
+
+      <Row2><Field label="District official — name"><input style={inp} value={f.districtOfficialName} onChange={s("districtOfficialName")}/></Field><Field label="Date"><input style={inp} type="date" value={f.districtOfficialDate} onChange={s("districtOfficialDate")}/></Field></Row2>
+      <Field label="District official — signature"><SignaturePad value={f.districtOfficialSig} onChange={v=>setF(p=>({...p,districtOfficialSig:v}))}/></Field>
+
+      <Row2><Field label="Infrastructure Directorate — name"><input style={inp} value={f.infraDirName} onChange={s("infraDirName")}/></Field><Field label="Date"><input style={inp} type="date" value={f.infraDirDate} onChange={s("infraDirDate")}/></Field></Row2>
+      <Field label="Infrastructure Directorate — signature"><SignaturePad value={f.infraDirSig} onChange={v=>setF(p=>({...p,infraDirSig:v}))}/></Field>
+
+      <Row2><Field label="Implementing agent / contractor — name"><input style={inp} value={f.contractorName} onChange={s("contractorName")}/></Field><Field label="Date"><input style={inp} type="date" value={f.contractorDate} onChange={s("contractorDate")}/></Field></Row2>
+      <Field label="Implementing agent / contractor — signature"><SignaturePad value={f.contractorSig} onChange={v=>setF(p=>({...p,contractorSig:v}))}/></Field>
+
+      {sectionHdr("Notes")}
+      <Field label="Additional notes"><textarea style={{...inp,minHeight:60,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
     </Modal>
   );
 }
@@ -986,7 +1143,7 @@ function KpaDashboard({uploads,learnerData,mobileAudit,schoolRequests,adminTasks
     {id:"kpa3",icon:"🚌",label:"KPA 3 — Mobile Audit",weight:"20%",color:"#059669",done:mobileAudit.filter(u=>u.condition==="Good").length,total:mobileAudit.length},
     {id:"kpa4",icon:"🏗️",label:"KPA 4 — School Requests",weight:"15%",color:"#D97706",done:schoolRequests.filter(u=>u.status==="Completed").length,total:schoolRequests.length},
     {id:"kpa5",icon:"🗂️",label:"KPA 5 — Admin & Payments",weight:"15%",color:"#DC2626",done:adminTasks.filter(u=>["Verified","Completed","Resolved"].includes(u.status)).length,total:adminTasks.length},
-    {id:"kpa6",icon:"🔄",label:"KPA 6 — School Transfers",weight:"—",color:"#0EA5E9",done:schoolTransfers.filter(u=>u.status==="Completed").length,total:schoolTransfers.length},
+    {id:"kpa6",icon:"🔄",label:"KPA 6 — School Transfers",weight:"—",color:"#0EA5E9",done:schoolTransfers.filter(u=>u.phase==="Final Transfer").length,total:schoolTransfers.length},
   ];
   return(
     <div>
@@ -1037,6 +1194,7 @@ function App(){
   const [adminTasks,     adminTasksM]     = useSyncedCollection("adminTasks",initAdminTasks);
   const [schoolTransfers,schoolTransfersM]= useSyncedCollection("schoolTransfers",initSchoolTransfers);
   const [toast,          setToast]          = useState(null);
+  const [transferProjectFilter, setTransferProjectFilter] = useState("All");
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
   const restoreAll = data => {
@@ -1082,23 +1240,9 @@ function App(){
   };
   const scName = id => schools.find(s=>s.id==id)?.name||"—";
   const logTransfer = (data) => {
-    const qty = Number(data.qty)||0;
-    const getFuSchoolId = fu => { const cl=classrooms.find(c=>c.id==fu.classroomId); return (cl&&cl.schoolId!=null)?cl.schoolId:fu.schoolId; };
-    const itemMatches = fu => data.ftype==="Other" ? (fu.ftype==="Other" && (fu.otherType||"")===(data.otherType||"")) : fu.ftype===data.ftype;
-    // 1) record the transfer itself
     schoolTransfersM.addOne(data);
-    // 2) reduce inventory at the source school
-    const srcRecord = furniture.find(fu => { const sid=getFuSchoolId(fu); return sid!=null && sid.toString()===data.fromSchoolId.toString() && itemMatches(fu); });
-    if (srcRecord) furnitureM.updateOne(srcRecord.id, { available: Math.max(0, Number(srcRecord.available||0) - qty) });
-    // 3) increase (or create) inventory at the destination school
-    const destRecord = furniture.find(fu => { const sid=getFuSchoolId(fu); return sid!=null && sid.toString()===data.toSchoolId.toString() && itemMatches(fu); });
-    if (destRecord) {
-      furnitureM.updateOne(destRecord.id, { available: Number(destRecord.available||0) + qty });
-    } else {
-      furnitureM.addOne({schoolId:data.toSchoolId,classroomId:"",category:data.category,ftype:data.ftype,spec:"",chairType:"",available:qty,damaged:0,repairable:0,otherType:data.otherType||"",otherQty:0,condition:data.condition,photoName:"",photoData:""});
-    }
     setModal(null);
-    showToast(`✓ Transfer logged — ${qty} × ${data.ftype==="Other"?data.otherType:data.ftype} moved from ${scName(data.fromSchoolId)} to ${scName(data.toSchoolId)}.`);
+    showToast(`✓ Transfer/handover recorded — "${data.projectName}" (${scName(data.schoolId)}).`);
   };
   const renderPage = () => { switch(active){
     case "dashboard": return <Dashboard schools={schools} audits={audits} furniture={furniture} repairs={repairs} warehouse={warehouse}/>;
@@ -1319,24 +1463,96 @@ function App(){
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Schools audited" value={mobileAudit.length} color="#059669"/><StatCard label="Good condition" value={mobileAudit.filter(m=>m.condition==="Good").length} color="#059669"/><StatCard label="Fair condition" value={mobileAudit.filter(m=>m.condition==="Fair").length} color="#D97706"/><StatCard label="Poor condition" value={mobileAudit.filter(m=>m.condition==="Poor").length} color="#DC2626"/></div>
       <Card><DataTable cols={["School","Mobiles","Condition","Electricity","Ablutions","Issues","Recommendation","Date"]} rows={mobileAudit} renderRow={m=>[scName(m.schoolId),m.mobileCount,<Badge val={m.condition}/>,<Badge val={m.electricityAvail}/>,<Badge val={m.ablutions}/>,m.structuralIssues||"—",m.recommendation,m.auditDate]}/></Card></div>
     );
-    case "kpa4": return (
-      <div><SectionHeader title="KPA 4 — School Infrastructure Requests" onAdd={()=>setModal("request")} extra={<ExportBtn label="CSV" filename="kpa4_requests.csv" cols={["School","District","Type","Priority","Date Received","Due Date","Status","Assigned To","Notes"]} rows={schoolRequests.map(r=>[scName(r.schoolId),r.district,r.requestType,r.priority,r.dateReceived,r.dueDate,r.status,r.assignedTo,r.notes])}/>}/>
-      <KpaNote weight="15%" target="Quarterly" description="Maintain accurate tracking of all school requests per district."/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total requests" value={schoolRequests.length} color="#D97706"/><StatCard label="Completed" value={schoolRequests.filter(r=>r.status==="Completed").length} color="#059669"/><StatCard label="In progress" value={schoolRequests.filter(r=>r.status==="In Progress").length} color="#2563EB"/><StatCard label="Pending" value={schoolRequests.filter(r=>r.status==="Pending").length} color="#DC2626"/></div>
-      <Card><DataTable cols={["School","District","Type","Priority","Received","Due","Status","Notes"]} rows={schoolRequests} renderRow={r=>[scName(r.schoolId),r.district,r.requestType,<Badge val={r.priority}/>,r.dateReceived,r.dueDate,<Badge val={r.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{r.notes}</span>]}/></Card></div>
-    );
+    case "kpa4": {
+      const total=schoolRequests.length;
+      const pctOf=(num,den)=>den>0?Math.round((num/den)*100):0;
+      const govErpCount=schoolRequests.filter(r=>r.govErpCaptured==="Yes").length;
+      const verifiedCount=schoolRequests.filter(r=>r.verified==="Yes").length;
+      const slaMetCount=schoolRequests.filter(r=>r.completedDate&&r.dueDate&&r.completedDate<=r.dueDate).length;
+      const closedWithDocsCount=schoolRequests.filter(r=>r.closedWithDocs==="Yes").length;
+      const furnitureCount=schoolRequests.filter(r=>r.category==="Furniture").length;
+      const infrastructureCount=schoolRequests.filter(r=>r.category==="Infrastructure").length;
+      const catTag=c=><span style={{fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:999,whiteSpace:"nowrap",background:c==="Furniture"?"#EFF6FF":"#F5F3FF",color:c==="Furniture"?"#1E40AF":"#5B21B6"}}>{c}</span>;
+      const verifiedTag=v=>v==="Yes"?<span style={{color:"#059669",fontWeight:600,fontSize:12}}>✓ Yes</span>:v==="No"?<span style={{color:"#DC2626",fontWeight:600,fontSize:12}}>✗ No</span>:<span style={{color:"#9CA3AF",fontSize:12}}>Pending</span>;
+      return (
+      <div><SectionHeader title="KPA 4 — School Furniture & Infrastructure Requests" onAdd={()=>setModal("request")} extra={<ExportBtn label="CSV" filename="kpa4_requests.csv" cols={["Reference","School","District","Category","Type","Priority","Priority Basis","Date Received","GovERP Captured","Verified","Status","Due Date","Completed Date","SLA Met","Assigned To","Proof of Delivery","Closed w/ Docs","Notes"]} rows={schoolRequests.map(r=>[r.refNumber,scName(r.schoolId),r.district,r.category,r.requestType,r.priority,r.priorityBasis,r.dateReceived,r.govErpCaptured,r.verified,r.status,r.dueDate,r.completedDate,(r.completedDate&&r.dueDate&&r.completedDate<=r.dueDate)?"Yes":"—",r.assignedTo,r.proofOfDelivery,r.closedWithDocs,r.notes])}/>}/>
+      <KpaNote weight="15%" target="Quarterly" description="Coordinate, assess, verify, approve, monitor and report on all school furniture and infrastructure requests submitted through District Offices — captured, verified and closed on GovERP, ensuring equitable resource allocation and compliance with departmental policies."/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1rem"}}>
+        <StatCard label="Total requests" value={total} sub={`${furnitureCount} furniture · ${infrastructureCount} infrastructure`} color="#D97706"/>
+        <StatCard label="Captured on GovERP" value={`${pctOf(govErpCount,total)}%`} color="#2563EB"/>
+        <StatCard label="Verified" value={`${pctOf(verifiedCount,total)}%`} color="#059669"/>
+        <StatCard label="Processed within SLA" value={`${pctOf(slaMetCount,total)}%`} color="#7C3AED"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
+        <StatCard label="Completed" value={schoolRequests.filter(r=>r.status==="Completed").length} color="#059669"/>
+        <StatCard label="In progress / approved" value={schoolRequests.filter(r=>["In Progress","Approved"].includes(r.status)).length} color="#2563EB"/>
+        <StatCard label="Pending" value={schoolRequests.filter(r=>r.status==="Pending").length} color="#DC2626"/>
+        <StatCard label="Closed with documentation" value={`${pctOf(closedWithDocsCount,total)}%`} color="#D97706"/>
+      </div>
+      <Card><DataTable cols={["Reference","School","District","Category / Type","Priority","Received","Due","Status","Verified","Notes"]} rows={schoolRequests} renderRow={r=>[
+        <span style={{fontSize:12,color:"#6B7280"}}>{r.refNumber||"—"}</span>,
+        scName(r.schoolId),
+        r.district,
+        <span>{catTag(r.category)} <span style={{fontSize:12,color:"#374151"}}>{r.requestType}</span></span>,
+        <Badge val={r.priority}/>,
+        r.dateReceived,
+        r.dueDate,
+        <Badge val={r.status}/>,
+        verifiedTag(r.verified),
+        <span style={{fontSize:12,color:"#6B7280"}}>{r.notes}</span>
+      ]}/></Card></div>
+    );}
     case "kpa5": return (
       <div><SectionHeader title="KPA 5 — Admin Duties & Payment Verification" onAdd={()=>setModal("admin")} extra={<ExportBtn label="CSV" filename="kpa5_admin.csv" cols={["Type","Reference","Date","Amount","Supplier","Status","Notes"]} rows={adminTasks.map(t=>[t.type,t.ref,t.date,t.amount,t.supplier,t.status,t.notes])}/>}/>
       <KpaNote weight="15%" target="Daily" description="Assist stakeholders, verify payments, assist with filing, copying and scanning."/>
       <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total tasks" value={adminTasks.length} color="#DC2626"/><StatCard label="Payment verifications" value={adminTasks.filter(t=>t.type==="Payment Verification").length} color="#2563EB"/><StatCard label="Completed" value={adminTasks.filter(t=>["Verified","Completed","Resolved"].includes(t.status)).length} color="#059669"/><StatCard label="Pending" value={adminTasks.filter(t=>t.status==="Pending").length} color="#D97706"/></div>
       <Card><DataTable cols={["Type","Reference","Date","Amount","Supplier / Party","Status","Notes"]} rows={adminTasks} renderRow={t=>[t.type,t.ref,t.date,t.amount||"—",t.supplier||"—",<Badge val={t.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{t.notes}</span>]}/></Card></div>
     );
-    case "kpa6": return (
-      <div><SectionHeader title="KPA 6 — School Transfers" onAdd={()=>setModal("transfer")} extra={<ExportBtn label="CSV" filename="kpa6_transfers.csv" cols={["From School","To School","Category","Item","Quantity","Condition","Transfer Date","Reference","Status","Processed By","Notes"]} rows={schoolTransfers.map(t=>[scName(t.fromSchoolId),scName(t.toSchoolId),t.category,t.ftype==="Other"?t.otherType:t.ftype,t.qty,t.condition,t.transferDate,t.refNumber,t.status,t.processedBy,t.notes])}/>}/>
-      <KpaNote weight="—" target="Ongoing" description="Record furniture and equipment moved between NC DoE schools, keeping both schools' inventories accurate and providing an audit trail."/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}><StatCard label="Total transfers" value={schoolTransfers.length} color="#0EA5E9"/><StatCard label="Items transferred" value={schoolTransfers.reduce((a,t)=>a+Number(t.qty||0),0)} color="#2563EB"/><StatCard label="Completed" value={schoolTransfers.filter(t=>t.status==="Completed").length} color="#059669"/><StatCard label="Pending / Approved" value={schoolTransfers.filter(t=>t.status==="Pending"||t.status==="Approved").length} color="#D97706"/></div>
-      <Card><DataTable cols={["From School","To School","Item","Qty","Condition","Date","Reference","Status","Processed By"]} rows={schoolTransfers} renderRow={t=>[scName(t.fromSchoolId),scName(t.toSchoolId),<span>{t.ftype==="Other"?t.otherType:t.ftype}{t.category?<span style={{fontSize:11,color:"#6B7280"}}> ({t.category})</span>:""}</span>,t.qty,<Badge val={t.condition}/>,t.transferDate,t.refNumber||"—",<Badge val={t.status}/>,t.processedBy]}/></Card></div>
-    );
+    case "kpa6": {
+      const projectOptions=["All",...new Set(schoolTransfers.map(t=>t.projectName).filter(Boolean))];
+      const filteredTransfers=transferProjectFilter==="All"?schoolTransfers:schoolTransfers.filter(t=>(t.projectName||"—")===transferProjectFilter);
+      const pctOf=(num,den)=>den>0?Math.round((num/den)*100):0;
+      const onTimeCount=filteredTransfers.filter(t=>t.onTime==="Yes").length;
+      const within30Count=filteredTransfers.filter(t=>t.handoverWithin30Days==="Yes").length;
+      const defectsIdentified=filteredTransfers.reduce((a,t)=>a+Number(t.defectsIdentified||0),0);
+      const defectsResolved=filteredTransfers.reduce((a,t)=>a+Number(t.defectsResolved||0),0);
+      const ratings=filteredTransfers.map(t=>Number(t.satisfactionRating)).filter(n=>n>0);
+      const avgSatisfaction=ratings.length?(ratings.reduce((a,b)=>a+b,0)/ratings.length).toFixed(1):"—";
+      const assetRegCompliantCount=filteredTransfers.filter(t=>t.assetRegCompliant==="Yes").length;
+      const finalTransferCount=filteredTransfers.filter(t=>t.phase==="Final Transfer").length;
+      const checklistDoneCount = t => TRANSFER_CHECKLIST.filter(c=>t.checklist&&t.checklist[c.key]&&t.checklist[c.key].value==="Yes").length;
+      const yesNoTag = v => v==="Yes"?<span style={{color:"#059669",fontWeight:600,fontSize:12}}>✓ Yes</span>:v==="No"?<span style={{color:"#DC2626",fontWeight:600,fontSize:12}}>✗ No</span>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>;
+      return (
+      <div><SectionHeader title="KPA 6 — School Transfers (Infrastructure Project Handover)" onAdd={()=>setModal("transfer")} extra={<ExportBtn label="CSV" filename="kpa6_transfers.csv" cols={["Project Name","EMIS","School","District","Budget","Final Cost","Contractor","Implementing Agent","Completion Date","Handover Date","Phase","Checklist Complete","On Time","Handover ≤30 Days","Defects Identified","Defects Resolved","Satisfaction Rating","Asset Reg. Compliant","Notes"]} rows={filteredTransfers.map(t=>[t.projectName,t.emisNumber,scName(t.schoolId),t.district,t.projectBudget,t.finalCost,t.contractor,t.implementingAgent,t.completionDate,t.handoverDate,t.phase,`${checklistDoneCount(t)}/${TRANSFER_CHECKLIST.length}`,t.onTime,t.handoverWithin30Days,t.defectsIdentified,t.defectsResolved,t.satisfactionRating,t.assetRegCompliant,t.notes])}/>}/>
+      <KpaNote weight="—" target="Ongoing" description="Capture the formal handover of completed infrastructure projects (construction, classrooms, sanitation, water, electrical, fencing, furniture/equipment installs) from the contractor / implementing agent to the school and department — checklist, asset summary, KPIs and signed acceptance certificate."/>
+      <Card style={{marginBottom:"1rem"}}>
+        <label style={flbl}>Filter by project</label>
+        <select style={{...sel,maxWidth:360}} value={transferProjectFilter} onChange={e=>setTransferProjectFilter(e.target.value)}>{projectOptions.map(p=><option key={p} value={p}>{p==="All"?"All projects":p}</option>)}</select>
+      </Card>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1rem"}}>
+        <StatCard label="Projects" value={filteredTransfers.length} sub={transferProjectFilter==="All"?"All projects":transferProjectFilter} color="#0EA5E9"/>
+        <StatCard label="Finalised transfers" value={finalTransferCount} color="#059669"/>
+        <StatCard label="Completed on time" value={`${pctOf(onTimeCount,filteredTransfers.length)}%`} color="#2563EB"/>
+        <StatCard label="Handed over ≤30 days" value={`${pctOf(within30Count,filteredTransfers.length)}%`} color="#D97706"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.5rem"}}>
+        <StatCard label="Defects identified" value={defectsIdentified} color="#DC2626"/>
+        <StatCard label="Defects resolved" value={defectsResolved} color="#059669"/>
+        <StatCard label="Avg. satisfaction rating" value={avgSatisfaction} sub="out of 5" color="#7C3AED"/>
+        <StatCard label="Asset register compliant" value={`${pctOf(assetRegCompliantCount,filteredTransfers.length)}%`} color="#2563EB"/>
+      </div>
+      <Card><DataTable cols={["Project","School","District","Phase","Checklist","Completion","Handover","On Time","Contractor"]} rows={filteredTransfers} renderRow={t=>[
+        <span style={{fontWeight:500}}>{t.projectName}</span>,
+        scName(t.schoolId),
+        t.district||"—",
+        <Badge val={t.phase==="Final Transfer"?"Completed":t.phase==="Defects Rectification"?"In Progress":t.phase}/>,
+        `${checklistDoneCount(t)}/${TRANSFER_CHECKLIST.length}`,
+        t.completionDate||"—",
+        t.handoverDate||"—",
+        yesNoTag(t.onTime),
+        t.contractor||"—"
+      ]}/></Card></div>
+    );}
     default: return null;
   }};
   return (
@@ -1356,7 +1572,7 @@ function App(){
       {modal==="mobile"       && <MobileAuditForm   schools={schools}          onClose={()=>setModal(null)} onSave={add(mobileAuditM)}/>}
       {modal==="request"      && <SchoolRequestForm schools={schools}          onClose={()=>setModal(null)} onSave={add(schoolRequestsM)}/>}
       {modal==="admin"        && <AdminTaskForm                                onClose={()=>setModal(null)} onSave={add(adminTasksM)}/>}
-      {modal==="transfer"     && <TransferForm    schools={schools} classrooms={classrooms} furniture={furniture} onClose={()=>setModal(null)} onSave={logTransfer}/>}
+      {modal==="transfer"     && <TransferForm    schools={schools} existingProjects={[...new Set(schoolTransfers.map(t=>t.projectName).filter(Boolean))]} onClose={()=>setModal(null)} onSave={logTransfer}/>}
       <aside style={{width:220,background:"linear-gradient(180deg,#1e3a5f,#1e40af)",padding:"1.5rem 0",flexShrink:0,overflowY:"auto"}}>
         <div style={{padding:"0 1.25rem 1.5rem",borderBottom:"0.5px solid rgba(255,255,255,0.1)",marginBottom:"1rem"}}>
           <p style={{fontWeight:700,fontSize:14,color:"#fff",margin:"0 0 2px"}}>SchoolAudit</p>
