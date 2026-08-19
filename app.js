@@ -62,6 +62,10 @@ const DBE_FURNITURE = [
   "ECD Activity Table (Grade R)","ECD Chair (Grade R)","Multipurpose Table","Steel Shelf Unit","Storeroom Shelf","Display Cabinet","Notice Board","Whiteboard (Mobile)",
 ];
 // ─────────────────────────────────────────────
+// NC DoE DISTRICTS (for District / Circuit Office delivery capture)
+// ─────────────────────────────────────────────
+const NC_DISTRICTS = ["FRANCES BAARD","JOHN TAOLO GAETSEWE","NAMAKWA","PIXLEY-KA-SEME","ZF MGCAWU"];
+// ─────────────────────────────────────────────
 // EMIS SAMPLE
 // ─────────────────────────────────────────────
 const EMIS_SAMPLE = [
@@ -85,11 +89,18 @@ const initSchools      = [S(1,"Soweto Primary School","700112345","Gauteng","Joh
 const initAudits       = [{id:1,schoolId:1,year:2024,date:"2024-03-15",risk:"High",capWith:1120,capWithout:980,overcapacity:"Yes",recommendations:"Urgent furniture replacement needed",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""},{id:2,schoolId:2,year:2024,date:"2024-04-02",risk:"Low",capWith:970,capWithout:900,overcapacity:"No",recommendations:"Minor repairs to lab furniture",comments:"",hallAvailable:"Yes",hallCondition:"Good",hallCapacity:"300",hallUsage:"Assemblies",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"Yes",hallIssues:"",hallNotes:""},{id:3,schoolId:3,year:2024,date:"2024-05-10",risk:"Medium",capWith:1055,capWithout:950,overcapacity:"Yes",recommendations:"Mobile classroom upgrade required",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""}];
 const initClassrooms   = [{id:1,schoolId:1,room:"1A",type:"Classroom",grade:"4",spec:"4E1",learners:42,isMobile:"No"},{id:2,schoolId:2,room:"Lab 1",type:"Lab",grade:"11",spec:"Science",learners:30,isMobile:"No"}];
 const initFurniture    = [{id:1,classroomId:1,schoolId:1,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",spec:"Grade 4–6",chairType:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",available:30,damaged:8,repairable:5,otherType:"",otherQty:0,condition:"Fair",photoName:"",photoData:""},{id:2,classroomId:2,schoolId:2,category:"Specialised",ftype:"Science Lab Table",spec:"Science Lab",chairType:"Lab Stool",available:20,damaged:3,repairable:3,otherType:"",otherQty:0,condition:"Good",photoName:"",photoData:""}];
-const initRepairs      = [{id:1,furnitureId:1,ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",repairType:"Minor",destination:"Warehouse",qty:5,status:"Completed",allocated:"2024-03-20",completed:"2024-04-01"},{id:2,furnitureId:2,ftype:"Science Lab Table",repairType:"Major",destination:"Labour Dept",qty:3,status:"In Progress",allocated:"2024-04-10",completed:""}];
+const initRepairs      = [{id:1,schoolId:1,emis:"700112345",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",repairType:"Minor",destination:"Warehouse",qty:5,status:"Completed",dateCollected:"2024-03-18",allocated:"2024-03-20",completed:"2024-04-01",comments:"Cracked tops, collected for refurbishment"},{id:2,schoolId:2,emis:"700223456",ftype:"Science Lab Table",otherType:"",repairType:"Major",destination:"Labour Dept",qty:3,status:"In Progress",dateCollected:"2024-04-08",allocated:"2024-04-10",completed:"",comments:"Broken legs, sent to Labour Dept for structural repair"}];
 const initStorage      = [{id:1,schoolId:1,room:"Store 1",condition:"Fair",secure:"Yes",storedType:"Old Desks",qty:20,usable:"No",desc:"Old damaged desks"}];
-const initDistribution = [{id:1,schoolId:1,destination:"Warehouse",desc:"Double Desks",qty:10,source:"School",official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""}];
+const initDistribution = [
+  {id:1,recipientType:"School",schoolId:1,district:"",circuit:"",destination:"Warehouse",source:"School",items:[{ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:10}],official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
+  {id:2,recipientType:"District Office",schoolId:"",district:"FRANCES BAARD",circuit:"",destination:"Frances Baard District Office storeroom",source:"Warehouse",items:[{ftype:"Teacher's Desk (Single Pedestal)",otherType:"",qty:15},{ftype:"Teacher's Chair (Typist)",otherType:"",qty:15}],official:"S. Dlamini",position:"Store Manager",receiver:"M. Kok",role:"District Asset Officer",date:"2026-05-02",purpose:"Delivery",ref:"REF-002",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
+];
 const initConditions   = [{id:1,classroomId:1,flooring:"Fair",flooringIssues:"Cracks",windows:"Poor",windowIssues:"Broken",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]}];
-const initWarehouse    = [{id:1,date:"2024-03-01",supplier:"Edu Furniture Co.",ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",spec:"Grade 4–6",qty:50,condition:"Good",receivedBy:"S. Dlamini",ref:"WH-001",status:"In Stock",notes:"New batch"},{id:2,date:"2024-04-15",supplier:"SA School Supplies",ftype:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",spec:"Grade 1–3",qty:80,condition:"Good",receivedBy:"S. Dlamini",ref:"WH-002",status:"Dispatched",notes:"Dispatched to Alexandra"}];
+const initWarehouse    = [
+  {id:1,date:"2024-03-01",supplier:"Edu Furniture Co.",category:"Furniture",ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",itemName:"",spec:"Grade 4–6",qty:50,condition:"Good",receivedBy:"S. Dlamini",ref:"WH-001",status:"In Stock",comments:"New batch"},
+  {id:2,date:"2024-04-15",supplier:"SA School Supplies",category:"Furniture",ftype:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",itemName:"",spec:"Grade 1–3",qty:80,condition:"Good",receivedBy:"S. Dlamini",ref:"WH-002",status:"Dispatched",comments:"Dispatched to Alexandra"},
+  {id:3,date:"2026-05-12",supplier:"Hope for Schools Foundation (Donation)",category:"Other / Donated Item",ftype:"",itemName:"Donated school shoes",spec:"",qty:150,condition:"Good",receivedBy:"S. Dlamini",ref:"WH-003",status:"In Stock",comments:"Donated by Hope for Schools Foundation — held at warehouse, to be delivered to Soweto Primary once transport is arranged"},
+];
 const initUploads      = [{id:1,system:"NEIMS",date:"2026-04-01",status:"Completed",records:342,verifiedBy:"PY Tshabangu",notes:"Aligned with EFMS data"},{id:2,system:"EFMS",date:"2026-04-03",status:"Completed",records:298,verifiedBy:"PY Tshabangu",notes:"Cross-checked against GOVERP"},{id:3,system:"GOVERP",date:"2026-04-05",status:"In Progress",records:180,verifiedBy:"PY Tshabangu",notes:"Pending district confirmation"}];
 const initLearnerData  = [{id:1,school:"Soweto Primary",district:"Johannesburg South",source:"10th Day Snap Survey",date:"2026-04-10",enrolment:1200,verified:1180,variance:20,status:"Validated"},{id:2,school:"Pretoria North",district:"Tshwane North",source:"GOVERP",date:"2026-04-12",enrolment:850,verified:850,variance:0,status:"Validated"},{id:3,school:"Alexandra Comb.",district:"Johannesburg East",source:"Google Forms",date:"2026-04-15",enrolment:1050,verified:1010,variance:40,status:"Queried"}];
 const initMobileAudit  = [{id:1,schoolId:1,mobileCount:4,condition:"Fair",structuralIssues:"Roof leaks",electricityAvail:"Yes",ablutions:"No",recommendation:"Repair roof",auditDate:"2026-04-20",auditedBy:"PY Tshabangu"},{id:2,schoolId:3,mobileCount:3,condition:"Poor",structuralIssues:"Floor damage",electricityAvail:"No",ablutions:"No",recommendation:"Replace unit",auditDate:"2026-04-22",auditedBy:"PY Tshabangu"}];
@@ -465,44 +476,38 @@ function ConditionForm({classrooms,schools,onSave,onClose}) {
     </Modal>
   );
 }
-function RepairForm({furniture,classrooms,schools,onSave,onClose}) {
-  const [f,setF]=useState({furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""});
+function RepairForm({schools,onSave,onClose}) {
+  const [f,setF]=useState({schoolId:"",emis:"",district:"",ftype:"",otherType:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",dateCollected:"",allocated:"",completed:"",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const selectedFu=furniture.find(fu=>fu.id==f.furnitureId);
-  const selectedCl=selectedFu?classrooms.find(c=>c.id==selectedFu.classroomId):null;
-  const selectedSc=selectedCl?schools.find(sc=>sc.id==selectedCl.schoolId):schools.find(sc=>sc.id==selectedFu?.schoolId);
-  const validate=d=>({furnitureId:!d.furnitureId?"Furniture item is required":"",qty:d.qty===""?"Quantity is required":"",allocated:!d.allocated?"Date allocated is required":""});
+  const onSchoolChange=e=>{
+    const id=e.target.value; const sc=schools.find(x=>x.id==id);
+    setF(p=>({...p,schoolId:id,emis:sc?sc.emis:p.emis,district:sc?sc.district:p.district}));
+  };
+  const validate=d=>({
+    schoolId:!d.schoolId?"School is required":"",
+    ftype:!d.ftype?"Furniture type is required":"",
+    otherType:d.ftype==="Other"&&!d.otherType?.trim()?"Specify the item":"",
+    qty:d.qty===""?"Quantity is required":"",
+    dateCollected:!d.dateCollected?"Date collected from school is required":"",
+  });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
     <Modal title="Log repair" onClose={onClose} onSave={handleSave} errors={errors}>
-      <Field label="Collected from (School / EMIS / Furniture) *">
-        <select style={eS("furnitureId")} value={f.furnitureId} onChange={s("furnitureId")}>
-          <option value="">Select school and furniture...</option>
-          {schools.map(sc=>{
-            const scCls=classrooms.filter(c=>c.schoolId==sc.id);
-            const scFu=furniture.filter(fu=>scCls.some(c=>c.id==fu.classroomId)||fu.schoolId==sc.id);
-            if(!scFu.length)return null;
-            const emisLabel=sc.emis?` [${sc.emis}]`:"";
-            return <optgroup key={sc.id} label={`${sc.name}${emisLabel}`}>{scFu.map(fu=>{const cl=classrooms.find(c=>c.id==fu.classroomId);return <option key={fu.id} value={fu.id}>{fu.ftype}{fu.spec?` (${fu.spec})`:""}{cl?.room?` — Room ${cl.room}`:""}</option>;})}</optgroup>;
-          })}
-          {furniture.filter(fu=>!classrooms.find(c=>c.id==fu.classroomId)&&!fu.schoolId).map(fu=><option key={fu.id} value={fu.id}>{fu.ftype}{fu.spec?` (${fu.spec})`:""}</option>)}
-        </select>
-      </Field>
-      {selectedFu&&(
-        <div style={{background:"#EFF6FF",border:"1px solid #BFDBFE",borderRadius:8,padding:"10px 14px",marginBottom:8}}>
-          <p style={{margin:"0 0 2px",fontSize:12,fontWeight:600,color:"#1E40AF"}}>Collected from</p>
-          <p style={{margin:"0 0 2px",fontSize:13,color:"#1e3a5f",fontWeight:500}}>{selectedSc?.name||"Unknown school"}{selectedSc?.emis?<span style={{fontSize:11,color:"#6B7280",marginLeft:6}}>[EMIS: {selectedSc.emis}]</span>:""}</p>
-          <p style={{margin:0,fontSize:12,color:"#3B82F6"}}>{selectedSc?.district?`${selectedSc.district} · `:""}Room {selectedCl?.room||"—"} · {selectedFu.ftype}{selectedFu.condition?` · Condition: ${selectedFu.condition}`:""}</p>
-        </div>
-      )}
-      <Field label="DBE furniture type"><select style={sel} value={f.ftype} onChange={s("ftype")}><option value="">Select DBE type...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+      <Row2>
+        <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={onSchoolChange}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+        <Field label="EMIS number"><input style={inp} value={f.emis} onChange={s("emis")}/></Field>
+      </Row2>
+      <Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field>
+      <Field label="DBE furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select DBE type...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+      {f.ftype==="Other"&&<Field label="Specify item *"><input style={eI("otherType")} value={f.otherType} onChange={s("otherType")} placeholder="e.g. Computer, Printer, Whiteboard"/></Field>}
       <Row2><Field label="Repair type"><select style={sel} value={f.repairType} onChange={s("repairType")}>{["Minor","Major"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Destination"><select style={sel} value={f.destination} onChange={s("destination")}>{["Warehouse","Labour Dept"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row2><Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row2><Field label="Date allocated *"><input style={eI("allocated")} type="date" value={f.allocated} onChange={s("allocated")}/></Field><Field label="Date completed"><input style={inp} type="date" value={f.completed} onChange={s("completed")}/></Field></Row2>
+      <Row3><Field label="Date collected from school *"><input style={eI("dateCollected")} type="date" value={f.dateCollected} onChange={s("dateCollected")}/></Field><Field label="Date allocated"><input style={inp} type="date" value={f.allocated} onChange={s("allocated")}/></Field><Field label="Date completed"><input style={inp} type="date" value={f.completed} onChange={s("completed")}/></Field></Row3>
+      <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.comments} onChange={s("comments")} placeholder="e.g. Condition on collection, reason for repair"/></Field>
     </Modal>
   );
 }
@@ -524,21 +529,55 @@ function StorageForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-function DistributionForm({schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",destination:"",desc:"",qty:"",source:"",official:"",position:"",receiver:"",role:"",date:"",purpose:"Delivery",ref:"",proofName:"",proofData:"",sigOfficial:"",sigReceiver:""});
+function DistributionForm({schools,initial,onSave,onClose}) {
+  const emptyItem=()=>({ftype:"",otherType:"",qty:""});
+  // Migrate pre-existing records saved before multi-item support (single desc/qty, no items array).
+  const withMigratedItems=rec=>rec?{...rec,recipientType:rec.recipientType||"School",items:(rec.items&&rec.items.length)?rec.items:[{ftype:rec.desc||"",otherType:"",qty:rec.qty||""}]}:null;
+  const [f,setF]=useState(withMigratedItems(initial)||{recipientType:"School",schoolId:"",district:"",circuit:"",destination:"",source:"",purpose:"Delivery",items:[emptyItem()],official:"",position:"",receiver:"",role:"",date:"",ref:"",proofName:"",proofData:"",sigOfficial:"",sigReceiver:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const validate=d=>({schoolId:!d.schoolId?"School is required":"",desc:!d.desc?.trim()?"Description is required":"",qty:d.qty===""?"Quantity is required":"",official:!d.official?.trim()?"Official name is required":"",date:!d.date?"Date is required":""});
+  const onRecipientTypeChange=e=>{const t=e.target.value;setF(p=>({...p,recipientType:t,schoolId:t==="School"?p.schoolId:"",district:t==="School"?"":p.district,circuit:t==="Circuit Office"?p.circuit:""}));};
+  const setItem=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,[field]:e.target.value}:it)}));
+  const addItem=()=>setF(p=>({...p,items:[...p.items,emptyItem()]}));
+  const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
+  const validate=d=>({
+    schoolId:d.recipientType==="School"&&!d.schoolId?"School is required":"",
+    district:(d.recipientType==="District Office"||d.recipientType==="Circuit Office")&&!d.district?.trim()?"District is required":"",
+    circuit:d.recipientType==="Circuit Office"&&!d.circuit?.trim()?"Circuit is required":"",
+    items:(!d.items||!d.items.length||!d.items.some(it=>it.ftype&&Number(it.qty)>0))?"At least one furniture type with a quantity is required":"",
+    official:!d.official?.trim()?"Official name is required":"",
+    date:!d.date?"Date is required":"",
+  });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   const handleProof=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>setF(p=>({...p,proofName:file.name,proofData:reader.result}));reader.readAsDataURL(file);};
   return (
-    <Modal title="Add distribution record" onClose={onClose} onSave={handleSave} errors={errors}>
-      <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Purpose"><select style={sel} value={f.purpose} onChange={s("purpose")}>{["Delivery","Collection","Repair"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row2><Field label="Destination"><input style={inp} value={f.destination} onChange={s("destination")}/></Field><Field label="Source location"><input style={inp} value={f.source} onChange={s("source")}/></Field></Row2>
-      <Row2><Field label="Description *"><input style={eI("desc")} value={f.desc} onChange={s("desc")}/></Field><Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field></Row2>
+    <Modal title={initial?"Edit distribution record":"Add distribution record"} onClose={onClose} onSave={handleSave} errors={errors}>
+      <Row2><Field label="Recipient type"><select style={sel} value={f.recipientType} onChange={onRecipientTypeChange}>{["School","District Office","Circuit Office"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Purpose"><select style={sel} value={f.purpose} onChange={s("purpose")}>{["Delivery","Collection","Repair"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      {f.recipientType==="School" && <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>}
+      {(f.recipientType==="District Office"||f.recipientType==="Circuit Office") && <Field label="District *"><input style={eI("district")} list="distribution-district-list" value={f.district} onChange={s("district")} placeholder="e.g. FRANCES BAARD"/><datalist id="distribution-district-list">{NC_DISTRICTS.map(d=><option key={d} value={d}/>)}</datalist></Field>}
+      {f.recipientType==="Circuit Office" && <Field label="Circuit *"><input style={eI("circuit")} value={f.circuit} onChange={s("circuit")} placeholder="e.g. F8"/></Field>}
+      <Row2><Field label="Destination"><input style={inp} value={f.destination} onChange={s("destination")} placeholder="e.g. District Office storeroom"/></Field><Field label="Source location"><input style={inp} value={f.source} onChange={s("source")}/></Field></Row2>
+      {(f.recipientType==="District Office"||f.recipientType==="Circuit Office") && <p style={{fontSize:11,color:"#6B7280",margin:"-6px 0 10px"}}>Delivered to the {f.recipientType.toLowerCase()} for onward distribution to schools — not a direct school delivery.</p>}
+      <div style={{borderTop:"1px solid #F3F4F6",margin:"1rem 0 0.75rem",paddingTop:"0.75rem"}}>
+        <p style={{fontSize:12,fontWeight:600,color:"#374151",margin:"0 0 0.75rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Furniture / items{touched&&errors.items?<span style={{color:"#EF4444",fontWeight:400,textTransform:"none"}}> — {errors.items}</span>:""}</p>
+        {f.items.map((item,i)=>(
+          <div key={i} style={{background:"#F9FAFB",borderRadius:8,padding:"0.75rem",marginBottom:"0.5rem",border:"0.5px solid #E5E7EB"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Item {i+1}</p>
+              {f.items.length>1&&<button type="button" onClick={()=>removeItem(i)} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
+            </div>
+            <Row2>
+              <Field label="DBE furniture type"><select style={sel} value={item.ftype} onChange={setItem(i,"ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+              <Field label="Quantity"><input style={inp} type="number" value={item.qty} onChange={setItem(i,"qty")}/></Field>
+            </Row2>
+            {item.ftype==="Other"&&<Field label="Specify item"><input style={inp} value={item.otherType} onChange={setItem(i,"otherType")} placeholder="e.g. Computer, Printer"/></Field>}
+          </div>
+        ))}
+        <button type="button" onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>
+      </div>
       <Row2><Field label="Official name *"><input style={eI("official")} value={f.official} onChange={s("official")}/></Field><Field label="Position"><input style={inp} value={f.position} onChange={s("position")}/></Field></Row2>
       <Row2><Field label="Receiving person"><input style={inp} value={f.receiver} onChange={s("receiver")}/></Field><Field label="Receiving role"><input style={inp} value={f.role} onChange={s("role")}/></Field></Row2>
       <Row2><Field label="Date *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")}/></Field></Row2>
@@ -548,10 +587,16 @@ function DistributionForm({schools,onSave,onClose}) {
   );
 }
 function WarehouseForm({onSave,onClose}) {
-  const [f,setF]=useState({date:"",supplier:"",ftype:"",spec:"",qty:"",condition:"Good",receivedBy:"",ref:"",status:"In Stock",notes:""});
+  const [f,setF]=useState({date:"",supplier:"",category:"Furniture",ftype:"",itemName:"",spec:"",qty:"",condition:"Good",receivedBy:"",ref:"",status:"In Stock",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const validate=d=>({date:!d.date?"Date received is required":"",ftype:!d.ftype?"Furniture type is required":"",qty:d.qty===""?"Quantity is required":"",receivedBy:!d.receivedBy?.trim()?"Received by is required":""});
+  const validate=d=>({
+    date:!d.date?"Date received is required":"",
+    ftype:d.category==="Furniture"&&!d.ftype?"Furniture type is required":"",
+    itemName:d.category==="Other / Donated Item"&&!d.itemName?.trim()?"Item description is required":"",
+    qty:d.qty===""?"Quantity is required":"",
+    receivedBy:!d.receivedBy?.trim()?"Received by is required":"",
+  });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
@@ -559,10 +604,13 @@ function WarehouseForm({onSave,onClose}) {
   return (
     <Modal title="Log warehouse delivery" onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="Date received *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Supplier"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2>
-      <Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+      <Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Furniture","Other / Donated Item"].map(v=><option key={v}>{v}</option>)}</select></Field>
+      {f.category==="Furniture"
+        ? <Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+        : <Field label="Item description *"><input style={eI("itemName")} value={f.itemName} onChange={s("itemName")} placeholder="e.g. Donated school shoes, stationery, blankets"/></Field>}
       <Row3><Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["In Stock","Reserved","Dispatched"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
       <Row2><Field label="Received by *"><input style={eI("receivedBy")} value={f.receivedBy} onChange={s("receivedBy")}/></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")}/></Field></Row2>
-      <Field label="Notes"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.notes} onChange={s("notes")}/></Field>
+      <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.comments} onChange={s("comments")} placeholder="e.g. Donated by XYZ Foundation — hold at warehouse, deliver to Soweto Primary once transport is arranged"/></Field>
     </Modal>
   );
 }
@@ -1007,10 +1055,22 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     {label:"Classrooms",desc:"All classroom records",icon:"🚪",file:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>{const sc=schools.find(s=>s.id==c.schoolId);return[sc?.name||"",c.room,c.type,c.grade,c.spec,c.learners,c.isMobile];})},
     {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})},
     {label:"Mobile Conditional Assessment",desc:"Infrastructure & mobile classroom assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
-    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","Room","Furniture","Spec","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"],rows:repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",r.ftype||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})},
-    {label:"Warehouse",desc:"New furniture deliveries",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"],rows:warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])},
+    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Allocated","Completed","Comments"],rows:repairs.map(r=>{
+      if (r.furnitureId) { const fu=furniture.find(f=>f.id==r.furnitureId);const cl=fu?classrooms.find(c=>c.id==fu.classroomId):null;const sc=cl?schools.find(s=>s.id==cl.schoolId):(fu?schools.find(s=>s.id==fu.schoolId):null);
+        return[sc?.name||"",sc?.emis||"",fu?.ftype||r.ftype||"",r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""]; }
+      const sc=schools.find(s=>s.id==r.schoolId);
+      return[sc?.name||"",r.emis||sc?.emis||"",r.ftype==="Other"?(r.otherType||"Other"):(r.ftype||""),r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];
+    })},
+    {label:"Warehouse",desc:"Furniture deliveries & donated items",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"],rows:warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",w.category==="Other / Donated Item"?w.itemName:w.ftype,w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])},
     {label:"Storage",desc:"Storage room records",icon:"📦",file:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.room,r.condition,r.secure,r.storedType,r.qty,r.usable];})},
-    {label:"Distribution",desc:"Delivery and collection",icon:"🚚",file:"distribution.csv",cols:["School","Purpose","Description","Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"],rows:distribution.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"];})},
+    {label:"Distribution",desc:"Delivery and collection",icon:"🚚",file:"distribution.csv",cols:["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"],rows:distribution.map(r=>{
+      const recipientType=r.recipientType||"School";
+      const recipient=recipientType==="District Office"?`${r.district||"—"} District Office`:recipientType==="Circuit Office"?`${r.circuit||"—"} Circuit Office${r.district?` (${r.district})`:""}`:(schools.find(s=>s.id==r.schoolId)?.name||"");
+      const items=(r.items&&r.items.length?r.items:[{ftype:r.ftype||r.desc||"",otherType:"",qty:r.qty||0}]).filter(it=>it.ftype||it.qty);
+      const itemsLabel=items.map(it=>`${it.ftype==="Other"?(it.otherType||"Other"):(it.ftype||"—")} × ${it.qty||0}`).join(", ")||"—";
+      const totalQty=items.reduce((a,it)=>a+Number(it.qty||0),0);
+      return[recipientType,recipient,r.purpose,itemsLabel,totalQty,r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"];
+    })},
     {label:"Capacity Analysis",desc:"Capacity vs enrolment",icon:"📐",file:"capacity.csv",cols:["School","EMIS","Enrolment","Capacity","With Mobiles","Utilisation %","Overcapacity"],rows:schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.emis,s.enrolment,s.capacity,mob,pct,Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})},
     {label:"Ratio Analysis",desc:"Teacher/learner ratios",icon:"👩‍🏫",file:"ratio.csv",cols:["School","EMIS","Enrolment","Teachers","Ratio","Status"],rows:schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.emis,s.enrolment,s.teachers,r?`1:${r}`:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];})},
   ];
@@ -1214,10 +1274,25 @@ function App(){
   const [toast,          setToast]          = useState(null);
   const [transferProjectFilter, setTransferProjectFilter] = useState("All");
   const [editingSchool,  setEditingSchool]  = useState(null);
+  const [editingDistribution, setEditingDistribution] = useState(null);
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
   const openAddSchool  = () => { setEditingSchool(null); setModal("school"); };
   const openEditSchool = school => { setEditingSchool(school); setModal("school"); };
+  const openAddDistribution  = () => { setEditingDistribution(null); setModal("distribution"); };
+  const openEditDistribution = d => { setEditingDistribution(d); setModal("distribution"); };
+  const saveDistribution = data => {
+    if (data.id != null) distributionM.updateOne(data.id, data);
+    else distributionM.addOne(data);
+    setModal(null);
+    setEditingDistribution(null);
+    showToast(`✓ Distribution record ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteDistribution = d => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete this distribution record? This cannot be undone.`)) return;
+    distributionM.deleteOne(d.id);
+    showToast(`✓ Distribution record deleted.`);
+  };
   const saveSchool = data => {
     if (data.id != null) schoolsM.updateOne(data.id, data);
     else schoolsM.addOne(data);
@@ -1232,7 +1307,7 @@ function App(){
     const linkedClassroomIds = classrooms.filter(c=>sameId(c.schoolId,sid)).map(c=>c.id);
     const linkedFurnitureIds = furniture.filter(f=>linkedClassroomIds.some(cid=>sameId(cid,f.classroomId)) || sameId(f.schoolId,sid)).map(f=>f.id);
     // Delete dependent records first (deepest first) so nothing is orphaned, then the school itself.
-    repairsM.deleteMany(repairs.filter(r=>linkedFurnitureIds.some(fid=>sameId(fid,r.furnitureId))).map(r=>r.id));
+    repairsM.deleteMany(repairs.filter(r=>linkedFurnitureIds.some(fid=>sameId(fid,r.furnitureId))||sameId(r.schoolId,sid)).map(r=>r.id));
     conditionsM.deleteMany(conditions.filter(c=>linkedClassroomIds.some(cid=>sameId(cid,c.classroomId))).map(c=>c.id));
     furnitureM.deleteMany(linkedFurnitureIds);
     classroomsM.deleteMany(linkedClassroomIds);
@@ -1410,32 +1485,54 @@ function App(){
         </Card>
       </div>
     );
-    case "repairs": return (
+    case "repairs": {
+      // Repair records come from two sources: the standalone Repairs form (schoolId/emis/ftype captured
+      // directly) or the School Capture flow (furnitureId linking back to a tracked furniture record).
+      // Resolve both into one common shape for display/export.
+      const resolveRepair = r => {
+        if (r.furnitureId) {
+          const fu = furniture.find(f=>f.id==r.furnitureId);
+          const cl = fu ? classrooms.find(c=>c.id==fu.classroomId) : null;
+          const sc = cl ? schools.find(s=>s.id==cl.schoolId) : (fu ? schools.find(s=>s.id==fu.schoolId) : null);
+          return { schoolName:sc?.name||"", emis:sc?.emis||"", room:cl?.room?`Room ${cl.room}`:"", ftype:fu?.ftype||r.ftype||"", condition:fu?.condition||"" };
+        }
+        const sc = schools.find(s=>s.id==r.schoolId);
+        return { schoolName:sc?.name||"", emis:r.emis||sc?.emis||"", room:"", ftype:r.ftype==="Other"?(r.otherType||"Other"):(r.ftype||""), condition:"" };
+      };
+      return (
       <div>
-        <SectionHeader title="Repairs & refurbishment" onAdd={()=>setModal("repair")} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","Room","Furniture","Spec","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs.map(r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?.name||"",cl?.room?`Room ${cl.room}`:"",fu?.ftype||"",fu?.spec||"",r.ftype||"",fu?.condition||"",r.repairType,r.destination,r.qty,r.status,r.allocated,r.completed||""];})}/>}/>
+        <SectionHeader title="Repairs & refurbishment" onAdd={()=>setModal("repair")} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Allocated","Completed","Comments"]} rows={repairs.map(r=>{const c=resolveRepair(r);return[c.schoolName,c.emis,c.ftype,r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];})}/>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           {["Completed","In Progress","Pending"].map(st=><StatCard key={st} label={st} value={repairs.filter(r=>r.status===st).length} color={st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}/>)}
         </div>
         <Card>
-          <DataTable cols={["School Collected From","Room","Furniture","DBE Type","Condition","Repair Type","Destination","Qty","Status","Allocated","Completed"]} rows={repairs}
-            renderRow={r=>{const fu=furniture.find(f=>f.id==r.furnitureId);const cl=classrooms.find(c=>c.id==fu?.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==fu?.schoolId);return[sc?<span style={{fontWeight:500,color:"#1e3a5f"}}>{sc.name}</span>:<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,cl?.room?`Room ${cl.room}`:<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,fu?<span>{fu.ftype}{fu.spec?<span style={{fontSize:11,color:"#6B7280"}}> ({fu.spec})</span>:""}</span>:"—",r.ftype||<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,fu?.condition?<Badge val={fu.condition}/>:<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.allocated,r.completed||"—"];}}/>
+          <DataTable cols={["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Completed","Comments"]} rows={repairs}
+            renderRow={r=>{const c=resolveRepair(r);return[
+              c.schoolName?<span style={{fontWeight:500,color:"#1e3a5f"}}>{c.schoolName}</span>:<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
+              <span style={{fontSize:12,color:"#6B7280"}}>{c.emis||"—"}</span>,
+              <span>{c.ftype||<span style={{color:"#9CA3AF",fontSize:11}}>—</span>}{c.condition?<span style={{fontSize:11,color:"#6B7280"}}> ({c.condition})</span>:""}</span>,
+              r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.dateCollected||"—",r.completed||"—",
+              <span style={{fontSize:12,color:"#6B7280"}}>{r.comments||"—"}</span>
+            ];}}/>
         </Card>
       </div>
-    );
-    case "warehouse": return (
+    );}
+    case "warehouse": {
+      const whItemName = w => w.category==="Other / Donated Item" ? (w.itemName||"Other item") : (w.ftype||"—");
+      return (
       <div>
-        <SectionHeader title="Warehouse — new furniture" onAdd={()=>setModal("warehouse")} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Type","Qty","Condition","Ref","Status","Notes"]} rows={warehouse.map(w=>[w.date,w.supplier,w.ftype,w.qty,w.condition,w.ref,w.status,w.notes])}/>}/>
+        <SectionHeader title="Warehouse — furniture & donated items" onAdd={()=>setModal("warehouse")} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"]} rows={warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",whItemName(w),w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])}/>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           <StatCard label="In stock"   value={warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#059669"/>
           <StatCard label="Reserved"   value={warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#D97706"/>
           <StatCard label="Dispatched" value={warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0)} color="#2563EB"/>
         </div>
         <Card>
-          <DataTable cols={["Date","Supplier","Furniture type","Qty","Condition","Received by","Ref","Status","Notes"]} rows={warehouse}
-            renderRow={w=>[w.date,w.supplier,w.ftype,w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.notes}</span>]}/>
+          <DataTable cols={["Date","Supplier","Category","Item","Qty","Condition","Received by","Ref","Status","Comments"]} rows={warehouse}
+            renderRow={w=>[w.date,w.supplier,<span style={{fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:999,whiteSpace:"nowrap",background:w.category==="Other / Donated Item"?"#F5F3FF":"#EFF6FF",color:w.category==="Other / Donated Item"?"#5B21B6":"#1E40AF"}}>{w.category||"Furniture"}</span>,whItemName(w),w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.comments||w.notes||""}</span>]}/>
         </Card>
       </div>
-    );
+    );}
     case "storage": return (
       <div>
         <SectionHeader title="Storage" onAdd={()=>setModal("storage")} extra={<ExportBtn label="CSV" filename="storage.csv" cols={["School","Room","Condition","Secure","Stored Type","Qty","Usable"]} rows={storage.map(r=>[scName(r.schoolId),r.room,r.condition,r.secure,r.storedType,r.qty,r.usable])}/>}/>
@@ -1445,15 +1542,31 @@ function App(){
         </Card>
       </div>
     );
-    case "distribution": return (
+    case "distribution": {
+      const itemsLabel = r => (r.items&&r.items.length ? r.items : [{ftype:r.ftype||r.desc||"",otherType:"",qty:r.qty||0}])
+        .filter(it=>it.ftype||it.qty).map(it=>`${it.ftype==="Other"?(it.otherType||"Other"):(it.ftype||"—")} × ${it.qty||0}`).join(", ") || "—";
+      const totalQty = r => (r.items&&r.items.length ? r.items : [{qty:r.qty||0}]).reduce((a,it)=>a+Number(it.qty||0),0);
+      const recipientLabel = r => {
+        const t=r.recipientType||"School";
+        if (t==="District Office") return `${r.district||"—"} District Office`;
+        if (t==="Circuit Office") return `${r.circuit||"—"} Circuit Office${r.district?` (${r.district})`:""}`;
+        return scName(r.schoolId);
+      };
+      return (
       <div>
-        <SectionHeader title="Distribution" onAdd={()=>setModal("distribution")} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["School","Purpose","Description","Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"]} rows={distribution.map(r=>[scName(r.schoolId),r.purpose,r.desc,r.qty,r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"])}/>}/>
+        <SectionHeader title="Distribution" onAdd={openAddDistribution} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"]} rows={distribution.map(r=>[r.recipientType||"School",recipientLabel(r),r.purpose,itemsLabel(r),totalQty(r),r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"])}/>}/>
         <Card>
-          <DataTable cols={["School","Purpose","Description","Qty","Official","Date","Ref","Proof","Signatures"]} rows={distribution}
-            renderRow={r=>{const sigs=[r.sigOfficial,r.sigReceiver].filter(Boolean);return[scName(r.schoolId),r.purpose,r.desc,r.qty,r.official,r.date,r.ref,r.proofData?<a href={r.proofData} target="_blank" rel="noreferrer" style={{color:"#2563EB",textDecoration:"underline",fontSize:12}}>{r.proofName||"View proof"}</a>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>,sigs.length>0?<div style={{display:"flex",gap:4}}>{sigs.map((sig,i)=><a key={i} href={sig} target="_blank" rel="noreferrer"><img src={sig} alt="" style={{height:32,width:80,objectFit:"contain",border:"1px solid #E5E7EB",borderRadius:4,background:"#F9FAFB",cursor:"pointer"}}/></a>)}</div>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>];}}/>
+          <DataTable cols={["Recipient","Purpose","Items","Total Qty","Official","Date","Ref","Proof","Signatures","Actions"]} rows={distribution}
+            renderRow={r=>{const sigs=[r.sigOfficial,r.sigReceiver].filter(Boolean);const t=r.recipientType||"School";return[
+              <span>{recipientLabel(r)}{t!=="School"?<span style={{display:"block",fontSize:10,color:"#7C3AED",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.03em"}}>{t}</span>:""}</span>,
+              r.purpose,<span style={{fontSize:12,color:"#374151"}}>{itemsLabel(r)}</span>,totalQty(r),r.official,r.date,r.ref,
+              r.proofData?<a href={r.proofData} target="_blank" rel="noreferrer" style={{color:"#2563EB",textDecoration:"underline",fontSize:12}}>{r.proofName||"View proof"}</a>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>,
+              sigs.length>0?<div style={{display:"flex",gap:4}}>{sigs.map((sig,i)=><a key={i} href={sig} target="_blank" rel="noreferrer"><img src={sig} alt="" style={{height:32,width:80,objectFit:"contain",border:"1px solid #E5E7EB",borderRadius:4,background:"#F9FAFB",cursor:"pointer"}}/></a>)}</div>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>,
+              <div style={{display:"flex",gap:6}}><button onClick={()=>openEditDistribution(r)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteDistribution(r)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
+            ];}}/>
         </Card>
       </div>
-    );
+    );}
     case "capacity": return (
       <div>
         <SectionHeader title="Capacity analysis" extra={<ExportBtn label="CSV" filename="capacity.csv" cols={["School","Enrolment","Capacity","With Mobiles","Utilisation","Overcapacity"]} rows={schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.enrolment,s.capacity,mob,pct+"%",Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})}/>}/>
@@ -1615,10 +1728,10 @@ function App(){
       {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(classroomsM)}/>}
       {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
       {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
-      {modal==="repair"       && <RepairForm        furniture={furniture} classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(repairsM)}/>}
+      {modal==="repair"       && <RepairForm        schools={schools} onClose={()=>setModal(null)} onSave={add(repairsM)}/>}
       {modal==="warehouse"    && <WarehouseForm                               onClose={()=>setModal(null)} onSave={add(warehouseM)}/>}
       {modal==="storage"      && <StorageForm       schools={schools}          onClose={()=>setModal(null)} onSave={add(storageM)}/>}
-      {modal==="distribution" && <DistributionForm  schools={schools}          onClose={()=>setModal(null)} onSave={add(distributionM)}/>}
+      {modal==="distribution" && <DistributionForm  schools={schools} initial={editingDistribution} onClose={()=>{setModal(null);setEditingDistribution(null);}} onSave={saveDistribution}/>}
       {modal==="upload"       && <UploadForm                                   onClose={()=>setModal(null)} onSave={add(uploadsM)}/>}
       {modal==="learner"      && <LearnerDataForm                              onClose={()=>setModal(null)} onSave={add(learnerDataM)}/>}
       {modal==="mobile"       && <MobileAuditForm   schools={schools}          onClose={()=>setModal(null)} onSave={add(mobileAuditM)}/>}
