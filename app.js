@@ -89,7 +89,10 @@ const initSchools      = [S(1,"Soweto Primary School","700112345","Gauteng","Joh
 const initAudits       = [{id:1,schoolId:1,year:2024,date:"2024-03-15",risk:"High",capWith:1120,capWithout:980,overcapacity:"Yes",recommendations:"Urgent furniture replacement needed",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""},{id:2,schoolId:2,year:2024,date:"2024-04-02",risk:"Low",capWith:970,capWithout:900,overcapacity:"No",recommendations:"Minor repairs to lab furniture",comments:"",hallAvailable:"Yes",hallCondition:"Good",hallCapacity:"300",hallUsage:"Assemblies",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"Yes",hallIssues:"",hallNotes:""},{id:3,schoolId:3,year:2024,date:"2024-05-10",risk:"Medium",capWith:1055,capWithout:950,overcapacity:"Yes",recommendations:"Mobile classroom upgrade required",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""}];
 const initClassrooms   = [{id:1,schoolId:1,room:"1A",type:"Classroom",grade:"4",spec:"4E1",learners:42,isMobile:"No"},{id:2,schoolId:2,room:"Lab 1",type:"Lab",grade:"11",spec:"Science",learners:30,isMobile:"No"}];
 const initFurniture    = [{id:1,classroomId:1,schoolId:1,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",spec:"Grade 4–6",chairType:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",available:30,damaged:8,repairable:5,otherType:"",otherQty:0,condition:"Fair",photoName:"",photoData:""},{id:2,classroomId:2,schoolId:2,category:"Specialised",ftype:"Science Lab Table",spec:"Science Lab",chairType:"Lab Stool",available:20,damaged:3,repairable:3,otherType:"",otherQty:0,condition:"Good",photoName:"",photoData:""}];
-const initRepairs      = [{id:1,schoolId:1,emis:"700112345",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",repairType:"Minor",destination:"Warehouse",qty:5,status:"Completed",dateCollected:"2024-03-18",allocated:"2024-03-20",completed:"2024-04-01",comments:"Cracked tops, collected for refurbishment"},{id:2,schoolId:2,emis:"700223456",ftype:"Science Lab Table",otherType:"",repairType:"Major",destination:"Labour Dept",qty:3,status:"In Progress",dateCollected:"2024-04-08",allocated:"2024-04-10",completed:"",comments:"Broken legs, sent to Labour Dept for structural repair"}];
+const initRepairs      = [
+  {id:1,schoolId:1,emis:"700112345",items:[{ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:5},{ftype:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",otherType:"",qty:8}],repairType:"Minor",destination:"Warehouse",status:"Completed",dateCollected:"2024-03-18",allocated:"2024-03-20",completed:"2024-04-01",comments:"Cracked tops and broken chair frames, collected for refurbishment"},
+  {id:2,schoolId:2,emis:"700223456",items:[{ftype:"Science Lab Table",otherType:"",qty:3}],repairType:"Major",destination:"Labour Dept",status:"In Progress",dateCollected:"2024-04-08",allocated:"2024-04-10",completed:"",comments:"Broken legs, sent to Labour Dept for structural repair"},
+];
 const initStorage      = [{id:1,schoolId:1,room:"Store 1",condition:"Fair",secure:"Yes",storedType:"Old Desks",qty:20,usable:"No",desc:"Old damaged desks"}];
 const initDistribution = [
   {id:1,recipientType:"School",schoolId:1,district:"",circuit:"",destination:"Warehouse",source:"School",items:[{ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:10}],official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
@@ -476,19 +479,23 @@ function ConditionForm({classrooms,schools,onSave,onClose}) {
     </Modal>
   );
 }
-function RepairForm({schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",emis:"",district:"",ftype:"",otherType:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",dateCollected:"",allocated:"",completed:"",comments:""});
+function RepairForm({schools,initial,onSave,onClose}) {
+  const emptyItem=()=>({ftype:"",otherType:"",qty:""});
+  // Migrate pre-existing records saved before multi-item support (single ftype/otherType/qty, no items array).
+  const withMigratedItems=rec=>rec?{...rec,items:(rec.items&&rec.items.length)?rec.items:[{ftype:rec.ftype||"",otherType:rec.otherType||"",qty:rec.qty||""}]}:null;
+  const [f,setF]=useState(withMigratedItems(initial)||{schoolId:"",emis:"",district:"",items:[emptyItem()],repairType:"Minor",destination:"Warehouse",status:"Pending",dateCollected:"",allocated:"",completed:"",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const onSchoolChange=e=>{
     const id=e.target.value; const sc=schools.find(x=>x.id==id);
     setF(p=>({...p,schoolId:id,emis:sc?sc.emis:p.emis,district:sc?sc.district:p.district}));
   };
+  const setItem=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,[field]:e.target.value}:it)}));
+  const addItem=()=>setF(p=>({...p,items:[...p.items,emptyItem()]}));
+  const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
   const validate=d=>({
     schoolId:!d.schoolId?"School is required":"",
-    ftype:!d.ftype?"Furniture type is required":"",
-    otherType:d.ftype==="Other"&&!d.otherType?.trim()?"Specify the item":"",
-    qty:d.qty===""?"Quantity is required":"",
+    items:(!d.items||!d.items.length||!d.items.some(it=>it.ftype&&Number(it.qty)>0))?"At least one furniture type with a quantity is required":"",
     dateCollected:!d.dateCollected?"Date collected from school is required":"",
   });
   const errors=touched?validate(f):{};
@@ -496,16 +503,31 @@ function RepairForm({schools,onSave,onClose}) {
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="Log repair" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title={initial?"Edit repair record":"Log repair"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2>
         <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={onSchoolChange}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
         <Field label="EMIS number"><input style={inp} value={f.emis} onChange={s("emis")}/></Field>
       </Row2>
       <Field label="District"><input style={inp} value={f.district} onChange={s("district")}/></Field>
-      <Field label="DBE furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select DBE type...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
-      {f.ftype==="Other"&&<Field label="Specify item *"><input style={eI("otherType")} value={f.otherType} onChange={s("otherType")} placeholder="e.g. Computer, Printer, Whiteboard"/></Field>}
+      <div style={{borderTop:"1px solid #F3F4F6",margin:"1rem 0 0.75rem",paddingTop:"0.75rem"}}>
+        <p style={{fontSize:12,fontWeight:600,color:"#374151",margin:"0 0 0.75rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Furniture types collected{touched&&errors.items?<span style={{color:"#EF4444",fontWeight:400,textTransform:"none"}}> — {errors.items}</span>:""}</p>
+        {f.items.map((item,i)=>(
+          <div key={i} style={{background:"#F9FAFB",borderRadius:8,padding:"0.75rem",marginBottom:"0.5rem",border:"0.5px solid #E5E7EB"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Item {i+1}</p>
+              {f.items.length>1&&<button type="button" onClick={()=>removeItem(i)} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
+            </div>
+            <Row2>
+              <Field label="DBE furniture type"><select style={sel} value={item.ftype} onChange={setItem(i,"ftype")}><option value="">Select DBE type...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+              <Field label="Quantity"><input style={inp} type="number" value={item.qty} onChange={setItem(i,"qty")}/></Field>
+            </Row2>
+            {item.ftype==="Other"&&<Field label="Specify item"><input style={inp} value={item.otherType} onChange={setItem(i,"otherType")} placeholder="e.g. Computer, Printer, Whiteboard"/></Field>}
+          </div>
+        ))}
+        <button type="button" onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>
+      </div>
       <Row2><Field label="Repair type"><select style={sel} value={f.repairType} onChange={s("repairType")}>{["Minor","Major"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Destination"><select style={sel} value={f.destination} onChange={s("destination")}>{["Warehouse","Labour Dept"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row2><Field label="Quantity *"><input style={eI("qty")} type="number" value={f.qty} onChange={s("qty")}/></Field><Field label="Status"><select style={sel} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Field label="Status"><select style={{...sel,maxWidth:220}} value={f.status} onChange={s("status")}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field>
       <Row3><Field label="Date collected from school *"><input style={eI("dateCollected")} type="date" value={f.dateCollected} onChange={s("dateCollected")}/></Field><Field label="Date allocated"><input style={inp} type="date" value={f.allocated} onChange={s("allocated")}/></Field><Field label="Date completed"><input style={inp} type="date" value={f.completed} onChange={s("completed")}/></Field></Row3>
       <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.comments} onChange={s("comments")} placeholder="e.g. Condition on collection, reason for repair"/></Field>
     </Modal>
@@ -1055,11 +1077,18 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     {label:"Classrooms",desc:"All classroom records",icon:"🚪",file:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>{const sc=schools.find(s=>s.id==c.schoolId);return[sc?.name||"",c.room,c.type,c.grade,c.spec,c.learners,c.isMobile];})},
     {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})},
     {label:"Mobile Conditional Assessment",desc:"Infrastructure & mobile classroom assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
-    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Allocated","Completed","Comments"],rows:repairs.map(r=>{
+    {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Allocated","Completed","Comments"],rows:repairs.map(r=>{
+      let schoolName="",emis="",items=[];
       if (r.furnitureId) { const fu=furniture.find(f=>f.id==r.furnitureId);const cl=fu?classrooms.find(c=>c.id==fu.classroomId):null;const sc=cl?schools.find(s=>s.id==cl.schoolId):(fu?schools.find(s=>s.id==fu.schoolId):null);
-        return[sc?.name||"",sc?.emis||"",fu?.ftype||r.ftype||"",r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""]; }
-      const sc=schools.find(s=>s.id==r.schoolId);
-      return[sc?.name||"",r.emis||sc?.emis||"",r.ftype==="Other"?(r.otherType||"Other"):(r.ftype||""),r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];
+        schoolName=sc?.name||"";emis=sc?.emis||"";items=[{ftype:fu?.ftype||r.ftype||"",qty:r.qty||0}];
+      } else {
+        const sc=schools.find(s=>s.id==r.schoolId); schoolName=sc?.name||""; emis=r.emis||sc?.emis||"";
+        const rawItems=(r.items&&r.items.length)?r.items:[{ftype:r.ftype||"",otherType:r.otherType||"",qty:r.qty||0}];
+        items=rawItems.filter(it=>it.ftype||it.qty).map(it=>({ftype:it.ftype==="Other"?(it.otherType||"Other"):(it.ftype||""),qty:it.qty||0}));
+      }
+      const itemsLabel=items.map(it=>`${it.ftype||"—"} × ${it.qty||0}`).join(", ")||"—";
+      const totalQty=items.reduce((a,it)=>a+Number(it.qty||0),0);
+      return[schoolName,emis,itemsLabel,totalQty,r.repairType,r.destination,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];
     })},
     {label:"Warehouse",desc:"Furniture deliveries & donated items",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"],rows:warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",w.category==="Other / Donated Item"?w.itemName:w.ftype,w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])},
     {label:"Storage",desc:"Storage room records",icon:"📦",file:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.room,r.condition,r.secure,r.storedType,r.qty,r.usable];})},
@@ -1275,6 +1304,7 @@ function App(){
   const [transferProjectFilter, setTransferProjectFilter] = useState("All");
   const [editingSchool,  setEditingSchool]  = useState(null);
   const [editingDistribution, setEditingDistribution] = useState(null);
+  const [editingRepair, setEditingRepair] = useState(null);
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
   const openAddSchool  = () => { setEditingSchool(null); setModal("school"); };
@@ -1292,6 +1322,40 @@ function App(){
     if (typeof window !== "undefined" && !window.confirm(`Delete this distribution record? This cannot be undone.`)) return;
     distributionM.deleteOne(d.id);
     showToast(`✓ Distribution record deleted.`);
+  };
+  const openAddRepair  = () => { setEditingRepair(null); setModal("repair"); };
+  const openEditRepair = r => {
+    if (r.furnitureId) {
+      // Records created via the School Capture flow link to a tracked furniture record instead of
+      // storing schoolId/items directly. Resolve that link into the standalone shape so it's editable
+      // here, and explicitly clear furnitureId so the save doesn't leave a stale link behind.
+      const fu = furniture.find(f=>f.id==r.furnitureId);
+      const cl = fu ? classrooms.find(c=>c.id==fu.classroomId) : null;
+      const sc = cl ? schools.find(s=>s.id==cl.schoolId) : (fu ? schools.find(s=>s.id==fu.schoolId) : null);
+      setEditingRepair({
+        id: r.id, furnitureId: "",
+        schoolId: sc ? sc.id : "", emis: sc ? sc.emis : "", district: sc ? sc.district : "",
+        items: [{ftype: fu?.ftype || r.ftype || "", otherType: "", qty: r.qty || ""}],
+        repairType: r.repairType || "Minor", destination: r.destination || "Warehouse", status: r.status || "Pending",
+        dateCollected: r.dateCollected || "", allocated: r.allocated || "", completed: r.completed || "",
+        comments: r.comments || "",
+      });
+    } else {
+      setEditingRepair(r);
+    }
+    setModal("repair");
+  };
+  const saveRepair = data => {
+    if (data.id != null) repairsM.updateOne(data.id, data);
+    else repairsM.addOne(data);
+    setModal(null);
+    setEditingRepair(null);
+    showToast(`✓ Repair record ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteRepair = r => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete this repair record? This cannot be undone.`)) return;
+    repairsM.deleteOne(r.id);
+    showToast(`✓ Repair record deleted.`);
   };
   const saveSchool = data => {
     if (data.id != null) schoolsM.updateOne(data.id, data);
@@ -1486,33 +1550,38 @@ function App(){
       </div>
     );
     case "repairs": {
-      // Repair records come from two sources: the standalone Repairs form (schoolId/emis/ftype captured
-      // directly) or the School Capture flow (furnitureId linking back to a tracked furniture record).
-      // Resolve both into one common shape for display/export.
+      // Repair records come from two sources: the standalone Repairs form (schoolId/emis + a list of
+      // furniture-type items collected in one visit) or the School Capture flow (furnitureId linking
+      // back to a single tracked furniture record). Resolve both into one common shape for display/export.
       const resolveRepair = r => {
         if (r.furnitureId) {
           const fu = furniture.find(f=>f.id==r.furnitureId);
           const cl = fu ? classrooms.find(c=>c.id==fu.classroomId) : null;
           const sc = cl ? schools.find(s=>s.id==cl.schoolId) : (fu ? schools.find(s=>s.id==fu.schoolId) : null);
-          return { schoolName:sc?.name||"", emis:sc?.emis||"", room:cl?.room?`Room ${cl.room}`:"", ftype:fu?.ftype||r.ftype||"", condition:fu?.condition||"" };
+          return { schoolName:sc?.name||"", emis:sc?.emis||"", items:[{ftype:fu?.ftype||r.ftype||"", qty:r.qty||0}] };
         }
         const sc = schools.find(s=>s.id==r.schoolId);
-        return { schoolName:sc?.name||"", emis:r.emis||sc?.emis||"", room:"", ftype:r.ftype==="Other"?(r.otherType||"Other"):(r.ftype||""), condition:"" };
+        const rawItems = (r.items&&r.items.length) ? r.items : [{ftype:r.ftype||"", otherType:r.otherType||"", qty:r.qty||0}];
+        const items = rawItems.filter(it=>it.ftype||it.qty).map(it=>({ftype: it.ftype==="Other"?(it.otherType||"Other"):(it.ftype||""), qty:it.qty||0}));
+        return { schoolName:sc?.name||"", emis:r.emis||sc?.emis||"", items };
       };
+      const itemsLabel = c => c.items.map(it=>`${it.ftype||"—"} × ${it.qty||0}`).join(", ")||"—";
+      const totalQty = c => c.items.reduce((a,it)=>a+Number(it.qty||0),0);
       return (
       <div>
-        <SectionHeader title="Repairs & refurbishment" onAdd={()=>setModal("repair")} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Allocated","Completed","Comments"]} rows={repairs.map(r=>{const c=resolveRepair(r);return[c.schoolName,c.emis,c.ftype,r.repairType,r.destination,r.qty,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];})}/>}/>
+        <SectionHeader title="Repairs & refurbishment" onAdd={openAddRepair} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Allocated","Completed","Comments"]} rows={repairs.map(r=>{const c=resolveRepair(r);return[c.schoolName,c.emis,itemsLabel(c),totalQty(c),r.repairType,r.destination,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];})}/>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           {["Completed","In Progress","Pending"].map(st=><StatCard key={st} label={st} value={repairs.filter(r=>r.status===st).length} color={st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}/>)}
         </div>
         <Card>
-          <DataTable cols={["School","EMIS","Furniture Type","Repair Type","Destination","Qty","Status","Date Collected","Completed","Comments"]} rows={repairs}
+          <DataTable cols={["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Completed","Comments","Actions"]} rows={repairs}
             renderRow={r=>{const c=resolveRepair(r);return[
               c.schoolName?<span style={{fontWeight:500,color:"#1e3a5f"}}>{c.schoolName}</span>:<span style={{color:"#9CA3AF",fontSize:11}}>—</span>,
               <span style={{fontSize:12,color:"#6B7280"}}>{c.emis||"—"}</span>,
-              <span>{c.ftype||<span style={{color:"#9CA3AF",fontSize:11}}>—</span>}{c.condition?<span style={{fontSize:11,color:"#6B7280"}}> ({c.condition})</span>:""}</span>,
-              r.repairType,r.destination,r.qty,<Badge val={r.status}/>,r.dateCollected||"—",r.completed||"—",
-              <span style={{fontSize:12,color:"#6B7280"}}>{r.comments||"—"}</span>
+              <span style={{fontSize:12,color:"#374151"}}>{itemsLabel(c)}</span>,
+              totalQty(c),r.repairType,r.destination,<Badge val={r.status}/>,r.dateCollected||"—",r.completed||"—",
+              <span style={{fontSize:12,color:"#6B7280"}}>{r.comments||"—"}</span>,
+              <div style={{display:"flex",gap:6}}><button onClick={()=>openEditRepair(r)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteRepair(r)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
             ];}}/>
         </Card>
       </div>
@@ -1728,7 +1797,7 @@ function App(){
       {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(classroomsM)}/>}
       {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
       {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
-      {modal==="repair"       && <RepairForm        schools={schools} onClose={()=>setModal(null)} onSave={add(repairsM)}/>}
+      {modal==="repair"       && <RepairForm        schools={schools} initial={editingRepair} onClose={()=>{setModal(null);setEditingRepair(null);}} onSave={saveRepair}/>}
       {modal==="warehouse"    && <WarehouseForm                               onClose={()=>setModal(null)} onSave={add(warehouseM)}/>}
       {modal==="storage"      && <StorageForm       schools={schools}          onClose={()=>setModal(null)} onSave={add(storageM)}/>}
       {modal==="distribution" && <DistributionForm  schools={schools} initial={editingDistribution} onClose={()=>{setModal(null);setEditingDistribution(null);}} onSave={saveDistribution}/>}
