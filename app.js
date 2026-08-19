@@ -250,6 +250,24 @@ function useSyncedCollection(name, initialData) {
         setItems(p => p.map(it => it.id===id ? {...it, ...patch} : it));
       }
     },
+    deleteOne: (id) => {
+      if (firestoreDb) {
+        firestoreDb.collection(name).doc(String(id)).delete().catch(e=>console.error(`Sync delete failed (${name}):`,e));
+      } else {
+        setItems(p => p.filter(it => it.id !== id));
+      }
+    },
+    deleteMany: (ids) => {
+      if (!ids || !ids.length) return;
+      if (firestoreDb) {
+        const batch = firestoreDb.batch();
+        ids.forEach(id => batch.delete(firestoreDb.collection(name).doc(String(id))));
+        batch.commit().catch(e=>console.error(`Sync batch delete failed (${name}):`,e));
+      } else {
+        const idSet = new Set(ids.map(String));
+        setItems(p => p.filter(it => !idSet.has(String(it.id))));
+      }
+    },
   }), [name]);
   return [items, mutate];
 }
@@ -1195,8 +1213,38 @@ function App(){
   const [schoolTransfers,schoolTransfersM]= useSyncedCollection("schoolTransfers",initSchoolTransfers);
   const [toast,          setToast]          = useState(null);
   const [transferProjectFilter, setTransferProjectFilter] = useState("All");
+  const [editingSchool,  setEditingSchool]  = useState(null);
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
+  const openAddSchool  = () => { setEditingSchool(null); setModal("school"); };
+  const openEditSchool = school => { setEditingSchool(school); setModal("school"); };
+  const saveSchool = data => {
+    if (data.id != null) schoolsM.updateOne(data.id, data);
+    else schoolsM.addOne(data);
+    setModal(null);
+    setEditingSchool(null);
+    showToast(`✓ "${data.name}" ${data.id != null ? "updated" : "added"}.`);
+  };
+  const sameId = (a,b) => a!=null && b!=null && a.toString()===b.toString();
+  const deleteSchool = school => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete "${school.name}" and all its linked audits, classrooms, furniture, repairs, requests and other records? This cannot be undone.`)) return;
+    const sid = school.id;
+    const linkedClassroomIds = classrooms.filter(c=>sameId(c.schoolId,sid)).map(c=>c.id);
+    const linkedFurnitureIds = furniture.filter(f=>linkedClassroomIds.some(cid=>sameId(cid,f.classroomId)) || sameId(f.schoolId,sid)).map(f=>f.id);
+    // Delete dependent records first (deepest first) so nothing is orphaned, then the school itself.
+    repairsM.deleteMany(repairs.filter(r=>linkedFurnitureIds.some(fid=>sameId(fid,r.furnitureId))).map(r=>r.id));
+    conditionsM.deleteMany(conditions.filter(c=>linkedClassroomIds.some(cid=>sameId(cid,c.classroomId))).map(c=>c.id));
+    furnitureM.deleteMany(linkedFurnitureIds);
+    classroomsM.deleteMany(linkedClassroomIds);
+    auditsM.deleteMany(audits.filter(a=>sameId(a.schoolId,sid)).map(a=>a.id));
+    storageM.deleteMany(storage.filter(s=>sameId(s.schoolId,sid)).map(s=>s.id));
+    distributionM.deleteMany(distribution.filter(d=>sameId(d.schoolId,sid)).map(d=>d.id));
+    mobileAuditM.deleteMany(mobileAudit.filter(m=>sameId(m.schoolId,sid)).map(m=>m.id));
+    schoolRequestsM.deleteMany(schoolRequests.filter(r=>sameId(r.schoolId,sid)).map(r=>r.id));
+    schoolTransfersM.deleteMany(schoolTransfers.filter(t=>sameId(t.schoolId,sid)).map(t=>t.id));
+    schoolsM.deleteOne(sid);
+    showToast(`✓ "${school.name}" and all linked records deleted.`);
+  };
   const restoreAll = data => {
     if(data.schools)      schoolsM.replaceAll(data.schools);
     if(data.audits)       auditsM.replaceAll(data.audits);
@@ -1252,7 +1300,7 @@ function App(){
     case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution} onRestore={restoreAll} onMerge={mergeAll}/>;
     case "schools": return (
       <div>
-        <SectionHeader title="Audit Schools" onAdd={()=>setModal("school")} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
+        <SectionHeader title="Audit Schools" onAdd={openAddSchool} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
         <div style={{display:"grid",gap:"1rem"}}>
           {schools.length===0&&<Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools yet. Use + Add record or import from EMIS Database.</p></Card>}
           {schools.map(s=>{const over=Number(s.enrolment)>Number(s.capacity);const shortage=over?Number(s.enrolment)-Number(s.capacity):0;return(
@@ -1269,6 +1317,10 @@ function App(){
                 <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:8}}>
                   <Badge val={s.risk}/>
                   {s.enrolment&&s.capacity&&<span style={{fontSize:12,color:over?"#DC2626":"#059669"}}>{over?"⚠ Overcapacity":"✓ Within capacity"}</span>}
+                  <div style={{display:"flex",gap:6,marginTop:4}}>
+                    <button onClick={()=>openEditSchool(s)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button>
+                    <button onClick={()=>deleteSchool(s)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button>
+                  </div>
                 </div>
               </div>
             </Card>
@@ -1558,7 +1610,7 @@ function App(){
   return (
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",background:"#F3F6FB"}}>
       {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"#111827",color:"#fff",padding:"10px 20px",borderRadius:10,fontSize:13,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 4px 12px rgba(0,0,0,0.2)"}}>{toast}</div>}
-      {modal==="school"       && <SchoolForm        onClose={()=>setModal(null)} onSave={add(schoolsM)}/>}
+      {modal==="school"       && <SchoolForm        initial={editingSchool} onClose={()=>{setModal(null);setEditingSchool(null);}} onSave={saveSchool}/>}
       {modal==="audit"        && <AuditForm         schools={schools}            onClose={()=>setModal(null)} onSave={add(auditsM)}/>}
       {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(classroomsM)}/>}
       {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
