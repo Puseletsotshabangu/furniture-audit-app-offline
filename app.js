@@ -37,6 +37,8 @@ const DBE_FURNITURE = [
   "Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Supawood Top","Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Saligna Top","Single Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Melamine Top",
   "Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Supawood Top","Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Saligna Top","Double Learner Desk – Size 2 (Grade 1–3, seat 310mm) – Melamine Top",
   "Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Supawood Top","Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Saligna Top","Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",
+  "Double Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Supawood Top","Double Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Saligna Top","Double Learner Desk – Size 4 (Grade 7–9 Senior Phase, seat 380mm) – Melamine Top",
+  "Double Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Supawood Top","Double Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Saligna Top","Double Learner Desk – Size 5 (Grade 10–12 FET Phase, seat 430mm) – Melamine Top",
   "Single Combination Desk & Chair – Size 3 (Grade 4–6) – Supawood Top","Single Combination Desk & Chair – Size 3 (Grade 4–6) – Saligna Top","Single Combination Desk & Chair – Size 3 (Grade 4–6) – Melamine Top",
   "Single Combination Desk & Chair – Size 4 (Grade 7–9) – Supawood Top","Single Combination Desk & Chair – Size 4 (Grade 7–9) – Saligna Top","Single Combination Desk & Chair – Size 4 (Grade 7–9) – Melamine Top",
   "Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Supawood Top","Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Saligna Top","Single Combination Desk & Chair – Size 5 (Grade 10–12 FET) – Melamine Top",
@@ -95,8 +97,9 @@ const initRepairs      = [
 ];
 const initStorage      = [{id:1,schoolId:1,room:"Store 1",condition:"Fair",secure:"Yes",storedType:"Old Desks",qty:20,usable:"No",desc:"Old damaged desks"}];
 const initDistribution = [
-  {id:1,recipientType:"School",schoolId:1,district:"",circuit:"",destination:"Warehouse",source:"School",items:[{ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:10}],official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
-  {id:2,recipientType:"District Office",schoolId:"",district:"FRANCES BAARD",circuit:"",destination:"Frances Baard District Office storeroom",source:"Warehouse",items:[{ftype:"Teacher's Desk (Single Pedestal)",otherType:"",qty:15},{ftype:"Teacher's Chair (Typist)",otherType:"",qty:15}],official:"S. Dlamini",position:"Store Manager",receiver:"M. Kok",role:"District Asset Officer",date:"2026-05-02",purpose:"Delivery",ref:"REF-002",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
+  {id:1,recipientType:"School",schoolId:1,district:"",circuit:"",destination:"Warehouse",source:"School",items:[{ftype:"Double Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:10}],official:"T. Mokoena",position:"Principal",receiver:"S. Dlamini",role:"Store Manager",date:"2024-04-05",purpose:"Repair",ref:"REF-001",comments:"",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
+  {id:2,recipientType:"District Office",schoolId:"",district:"FRANCES BAARD",circuit:"",destination:"Frances Baard District Office storeroom",source:"Warehouse",items:[{ftype:"Teacher's Desk (Single Pedestal)",otherType:"",qty:15},{ftype:"Teacher's Chair (Typist)",otherType:"",qty:15}],official:"S. Dlamini",position:"Store Manager",receiver:"M. Kok",role:"District Asset Officer",date:"2026-05-02",purpose:"Delivery",ref:"REF-002",comments:"",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
+  {id:3,recipientType:"School",schoolId:1,district:"",circuit:"",destination:"Soweto Primary School",source:"Warehouse",items:[{ftype:"Other",otherType:"Donated school shoes",qty:150}],official:"S. Dlamini",position:"Store Manager",receiver:"T. Mokoena",role:"Principal",date:"2026-05-20",purpose:"Delivery",ref:"REF-003",comments:"Donated by Hope for Schools Foundation — 150 pairs handed over to the principal, sizes 1–7 assorted",sigOfficial:"",sigReceiver:"",proofName:"",proofData:""},
 ];
 const initConditions   = [{id:1,classroomId:1,flooring:"Fair",flooringIssues:"Cracks",windows:"Poor",windowIssues:"Broken",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]}];
 const initWarehouse    = [
@@ -554,8 +557,8 @@ function StorageForm({schools,onSave,onClose}) {
 function DistributionForm({schools,initial,onSave,onClose}) {
   const emptyItem=()=>({ftype:"",otherType:"",qty:""});
   // Migrate pre-existing records saved before multi-item support (single desc/qty, no items array).
-  const withMigratedItems=rec=>rec?{...rec,recipientType:rec.recipientType||"School",items:(rec.items&&rec.items.length)?rec.items:[{ftype:rec.desc||"",otherType:"",qty:rec.qty||""}]}:null;
-  const [f,setF]=useState(withMigratedItems(initial)||{recipientType:"School",schoolId:"",district:"",circuit:"",destination:"",source:"",purpose:"Delivery",items:[emptyItem()],official:"",position:"",receiver:"",role:"",date:"",ref:"",proofName:"",proofData:"",sigOfficial:"",sigReceiver:""});
+  const withMigratedItems=rec=>rec?{...rec,recipientType:rec.recipientType||"School",comments:rec.comments||"",items:(rec.items&&rec.items.length)?rec.items:[{ftype:rec.desc||"",otherType:"",qty:rec.qty||""}]}:null;
+  const [f,setF]=useState(withMigratedItems(initial)||{recipientType:"School",schoolId:"",district:"",circuit:"",destination:"",source:"",purpose:"Delivery",items:[emptyItem()],official:"",position:"",receiver:"",role:"",date:"",ref:"",comments:"",proofName:"",proofData:"",sigOfficial:"",sigReceiver:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const onRecipientTypeChange=e=>{const t=e.target.value;setF(p=>({...p,recipientType:t,schoolId:t==="School"?p.schoolId:"",district:t==="School"?"":p.district,circuit:t==="Circuit Office"?p.circuit:""}));};
@@ -604,6 +607,7 @@ function DistributionForm({schools,initial,onSave,onClose}) {
       <Row2><Field label="Receiving person"><input style={inp} value={f.receiver} onChange={s("receiver")}/></Field><Field label="Receiving role"><input style={inp} value={f.role} onChange={s("role")}/></Field></Row2>
       <Row2><Field label="Date *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Reference number"><input style={inp} value={f.ref} onChange={s("ref")}/></Field></Row2>
       <Field label="Proof of delivery"><input type="file" accept="application/pdf,image/*" onChange={handleProof} style={inp}/>{f.proofName&&<div style={{marginTop:6,fontSize:12,color:"#4B5563"}}>Selected: {f.proofName}</div>}</Field>
+      <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={f.comments} onChange={s("comments")} placeholder="e.g. details on non-furniture items like donated shoes, stationery, blankets"/></Field>
       <div style={{borderTop:"1px solid #F3F4F6",margin:"1rem 0 0.75rem",paddingTop:"0.75rem"}}><p style={{fontSize:12,fontWeight:600,color:"#374151",margin:"0 0 0.75rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Signatures</p><Field label={`Dispatching official${f.official?" — "+f.official:""}`}><SignaturePad value={f.sigOfficial} onChange={v=>setF(p=>({...p,sigOfficial:v}))}/></Field><Field label={`Receiving person${f.receiver?" — "+f.receiver:""}`}><SignaturePad value={f.sigReceiver} onChange={v=>setF(p=>({...p,sigReceiver:v}))}/></Field></div>
     </Modal>
   );
@@ -1092,13 +1096,13 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     })},
     {label:"Warehouse",desc:"Furniture deliveries & donated items",icon:"🏭",file:"warehouse.csv",cols:["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"],rows:warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",w.category==="Other / Donated Item"?w.itemName:w.ftype,w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])},
     {label:"Storage",desc:"Storage room records",icon:"📦",file:"storage.csv",cols:["School","Room","Condition","Secure","Stored Type","Qty","Usable"],rows:storage.map(r=>{const sc=schools.find(s=>s.id==r.schoolId);return[sc?.name||"",r.room,r.condition,r.secure,r.storedType,r.qty,r.usable];})},
-    {label:"Distribution",desc:"Delivery and collection",icon:"🚚",file:"distribution.csv",cols:["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"],rows:distribution.map(r=>{
+    {label:"Distribution",desc:"Delivery and collection",icon:"🚚",file:"distribution.csv",cols:["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Comments","Official Signed","Receiver Signed"],rows:distribution.map(r=>{
       const recipientType=r.recipientType||"School";
       const recipient=recipientType==="District Office"?`${r.district||"—"} District Office`:recipientType==="Circuit Office"?`${r.circuit||"—"} Circuit Office${r.district?` (${r.district})`:""}`:(schools.find(s=>s.id==r.schoolId)?.name||"");
       const items=(r.items&&r.items.length?r.items:[{ftype:r.ftype||r.desc||"",otherType:"",qty:r.qty||0}]).filter(it=>it.ftype||it.qty);
       const itemsLabel=items.map(it=>`${it.ftype==="Other"?(it.otherType||"Other"):(it.ftype||"—")} × ${it.qty||0}`).join(", ")||"—";
       const totalQty=items.reduce((a,it)=>a+Number(it.qty||0),0);
-      return[recipientType,recipient,r.purpose,itemsLabel,totalQty,r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"];
+      return[recipientType,recipient,r.purpose,itemsLabel,totalQty,r.destination,r.official,r.date,r.ref,r.comments||"",r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"];
     })},
     {label:"Capacity Analysis",desc:"Capacity vs enrolment",icon:"📐",file:"capacity.csv",cols:["School","EMIS","Enrolment","Capacity","With Mobiles","Utilisation %","Overcapacity"],rows:schools.filter(s=>s.capacity).map(s=>{const mob=Number(s.capacity)+Number(s.mobiles)*Number(s.mobileCap);const pct=Math.round((Number(s.enrolment)/Number(s.capacity))*100);return[s.name,s.emis,s.enrolment,s.capacity,mob,pct,Number(s.enrolment)>Number(s.capacity)?"Yes":"No"];})},
     {label:"Ratio Analysis",desc:"Teacher/learner ratios",icon:"👩‍🏫",file:"ratio.csv",cols:["School","EMIS","Enrolment","Teachers","Ratio","Status"],rows:schools.map(s=>{const r=s.teachers&&s.enrolment?Math.round(Number(s.enrolment)/Number(s.teachers)):null;return[s.name,s.emis,s.enrolment,s.teachers,r?`1:${r}`:"",!r?"No data":r<=30?"Good":r<=40?"Acceptable":"Overcrowded"];})},
@@ -1623,12 +1627,13 @@ function App(){
       };
       return (
       <div>
-        <SectionHeader title="Distribution" onAdd={openAddDistribution} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Official Signed","Receiver Signed"]} rows={distribution.map(r=>[r.recipientType||"School",recipientLabel(r),r.purpose,itemsLabel(r),totalQty(r),r.destination,r.official,r.date,r.ref,r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"])}/>}/>
+        <SectionHeader title="Distribution" onAdd={openAddDistribution} extra={<ExportBtn label="CSV" filename="distribution.csv" cols={["Recipient Type","Recipient","Purpose","Items","Total Qty","Destination","Official","Date","Ref","Comments","Official Signed","Receiver Signed"]} rows={distribution.map(r=>[r.recipientType||"School",recipientLabel(r),r.purpose,itemsLabel(r),totalQty(r),r.destination,r.official,r.date,r.ref,r.comments||"",r.sigOfficial?"Yes":"No",r.sigReceiver?"Yes":"No"])}/>}/>
         <Card>
-          <DataTable cols={["Recipient","Purpose","Items","Total Qty","Official","Date","Ref","Proof","Signatures","Actions"]} rows={distribution}
+          <DataTable cols={["Recipient","Purpose","Items","Total Qty","Official","Date","Ref","Comments","Proof","Signatures","Actions"]} rows={distribution}
             renderRow={r=>{const sigs=[r.sigOfficial,r.sigReceiver].filter(Boolean);const t=r.recipientType||"School";return[
               <span>{recipientLabel(r)}{t!=="School"?<span style={{display:"block",fontSize:10,color:"#7C3AED",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.03em"}}>{t}</span>:""}</span>,
               r.purpose,<span style={{fontSize:12,color:"#374151"}}>{itemsLabel(r)}</span>,totalQty(r),r.official,r.date,r.ref,
+              <span style={{fontSize:12,color:"#6B7280"}}>{r.comments||"—"}</span>,
               r.proofData?<a href={r.proofData} target="_blank" rel="noreferrer" style={{color:"#2563EB",textDecoration:"underline",fontSize:12}}>{r.proofName||"View proof"}</a>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>,
               sigs.length>0?<div style={{display:"flex",gap:4}}>{sigs.map((sig,i)=><a key={i} href={sig} target="_blank" rel="noreferrer"><img src={sig} alt="" style={{height:32,width:80,objectFit:"contain",border:"1px solid #E5E7EB",borderRadius:4,background:"#F9FAFB",cursor:"pointer"}}/></a>)}</div>:<span style={{color:"#9CA3AF",fontSize:12}}>—</span>,
               <div style={{display:"flex",gap:6}}><button onClick={()=>openEditDistribution(r)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteDistribution(r)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
