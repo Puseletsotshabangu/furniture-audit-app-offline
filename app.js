@@ -51,7 +51,7 @@ const DBE_FURNITURE = [
   "Penny 4 Plastic Chair – Size 4 (Grade 7–9, seat height 380mm)","Penny 4 Plastic Chair – Size 5 (Grade 10–12 FET, seat height 430mm)",
   "Utility Chair – Size 3 (Grade 4–6, steel frame)","Utility Chair – Size 4 (Grade 7–9, steel frame)","Utility Chair – Size 5 (Grade 10–12, steel frame)",
   "ECD Activity Table – Grade R (Height 460mm)","ECD Stackable Chair – Grade R (Seat height 260mm)",
-  "Teacher's Desk (Single Pedestal)","Teacher's Desk (Double Pedestal)","Teacher's Chair (Typist)","Teacher's Chair (Visitor)",
+  "Teacher's Desk (Single Pedestal)","Teacher's Desk (Double Pedestal)","Teacher's Chair (Typist)","Teacher's Chair (Visitor)","Teacher's Chair (Wood)",
   "Teacher's Cupboard – Steel (Double Door)","Teacher's Cupboard – Steel (Single Door)","Teacher's Bookcase (Open Shelf)","Teacher's Bookcase (Glazed Door)","Teacher's Table (Rectangular)",
   "Teacher's Locker (Single Door)","Teacher's Locker (Double Door)","Stationery Cupboard","Map/Chart Cabinet",
   "Principal's Desk (Double Pedestal)","Principal's Chair (High Back)","Principal's Visitor Chair","Principal's Credenza","Principal's Bookcase",
@@ -612,8 +612,9 @@ function DistributionForm({schools,initial,onSave,onClose}) {
     </Modal>
   );
 }
-function WarehouseForm({onSave,onClose}) {
-  const [f,setF]=useState({date:"",supplier:"",category:"Furniture",ftype:"",itemName:"",spec:"",qty:"",condition:"Good",receivedBy:"",ref:"",status:"In Stock",comments:""});
+function WarehouseForm({initial,onSave,onClose}) {
+  const normInitial = initial ? {date:initial.date||"",supplier:initial.supplier||"",category:initial.category||"Furniture",ftype:initial.ftype||"",itemName:initial.itemName||"",spec:initial.spec||"",qty:initial.qty??"",condition:initial.condition||"Good",receivedBy:initial.receivedBy||"",ref:initial.ref||"",status:initial.status||"In Stock",comments:initial.comments||initial.notes||"",id:initial.id} : null;
+  const [f,setF]=useState(normInitial||{date:"",supplier:"",category:"Furniture",ftype:"",itemName:"",spec:"",qty:"",condition:"Good",receivedBy:"",ref:"",status:"In Stock",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const validate=d=>({
@@ -628,7 +629,7 @@ function WarehouseForm({onSave,onClose}) {
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="Log warehouse delivery" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title={initial?"Edit warehouse record":"Log warehouse delivery"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="Date received *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Supplier"><input style={inp} value={f.supplier} onChange={s("supplier")}/></Field></Row2>
       <Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Furniture","Other / Donated Item"].map(v=><option key={v}>{v}</option>)}</select></Field>
       {f.category==="Furniture"
@@ -1309,6 +1310,7 @@ function App(){
   const [editingSchool,  setEditingSchool]  = useState(null);
   const [editingDistribution, setEditingDistribution] = useState(null);
   const [editingRepair, setEditingRepair] = useState(null);
+  const [editingWarehouse, setEditingWarehouse] = useState(null);
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
   const openAddSchool  = () => { setEditingSchool(null); setModal("school"); };
@@ -1360,6 +1362,20 @@ function App(){
     if (typeof window !== "undefined" && !window.confirm(`Delete this repair record? This cannot be undone.`)) return;
     repairsM.deleteOne(r.id);
     showToast(`✓ Repair record deleted.`);
+  };
+  const openAddWarehouse  = () => { setEditingWarehouse(null); setModal("warehouse"); };
+  const openEditWarehouse = w => { setEditingWarehouse(w); setModal("warehouse"); };
+  const saveWarehouse = data => {
+    if (data.id != null) warehouseM.updateOne(data.id, data);
+    else warehouseM.addOne(data);
+    setModal(null);
+    setEditingWarehouse(null);
+    showToast(`✓ Warehouse record ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteWarehouse = w => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete this warehouse record? This cannot be undone.`)) return;
+    warehouseM.deleteOne(w.id);
+    showToast(`✓ Warehouse record deleted.`);
   };
   const saveSchool = data => {
     if (data.id != null) schoolsM.updateOne(data.id, data);
@@ -1571,12 +1587,36 @@ function App(){
       };
       const itemsLabel = c => c.items.map(it=>`${it.ftype||"—"} × ${it.qty||0}`).join(", ")||"—";
       const totalQty = c => c.items.reduce((a,it)=>a+Number(it.qty||0),0);
+      const furnitureSummary = (() => {
+        const totals = {};
+        repairs.forEach(r=>{
+          resolveRepair(r).items.forEach(it=>{
+            const key = it.ftype||"—";
+            if (!totals[key]) totals[key] = {ftype:key,records:0,qty:0};
+            totals[key].records += 1;
+            totals[key].qty += Number(it.qty||0);
+          });
+        });
+        return Object.values(totals).sort((a,b)=>b.qty-a.qty);
+      })();
+      const grandTotalQty = furnitureSummary.reduce((a,f)=>a+f.qty,0);
       return (
       <div>
         <SectionHeader title="Repairs & refurbishment" onAdd={openAddRepair} extra={<ExportBtn label="CSV" filename="repairs.csv" cols={["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Allocated","Completed","Comments"]} rows={repairs.map(r=>{const c=resolveRepair(r);return[c.schoolName,c.emis,itemsLabel(c),totalQty(c),r.repairType,r.destination,r.status,r.dateCollected||"",r.allocated,r.completed||"",r.comments||""];})}/>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           {["Completed","In Progress","Pending"].map(st=><StatCard key={st} label={st} value={repairs.filter(r=>r.status===st).length} color={st==="Completed"?"#059669":st==="In Progress"?"#2563EB":"#D97706"}/>)}
         </div>
+        <Card style={{marginBottom:"1.5rem"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+            <h3 style={{fontSize:14,fontWeight:600,margin:0,color:"#111827"}}>Summary by furniture type</h3>
+            <div style={{display:"flex",gap:16,alignItems:"center"}}>
+              <span style={{fontSize:12,color:"#6B7280"}}>{furnitureSummary.length} furniture type{furnitureSummary.length!==1?"s":""}</span>
+              <span style={{fontSize:12,color:"#6B7280"}}>Total items: <strong style={{color:"#111827"}}>{grandTotalQty}</strong></span>
+              <ExportBtn label="CSV" filename="repairs_summary_by_furniture_type.csv" cols={["Furniture Type","Records","Total Qty"]} rows={furnitureSummary.map(f=>[f.ftype,f.records,f.qty])}/>
+            </div>
+          </div>
+          <DataTable cols={["Furniture Type","Records","Total Qty"]} rows={furnitureSummary} renderRow={f=>[f.ftype,f.records,f.qty]}/>
+        </Card>
         <Card>
           <DataTable cols={["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Completed","Comments","Actions"]} rows={repairs}
             renderRow={r=>{const c=resolveRepair(r);return[
@@ -1594,15 +1634,17 @@ function App(){
       const whItemName = w => w.category==="Other / Donated Item" ? (w.itemName||"Other item") : (w.ftype||"—");
       return (
       <div>
-        <SectionHeader title="Warehouse — furniture & donated items" onAdd={()=>setModal("warehouse")} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"]} rows={warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",whItemName(w),w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])}/>}/>
+        <SectionHeader title="Warehouse — furniture & donated items" onAdd={openAddWarehouse} extra={<ExportBtn label="CSV" filename="warehouse.csv" cols={["Date","Supplier","Category","Item","Qty","Condition","Ref","Status","Comments"]} rows={warehouse.map(w=>[w.date,w.supplier,w.category||"Furniture",whItemName(w),w.qty,w.condition,w.ref,w.status,w.comments||w.notes||""])}/>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:12,marginBottom:"1.5rem"}}>
           <StatCard label="In stock"   value={warehouse.filter(w=>w.status==="In Stock").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#059669"/>
           <StatCard label="Reserved"   value={warehouse.filter(w=>w.status==="Reserved").reduce((a,w)=>a+Number(w.qty||0),0)}   color="#D97706"/>
           <StatCard label="Dispatched" value={warehouse.filter(w=>w.status==="Dispatched").reduce((a,w)=>a+Number(w.qty||0),0)} color="#2563EB"/>
         </div>
         <Card>
-          <DataTable cols={["Date","Supplier","Category","Item","Qty","Condition","Received by","Ref","Status","Comments"]} rows={warehouse}
-            renderRow={w=>[w.date,w.supplier,<span style={{fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:999,whiteSpace:"nowrap",background:w.category==="Other / Donated Item"?"#F5F3FF":"#EFF6FF",color:w.category==="Other / Donated Item"?"#5B21B6":"#1E40AF"}}>{w.category||"Furniture"}</span>,whItemName(w),w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.comments||w.notes||""}</span>]}/>
+          <DataTable cols={["Date","Supplier","Category","Item","Qty","Condition","Received by","Ref","Status","Comments","Actions"]} rows={warehouse}
+            renderRow={w=>[w.date,w.supplier,<span style={{fontSize:11,fontWeight:600,padding:"2px 8px",borderRadius:999,whiteSpace:"nowrap",background:w.category==="Other / Donated Item"?"#F5F3FF":"#EFF6FF",color:w.category==="Other / Donated Item"?"#5B21B6":"#1E40AF"}}>{w.category||"Furniture"}</span>,whItemName(w),w.qty,<Badge val={w.condition}/>,w.receivedBy,w.ref,<Badge val={w.status}/>,<span style={{fontSize:12,color:"#6B7280"}}>{w.comments||w.notes||""}</span>,
+              <div style={{display:"flex",gap:6}}><button onClick={()=>openEditWarehouse(w)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteWarehouse(w)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
+            ]}/>
         </Card>
       </div>
     );}
@@ -1803,7 +1845,7 @@ function App(){
       {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
       {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
       {modal==="repair"       && <RepairForm        schools={schools} initial={editingRepair} onClose={()=>{setModal(null);setEditingRepair(null);}} onSave={saveRepair}/>}
-      {modal==="warehouse"    && <WarehouseForm                               onClose={()=>setModal(null)} onSave={add(warehouseM)}/>}
+      {modal==="warehouse"    && <WarehouseForm     initial={editingWarehouse}  onClose={()=>{setModal(null);setEditingWarehouse(null);}} onSave={saveWarehouse}/>}
       {modal==="storage"      && <StorageForm       schools={schools}          onClose={()=>setModal(null)} onSave={add(storageM)}/>}
       {modal==="distribution" && <DistributionForm  schools={schools} initial={editingDistribution} onClose={()=>{setModal(null);setEditingDistribution(null);}} onSave={saveDistribution}/>}
       {modal==="upload"       && <UploadForm                                   onClose={()=>setModal(null)} onSave={add(uploadsM)}/>}
