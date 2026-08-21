@@ -90,7 +90,7 @@ const S = (id,name,emis,province,district,capacity,mobiles,mobileCap,enrolment,t
 const initSchools      = [S(1,"Soweto Primary School","700112345","Gauteng","Johannesburg South",980,4,35,1200,32,"High"),S(2,"Pretoria North High","700223456","Gauteng","Tshwane North",900,2,35,850,28,"Low"),S(3,"Alexandra Combined","700334567","Gauteng","Johannesburg East",950,3,35,1050,30,"Medium")];
 const initAudits       = [{id:1,schoolId:1,year:2024,date:"2024-03-15",risk:"High",capWith:1120,capWithout:980,overcapacity:"Yes",recommendations:"Urgent furniture replacement needed",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""},{id:2,schoolId:2,year:2024,date:"2024-04-02",risk:"Low",capWith:970,capWithout:900,overcapacity:"No",recommendations:"Minor repairs to lab furniture",comments:"",hallAvailable:"Yes",hallCondition:"Good",hallCapacity:"300",hallUsage:"Assemblies",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"Yes",hallIssues:"",hallNotes:""},{id:3,schoolId:3,year:2024,date:"2024-05-10",risk:"Medium",capWith:1055,capWithout:950,overcapacity:"Yes",recommendations:"Mobile classroom upgrade required",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""}];
 const initClassrooms   = [{id:1,schoolId:1,room:"1A",type:"Classroom",grade:"4",spec:"4E1",learners:42,isMobile:"No"},{id:2,schoolId:2,room:"Lab 1",type:"Lab",grade:"11",spec:"Science",learners:30,isMobile:"No"}];
-const initFurniture    = [{id:1,classroomId:1,schoolId:1,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",spec:"Grade 4–6",chairType:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",available:30,damaged:8,repairable:5,otherType:"",otherQty:0,condition:"Fair",photoName:"",photoData:""},{id:2,classroomId:2,schoolId:2,category:"Specialised",ftype:"Science Lab Table",spec:"Science Lab",chairType:"Lab Stool",available:20,damaged:3,repairable:3,otherType:"",otherQty:0,condition:"Good",photoName:"",photoData:""}];
+const initFurniture    = [{id:1,classroomId:1,schoolId:1,category:"Learner",ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",spec:"Grade 4–6",chairType:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",available:30,damaged:8,repairable:5,shortage:6,otherType:"",otherQty:0,condition:"Fair",photoName:"",photoData:""},{id:2,classroomId:2,schoolId:2,category:"Specialised",ftype:"Science Lab Table",spec:"Science Lab",chairType:"Lab Stool",available:20,damaged:3,repairable:3,shortage:0,otherType:"",otherQty:0,condition:"Good",photoName:"",photoData:""}];
 const initRepairs      = [
   {id:1,schoolId:1,emis:"700112345",items:[{ftype:"Single Learner Desk – Size 3 (Grade 4–6, seat 350mm) – Melamine Top",otherType:"",qty:5},{ftype:"Penny 1 Plastic Chair – Size 3 (Grade 4–6, seat height 350mm)",otherType:"",qty:8}],repairType:"Minor",destination:"Warehouse",status:"Completed",dateCollected:"2024-03-18",allocated:"2024-03-20",completed:"2024-04-01",comments:"Cracked tops and broken chair frames, collected for refurbishment"},
   {id:2,schoolId:2,emis:"700223456",items:[{ftype:"Science Lab Table",otherType:"",qty:3}],repairType:"Major",destination:"Labour Dept",status:"In Progress",dateCollected:"2024-04-08",allocated:"2024-04-10",completed:"",comments:"Broken legs, sent to Labour Dept for structural repair"},
@@ -437,7 +437,7 @@ function ClassroomForm({schools,onSave,onClose}) {
   );
 }
 function FurnitureForm({classrooms,schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
+  const [f,setF]=useState({schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",shortage:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const filteredClassrooms=classrooms.filter(c=>!f.schoolId||c.schoolId.toString()===f.schoolId);
@@ -457,7 +457,7 @@ function FurnitureForm({classrooms,schools,onSave,onClose}) {
       <Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field></Row2>
       <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Available *"><input style={eI("available")} type="number" value={f.available} onChange={s("available")}/></Field></Row2>
       <Row3><Field label="Damaged"><input style={inp} type="number" value={f.damaged} onChange={s("damaged")}/></Field><Field label="Repairable"><input style={inp} type="number" value={f.repairable} onChange={s("repairable")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
-      <Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field>
+      <Row2><Field label="Shortage (additional units needed)"><input style={inp} type="number" value={f.shortage} onChange={s("shortage")}/></Field><Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field></Row2>
       <Field label="Photo evidence">{f.photoData?<div style={{display:"flex",alignItems:"flex-start",gap:12,marginTop:4}}><a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="preview" style={{width:80,height:80,objectFit:"cover",borderRadius:8,border:"1px solid #D1D5DB",cursor:"pointer"}}/></a><div><p style={{fontSize:12,color:"#4B5563",margin:"0 0 6px"}}>{f.photoName}</p><button type="button" onClick={()=>setF(p=>({...p,photoName:"",photoData:""}))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer",padding:0}}>✕ Remove</button></div></div>:<label style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:4,padding:"7px 14px",borderRadius:8,border:"1.5px dashed #9CA3AF",background:"#F9FAFB",color:"#374151",fontSize:12,cursor:"pointer"}}>📷 Take / choose photo<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/></label>}</Field>
     </Modal>
   );
@@ -652,6 +652,7 @@ function FurnitureSummaryPage({schools,classrooms,furniture}){
     const available  = rows.reduce((a,f)=>a+Number(f.available||0),0);
     const damaged     = rows.reduce((a,f)=>a+Number(f.damaged||0),0);
     const repairable  = rows.reduce((a,f)=>a+Number(f.repairable||0),0);
+    const shortage    = rows.reduce((a,f)=>a+Number(f.shortage||0),0);
     const good        = rows.filter(f=>f.condition==="Good").reduce((a,f)=>a+Number(f.available||0),0);
     const fair        = rows.filter(f=>f.condition==="Fair").reduce((a,f)=>a+Number(f.available||0),0);
     const poor        = rows.filter(f=>f.condition==="Poor").reduce((a,f)=>a+Number(f.available||0),0);
@@ -660,28 +661,31 @@ function FurnitureSummaryPage({schools,classrooms,furniture}){
     const byType = {};
     rows.forEach(f=>{
       const key=(f.ftype==="Other"?f.otherType:f.ftype)||"Unspecified";
-      if(!byType[key]) byType[key]={category:f.category||"—",available:0,damaged:0,repairable:0,condition:f.condition};
+      if(!byType[key]) byType[key]={category:f.category||"—",available:0,damaged:0,repairable:0,shortage:0,condition:f.condition};
       byType[key].available+=Number(f.available||0);
       byType[key].damaged+=Number(f.damaged||0);
       byType[key].repairable+=Number(f.repairable||0);
+      byType[key].shortage+=Number(f.shortage||0);
     });
     const typeRows = Object.entries(byType).map(([ftype,v])=>({ftype,...v})).sort((a,b)=>b.available-a.available);
-    return {school:s,rows,available,damaged,repairable,total:available+damaged,good,fair,poor,byCategory,typeRows};
+    return {school:s,rows,available,damaged,repairable,shortage,total:available+damaged,good,fair,poor,byCategory,typeRows};
   }),[schools,furniture,classrooms]);
   const grandAvailable = summary.reduce((a,s)=>a+s.available,0);
   const grandDamaged   = summary.reduce((a,s)=>a+s.damaged,0);
   const grandRepairable= summary.reduce((a,s)=>a+s.repairable,0);
+  const grandShortage  = summary.reduce((a,s)=>a+s.shortage,0);
   const schoolsWithData = summary.filter(s=>s.rows.length>0).length;
-  const masterCols=["School","EMIS","District","Distinct Types","Available","Damaged","Repairable","Good Condition","Fair Condition","Poor Condition"];
-  const masterRows=summary.map(s=>[s.school.name,s.school.emis,s.school.district,s.typeRows.length,s.available,s.damaged,s.repairable,s.good,s.fair,s.poor]);
+  const masterCols=["School","EMIS","District","Distinct Types","Available","Damaged","Repairable","Shortage","Good Condition","Fair Condition","Poor Condition"];
+  const masterRows=summary.map(s=>[s.school.name,s.school.emis,s.school.district,s.typeRows.length,s.available,s.damaged,s.repairable,s.shortage,s.good,s.fair,s.poor]);
   return (
     <div>
       <SectionHeader title="Furniture Summary — Per School" extra={<ExportBtn label="CSV (all schools)" filename="furniture_summary_per_school.csv" cols={masterCols} rows={masterRows}/>}/>
-      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:"1.25rem"}}>
         <StatCard label="Schools with furniture data" value={schoolsWithData} sub={`of ${schools.length} schools`} color="#2563EB"/>
         <StatCard label="Total available"             value={grandAvailable} sub="Across all schools"          color="#059669"/>
         <StatCard label="Total damaged"                value={grandDamaged}   sub="Needs attention"             color="#DC2626"/>
         <StatCard label="Total repairable"             value={grandRepairable} sub="Can be salvaged"            color="#D97706"/>
+        <StatCard label="Total shortage"               value={grandShortage}  sub="Additional units needed"     color="#DC2626"/>
       </div>
       {schools.length===0&&<Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No schools registered yet.</p></Card>}
       <div style={{display:"grid",gap:"1rem"}}>
@@ -692,17 +696,17 @@ function FurnitureSummaryPage({schools,classrooms,furniture}){
                 <p style={{fontWeight:600,fontSize:15,margin:"0 0 2px",color:"#111827"}}>{s.school.name}</p>
                 <p style={{fontSize:12,color:"#6B7280",margin:0}}>EMIS: {s.school.emis||"—"} · {s.school.district||"—"}{s.school.circuit?` · Circuit: ${s.school.circuit}`:""}</p>
               </div>
-              {s.rows.length>0&&<ExportBtn label="CSV" filename={`furniture_${(s.school.name||"school").replace(/[^a-z0-9]+/gi,"_")}.csv`} cols={["Category","Furniture type","Available","Damaged","Repairable"]} rows={s.typeRows.map(t=>[t.category,t.ftype,t.available,t.damaged,t.repairable])}/>}
+              {s.rows.length>0&&<ExportBtn label="CSV" filename={`furniture_${(s.school.name||"school").replace(/[^a-z0-9]+/gi,"_")}.csv`} cols={["Category","Furniture type","Available","Damaged","Repairable","Shortage"]} rows={s.typeRows.map(t=>[t.category,t.ftype,t.available,t.damaged,t.repairable,t.shortage])}/>}
             </div>
             {s.rows.length===0?<p style={{fontSize:13,color:"#9CA3AF",margin:0}}>No furniture captured for this school yet.</p>:(
               <>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:10,marginBottom:14}}>
-                  {[["Available",s.available,"#059669"],["Damaged",s.damaged,"#DC2626"],["Repairable",s.repairable,"#D97706"],["Distinct types",s.typeRows.length,"#2563EB"]].map(([l,v,c])=>(
+                <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:10,marginBottom:14}}>
+                  {[["Available",s.available,"#059669"],["Damaged",s.damaged,"#DC2626"],["Repairable",s.repairable,"#D97706"],["Shortage",s.shortage,"#DC2626"],["Distinct types",s.typeRows.length,"#2563EB"]].map(([l,v,c])=>(
                     <div key={l} style={{background:"#F9FAFB",borderRadius:8,padding:"10px 14px"}}><p style={{fontSize:11,color:"#6B7280",margin:"0 0 4px"}}>{l}</p><p style={{fontSize:20,fontWeight:600,margin:0,color:c}}>{v}</p></div>
                   ))}
                 </div>
-                <DataTable cols={["Category","Furniture type","Available","Damaged","Repairable"]} rows={s.typeRows}
-                  renderRow={t=>[t.category,t.ftype,t.available,t.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{t.damaged}</span>:t.damaged,t.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{t.repairable}</span>:t.repairable]}/>
+                <DataTable cols={["Category","Furniture type","Available","Damaged","Repairable","Shortage"]} rows={s.typeRows}
+                  renderRow={t=>[t.category,t.ftype,t.available,t.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{t.damaged}</span>:t.damaged,t.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{t.repairable}</span>:t.repairable,t.shortage>0?<span style={{color:"#DC2626",fontWeight:600}}>{t.shortage}</span>:t.shortage]}/>
               </>
             )}
           </Card>
@@ -747,7 +751,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     showToast(`✓ Pre-filled from EMIS: ${emisMatch.name}`);
   };
   const [audit,setAudit]=useState({year:new Date().getFullYear(),date:new Date().toISOString().slice(0,10),risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
-  const emptyFurnItem=()=>({ftype:"",otherType:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"});
+  const emptyFurnItem=()=>({ftype:"",otherType:"",category:"Learner",available:"",damaged:"",repairable:"",shortage:"",condition:"Good"});
   const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()]}]);
   const [condRow,setCondRow]=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
   const [repairRows,setRepairRows]=useState([{furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""}]);
@@ -760,7 +764,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     const auditRecord={...audit,schoolId,id:uid()};
     const roomRows=clsRows.filter(r=>r.room);
     const classroomRecords=roomRows.map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile,inUse:r.inUse||"Yes",comments:r.inUse==="No"?(r.comments||""):""}));
-    const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,otherType:it.otherType||"",category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
+    const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,otherType:it.otherType||"",category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,shortage:it.shortage||"",condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
     const condRecord=condRow.flooring?{...condRow,id:uid(),classroomId:classroomRecords[0]?.id||""}:null;
     const repairRecords=repairRows.filter(r=>r.furnitureId&&r.qty).map(r=>({...r,id:uid()}));
     onSaveAll({school,audit:auditRecord,classrooms:classroomRecords,furniture:furnitureRecords,condition:condRecord,repairs:repairRecords});
@@ -864,6 +868,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                       <Field label="Repairable"><input style={inp} type="number" value={item.repairable} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,repairable:e.target.value}:it)}:r))}/></Field>
                       <Field label="Condition"><select style={sel} value={item.condition} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,condition:e.target.value}:it)}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
                     </Row3>
+                    <Field label="Shortage (additional units needed for this classroom)"><input style={inp} type="number" value={item.shortage||""} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,shortage:e.target.value}:it)}:r))} placeholder="e.g. 5"/></Field>
                   </div>
                 ))}
                 <button onClick={()=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:[...(r.furnitureItems||[]),emptyFurnItem()]}:r))} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>
@@ -1086,7 +1091,7 @@ function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,ware
     {label:"Schools",desc:"All audit school records",icon:"🏫",file:"schools.csv",cols:["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"],rows:schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])},
     {label:"Audits",desc:"All school audit records",icon:"📋",file:"audits.csv",cols:["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Hall Capacity","Recommendations"],rows:audits.map(a=>{const sc=schools.find(s=>s.id==a.schoolId);return[sc?.name||"",a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.hallCapacity||"",a.recommendations];})},
     {label:"Classrooms",desc:"All classroom records",icon:"🚪",file:"classrooms.csv",cols:["School","Room","Type","Grade","Spec","Learners","Mobile"],rows:classrooms.map(c=>{const sc=schools.find(s=>s.id==c.schoolId);return[sc?.name||"",c.room,c.type,c.grade,c.spec,c.learners,c.isMobile];})},
-    {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.condition];})},
+    {label:"Furniture",desc:"All furniture items",icon:"🪑",file:"furniture.csv",cols:["School","Room","Category","Type","Available","Damaged","Repairable","Shortage","Condition"],rows:furniture.map(f=>{const cl=classrooms.find(c=>c.id==f.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId)||schools.find(s=>s.id==f.schoolId);return[sc?.name||"",cl?.room||"",f.category,f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,f.condition];})},
     {label:"Mobile Conditional Assessment",desc:"Infrastructure & mobile classroom assessments",icon:"🔍",file:"conditions.csv",cols:["School","Room","Flooring","Issues","Windows","Electricity","Locks"],rows:conditions.map(c=>{const cl=classrooms.find(r=>r.id==c.classroomId);const sc=schools.find(s=>s.id==cl?.schoolId);return[sc?.name||"",cl?.room||"",c.flooring,c.flooringIssues,c.windows,c.electricity,c.locks];})},
     {label:"Repairs",desc:"All repair jobs",icon:"🔧",file:"repairs.csv",cols:["School","EMIS","Furniture Types","Total Qty","Repair Type","Destination","Status","Date Collected","Allocated","Completed","Comments"],rows:repairs.map(r=>{
       let schoolName="",emis="",items=[];
@@ -1506,14 +1511,14 @@ function App(){
       const unassignedFurniture = furniture.filter(f=>!classrooms.find(c=>c.id==f.classroomId));
       const unassignedBySchool = {};
       unassignedFurniture.forEach(f=>{ const sid=f.schoolId; if(sid==null) return; (unassignedBySchool[sid]=unassignedBySchool[sid]||[]).push(f); });
-      const combinedCols=["School","Room","Room Type","Grade","Learners","In Use","Comments","Category","Furniture Type","Available","Damaged","Repairable","Condition"];
+      const combinedCols=["School","Room","Room Type","Grade","Learners","In Use","Comments","Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition"];
       const combinedRows=[];
       classrooms.forEach(c=>{
         const items=furniture.filter(f=>f.classroomId==c.id);
-        if(!items.length) combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"","","","","","",""]);
-        else items.forEach(f=>combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+        if(!items.length) combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"","","","","","","",""]);
+        else items.forEach(f=>combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,f.condition]));
       });
-      unassignedFurniture.forEach(f=>combinedRows.push([scName(f.schoolId),"— Unassigned —","","","","","",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+      unassignedFurniture.forEach(f=>combinedRows.push([scName(f.schoolId),"— Unassigned —","","","","","",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,f.condition]));
       const notInUseCount = classrooms.filter(c=>c.inUse==="No").length;
       return (
       <div>
@@ -1522,12 +1527,13 @@ function App(){
             <button onClick={()=>setModal("furniture")} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add furniture</button>
             <ExportBtn label="CSV" filename="classrooms_and_furniture.csv" cols={combinedCols} rows={combinedRows}/>
           </>}/>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:"1rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:"1rem"}}>
           <StatCard label="Rooms"           value={classrooms.length}                                        color="#7C3AED"/>
           <StatCard label="Not in use"      value={notInUseCount}                                            color="#DC2626"/>
           <StatCard label="Total available" value={furniture.reduce((a,f)=>a+Number(f.available||0),0)}      color="#2563EB"/>
           <StatCard label="Damaged"         value={furniture.reduce((a,f)=>a+Number(f.damaged||0),0)}        color="#DC2626"/>
           <StatCard label="Repairable"      value={furniture.reduce((a,f)=>a+Number(f.repairable||0),0)}     color="#D97706"/>
+          <StatCard label="Shortage"        value={furniture.reduce((a,f)=>a+Number(f.shortage||0),0)}       color="#DC2626"/>
         </div>
         {classrooms.length===0&&<Card><p style={{color:"#9CA3AF",textAlign:"center"}}>No classrooms yet. Use + Add classroom to get started.</p></Card>}
         <div style={{display:"grid",gap:"1rem"}}>
@@ -1549,8 +1555,8 @@ function App(){
                   </div>
                 </div>
                 {items.length===0?<p style={{fontSize:13,color:"#9CA3AF",margin:0}}>No furniture captured for this room yet.</p>:(
-                  <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Condition","Photo"]} rows={items}
-                    renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.damaged}</span>:f.damaged,f.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{f.repairable}</span>:f.repairable,<Badge val={f.condition}/>,f.photoData?<a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="photo" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>]}/>
+                  <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition","Photo"]} rows={items}
+                    renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.damaged}</span>:f.damaged,f.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{f.repairable}</span>:f.repairable,Number(f.shortage||0)>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.shortage}</span>:(f.shortage||0),<Badge val={f.condition}/>,f.photoData?<a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="photo" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>]}/>
                 )}
               </Card>
             );
@@ -1562,8 +1568,8 @@ function App(){
             {Object.entries(unassignedBySchool).map(([sid,items])=>(
               <Card key={sid}>
                 <p style={{fontWeight:600,fontSize:14,margin:"0 0 8px",color:"#111827"}}>{scName(sid)}</p>
-                <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Condition"]} rows={items}
-                  renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,<Badge val={f.condition}/>]}/>
+                <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition"]} rows={items}
+                  renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,<Badge val={f.condition}/>]}/>
               </Card>
             ))}
           </div>
