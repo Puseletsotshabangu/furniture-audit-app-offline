@@ -419,19 +419,20 @@ function AuditForm({schools,onSave,onClose}) {
   );
 }
 function ClassroomForm({schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No"});
+  const [f,setF]=useState({schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const validate=d=>({schoolId:!d.schoolId?"School is required":"",room:!d.room?.trim()?"Room number is required":""});
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
-  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
+  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave({...f,comments:f.inUse==="No"?f.comments:""});};
   return (
     <Modal title="Add classroom" onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Room number *"><input style={eI("room")} value={f.room} onChange={s("room")}/></Field></Row2>
       <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Grade (R–12)"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
+      <Row2><Field label="In use?"><select style={sel} value={f.inUse} onChange={s("inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>{f.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={f.comments} onChange={s("comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}</Row2>
     </Modal>
   );
 }
@@ -746,8 +747,8 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     showToast(`✓ Pre-filled from EMIS: ${emisMatch.name}`);
   };
   const [audit,setAudit]=useState({year:new Date().getFullYear(),date:new Date().toISOString().slice(0,10),risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
-  const emptyFurnItem=()=>({ftype:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"});
-  const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",furnitureItems:[emptyFurnItem()]}]);
+  const emptyFurnItem=()=>({ftype:"",otherType:"",category:"Learner",available:"",damaged:"",repairable:"",condition:"Good"});
+  const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()]}]);
   const [condRow,setCondRow]=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
   const [repairRows,setRepairRows]=useState([{furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""}]);
   const sa=k=>e=>setAudit(p=>({...p,[k]:e.target.value}));
@@ -758,8 +759,8 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     const school=selectedSchoolId?null:{...newSchool,id:schoolId};
     const auditRecord={...audit,schoolId,id:uid()};
     const roomRows=clsRows.filter(r=>r.room);
-    const classroomRecords=roomRows.map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile}));
-    const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
+    const classroomRecords=roomRows.map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile,inUse:r.inUse||"Yes",comments:r.inUse==="No"?(r.comments||""):""}));
+    const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,otherType:it.otherType||"",category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
     const condRecord=condRow.flooring?{...condRow,id:uid(),classroomId:classroomRecords[0]?.id||""}:null;
     const repairRecords=repairRows.filter(r=>r.furnitureId&&r.qty).map(r=>({...r,id:uid()}));
     onSaveAll({school,audit:auditRecord,classrooms:classroomRecords,furniture:furnitureRecords,condition:condRecord,repairs:repairRecords});
@@ -840,6 +841,10 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                 <Field label="Spec (e.g. 4E1)"><input style={inp} value={row.spec} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,spec:e.target.value}:r))}/></Field>
                 <Field label="Is mobile?"><select style={sel} value={row.isMobile} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,isMobile:e.target.value}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
               </Row3>
+              <Row2>
+                <Field label="In use?"><select style={sel} value={row.inUse||"Yes"} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,inUse:e.target.value}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                {(row.inUse||"Yes")==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={row.comments||""} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,comments:e.target.value}:r))} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}
+              </Row2>
               <div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
                 <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Furniture in this room</p>
                 {(row.furnitureItems||[]).map((item,j)=>(
@@ -850,9 +855,10 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                     </div>
                     <Row3>
                       <Field label="Category"><select style={sel} value={item.category} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,category:e.target.value}:it)}:r))}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
-                      <Field label="DBE Furniture type"><select style={sel} value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}</select></Field>
+                      <Field label="DBE Furniture type"><select style={sel} value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
                       <Field label="Available"><input style={inp} type="number" value={item.available} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,available:e.target.value}:it)}:r))}/></Field>
                     </Row3>
+                    {item.ftype==="Other"&&<Field label="Specify furniture type"><input style={inp} value={item.otherType||""} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,otherType:e.target.value}:it)}:r))} placeholder="e.g. Computer, Printer, Whiteboard"/></Field>}
                     <Row3>
                       <Field label="Damaged"><input style={inp} type="number" value={item.damaged} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,damaged:e.target.value}:it)}:r))}/></Field>
                       <Field label="Repairable"><input style={inp} type="number" value={item.repairable} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,repairable:e.target.value}:it)}:r))}/></Field>
@@ -864,7 +870,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
               </div>
             </div>
           ))}
-          <button onClick={()=>setClsRows(p=>[...p,{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",furnitureItems:[emptyFurnItem()]}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
+          <button onClick={()=>setClsRows(p=>[...p,{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()]}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
         </div>}
         {tab===3&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Condition assessment</h3>
@@ -1500,14 +1506,15 @@ function App(){
       const unassignedFurniture = furniture.filter(f=>!classrooms.find(c=>c.id==f.classroomId));
       const unassignedBySchool = {};
       unassignedFurniture.forEach(f=>{ const sid=f.schoolId; if(sid==null) return; (unassignedBySchool[sid]=unassignedBySchool[sid]||[]).push(f); });
-      const combinedCols=["School","Room","Room Type","Grade","Learners","Category","Furniture Type","Available","Damaged","Repairable","Condition"];
+      const combinedCols=["School","Room","Room Type","Grade","Learners","In Use","Comments","Category","Furniture Type","Available","Damaged","Repairable","Condition"];
       const combinedRows=[];
       classrooms.forEach(c=>{
         const items=furniture.filter(f=>f.classroomId==c.id);
-        if(!items.length) combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,"","","","","",""]);
-        else items.forEach(f=>combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+        if(!items.length) combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"","","","","","",""]);
+        else items.forEach(f=>combinedRows.push([scName(c.schoolId),c.room,c.type,c.grade,c.learners,c.inUse||"Yes",c.comments||"",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
       });
-      unassignedFurniture.forEach(f=>combinedRows.push([scName(f.schoolId),"— Unassigned —","","","",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+      unassignedFurniture.forEach(f=>combinedRows.push([scName(f.schoolId),"— Unassigned —","","","","","",f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.condition]));
+      const notInUseCount = classrooms.filter(c=>c.inUse==="No").length;
       return (
       <div>
         <SectionHeader title="Classrooms & Furniture" onAdd={()=>setModal("classroom")}
@@ -1515,8 +1522,9 @@ function App(){
             <button onClick={()=>setModal("furniture")} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add furniture</button>
             <ExportBtn label="CSV" filename="classrooms_and_furniture.csv" cols={combinedCols} rows={combinedRows}/>
           </>}/>
-        <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1rem"}}>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:12,marginBottom:"1rem"}}>
           <StatCard label="Rooms"           value={classrooms.length}                                        color="#7C3AED"/>
+          <StatCard label="Not in use"      value={notInUseCount}                                            color="#DC2626"/>
           <StatCard label="Total available" value={furniture.reduce((a,f)=>a+Number(f.available||0),0)}      color="#2563EB"/>
           <StatCard label="Damaged"         value={furniture.reduce((a,f)=>a+Number(f.damaged||0),0)}        color="#DC2626"/>
           <StatCard label="Repairable"      value={furniture.reduce((a,f)=>a+Number(f.repairable||0),0)}     color="#D97706"/>
@@ -1527,12 +1535,14 @@ function App(){
             const items=furniture.filter(f=>f.classroomId==c.id);
             const avail=items.reduce((a,f)=>a+Number(f.available||0),0);
             const dmg=items.reduce((a,f)=>a+Number(f.damaged||0),0);
+            const notInUse=c.inUse==="No";
             return (
-              <Card key={c.id}>
+              <Card key={c.id} style={notInUse?{borderColor:"#FECACA",background:"linear-gradient(145deg,#fff,#FFF5F5)"}:{}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10,flexWrap:"wrap",gap:8}}>
                   <div>
-                    <p style={{fontWeight:600,fontSize:15,margin:"0 0 2px",color:"#111827"}}>{scName(c.schoolId)} — Room {c.room}</p>
+                    <p style={{fontWeight:600,fontSize:15,margin:"0 0 2px",color:"#111827"}}>{scName(c.schoolId)} — Room {c.room}{notInUse&&<span style={{marginLeft:8,fontSize:11,fontWeight:600,color:"#991B1B",background:"linear-gradient(135deg,#FEE2E2,#FECACA)",padding:"2px 10px",borderRadius:999,verticalAlign:"middle"}}>Not in use</span>}</p>
                     <p style={{fontSize:12,color:"#6B7280",margin:0}}>{c.type}{c.grade?` · Grade ${c.grade}`:""}{c.spec?` · ${c.spec}`:""}{c.learners?` · ${c.learners} learners`:""}{c.isMobile==="Yes"?" · Mobile":""}</p>
+                    {notInUse&&c.comments&&<p style={{fontSize:12,color:"#991B1B",margin:"4px 0 0"}}>{c.comments}</p>}
                   </div>
                   <div style={{display:"flex",gap:8,alignItems:"center"}}>
                     {items.length>0&&<span style={{fontSize:11,color:"#6B7280"}}>{avail} available{dmg>0?<span style={{color:"#DC2626"}}> · {dmg} damaged</span>:""}</span>}
