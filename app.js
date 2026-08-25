@@ -74,6 +74,16 @@ const DBE_FURNITURE = [
   "Tuck Shop Serving Counter","Tuck Shop Display Shelf","Tuck Shop Till Table","Tuck Shop Storage Cupboard","Tuck Shop Cooler/Refrigerator Unit","Tuck Shop Stool",
   // Consumer Room (Consumer Studies)
   "Consumer Studies Sewing Table","Consumer Studies Sewing Machine Cabinet","Consumer Studies Cutting Table","Consumer Studies Ironing Station","Consumer Studies Ironing Board","Consumer Studies Storage Cupboard","Consumer Studies Display Cabinet",
+  // Printing Room
+  "Printing Room Worktable","Printing Room Storage Cabinet","Paper Storage Rack","Photocopier Stand","Printing Room Stool",
+  // Strongroom
+  "Strongroom Steel Shelving","Strongroom Security Cabinet","Strongroom Safe (Heavy Duty)","Strongroom Steel Cage Shelf Unit","Exam Paper Storage Cabinet",
+  // Admin Kitchen
+  "Admin Kitchen Cupboard","Admin Kitchen Counter/Prep Table","Admin Kitchen Sink Unit","Admin Kitchen Table","Admin Kitchen Chair","Admin Kitchen Refrigerator",
+  // Bookstore
+  "Bookstore Steel Shelving","Bookstore Storage Bin/Crate","Bookstore Issue Counter","Bookstore Stock Table","Bookstore Mobile Ladder",
+  // School Kitchen (feeding scheme / nutrition programme)
+  "School Kitchen Prep Table – Stainless Steel","School Kitchen Industrial Stove/Oven","School Kitchen Sink Unit – Double Basin","School Kitchen Storage Cupboard","School Kitchen Pot Rack","School Kitchen Serving Trolley","School Kitchen Chest Freezer",
 ];
 // ─────────────────────────────────────────────
 // NC DoE DISTRICTS (for District / Circuit Office delivery capture)
@@ -464,7 +474,7 @@ function FurnitureForm({classrooms,schools,onSave,onClose}) {
   return (
     <Modal title="Add furniture" onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Classroom *"><select style={eS("classroomId")} value={f.classroomId} onChange={s("classroomId")}><option value="">Select</option>{filteredClassrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field></Row2>
-      <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
+      <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
       {f.ftype==="Other"&&<Field label="Specify type"><input style={inp} value={f.otherType} onChange={s("otherType")} placeholder="Describe item"/></Field>}
       <Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field></Row2>
       <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Available *"><input style={eI("available")} type="number" value={f.available} onChange={s("available")}/></Field></Row2>
@@ -873,7 +883,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                       {row.furnitureItems.length>1&&<button onClick={()=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.filter((_,y)=>y!==j)}:r))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
                     </div>
                     <Row3>
-                      <Field label="Category"><select style={sel} value={item.category} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,category:e.target.value}:it)}:r))}>{["Learner","Teacher","Admin","Specialised"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                      <Field label="Category"><select style={sel} value={item.category} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,category:e.target.value}:it)}:r))}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field>
                       <Field label="DBE Furniture type"><select style={sel} value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
                       <Field label="Available"><input style={inp} type="number" value={item.available} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,available:e.target.value}:it)}:r))}/></Field>
                     </Row3>
