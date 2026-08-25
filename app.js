@@ -62,6 +62,18 @@ const DBE_FURNITURE = [
   "Waiting Area Bench (2-Seater)","Waiting Area Bench (3-Seater)","Staff Room Table","Staff Room Chair","Staff Room Couch / Sofa",
   "Staff Locker (Single Door)","Staff Locker (Double Door)","Science Lab Table","Lab Stool","Computer Lab Table","Library Table","Library Chair",
   "ECD Activity Table (Grade R)","ECD Chair (Grade R)","Multipurpose Table","Steel Shelf Unit","Storeroom Shelf","Display Cabinet","Notice Board","Whiteboard (Mobile)",
+  // Science Laboratory (Science Lab Table & Lab Stool already listed above)
+  "Science Lab Bench (with Sink)","Lab Demonstration Table (Teacher's)","Fume Cupboard","Chemical Storage Cabinet","Gas Bench Unit","Specimen/Apparatus Cabinet","Lab Safety Equipment Cabinet",
+  // Library (Library Table & Library Chair already listed above)
+  "Library Bookshelf – Single Sided","Library Bookshelf – Double Sided","Librarian's Desk","Study Carrel","Periodical/Newspaper Rack","Library Catalogue Cabinet","Library Book Return Trolley","Library Reading Couch",
+  // Hospitality Room
+  "Hospitality Kitchen Workstation – Stainless Steel","Hospitality Demonstration Stove/Oven Unit","Hospitality Kitchen Sink Unit","Hospitality Kitchen Cupboard – Steel","Hospitality Refrigerator (Demonstration)","Hospitality Kitchen Stool","Hospitality Dining Table","Hospitality Dining Chair",
+  // Computer Lab (Computer Lab Table already listed above)
+  "Computer Lab Chair","Computer Workstation Desk (with Cable Grommet)","Server/Network Cabinet","Printer Table",
+  // Tuck Shop
+  "Tuck Shop Serving Counter","Tuck Shop Display Shelf","Tuck Shop Till Table","Tuck Shop Storage Cupboard","Tuck Shop Cooler/Refrigerator Unit","Tuck Shop Stool",
+  // Consumer Room (Consumer Studies)
+  "Consumer Studies Sewing Table","Consumer Studies Sewing Machine Cabinet","Consumer Studies Cutting Table","Consumer Studies Ironing Station","Consumer Studies Ironing Board","Consumer Studies Storage Cupboard","Consumer Studies Display Cabinet",
 ];
 // ─────────────────────────────────────────────
 // NC DoE DISTRICTS (for District / Circuit Office delivery capture)
