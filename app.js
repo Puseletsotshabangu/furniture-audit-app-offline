@@ -430,7 +430,7 @@ function ClassroomForm({schools,onSave,onClose}) {
   return (
     <Modal title="Add classroom" onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Room number *"><input style={eI("room")} value={f.room} onChange={s("room")}/></Field></Row2>
-      <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+      <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Grade (R–12)"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
       <Row2><Field label="In use?"><select style={sel} value={f.inUse} onChange={s("inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>{f.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={f.comments} onChange={s("comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}</Row2>
     </Modal>
@@ -840,7 +840,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><p style={{fontWeight:500,fontSize:13,margin:0,color:"#374151"}}>Room {i+1}</p>{clsRows.length>1&&<button onClick={()=>setClsRows(p=>p.filter((_,x)=>x!==i))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}</div>
               <Row3>
                 <Field label="Room number"><input style={inp} value={row.room} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,room:e.target.value}:r))}/></Field>
-                <Field label="Type"><select style={sel} value={row.type} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,type:e.target.value}:r))}>{["Classroom","Lab","Office","Storage"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                <Field label="Type"><select style={sel} value={row.type} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,type:e.target.value}:r))}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room"].map(v=><option key={v}>{v}</option>)}</select></Field>
                 <Field label="Grade"><input style={inp} value={row.grade} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,grade:e.target.value}:r))}/></Field>
               </Row3>
               <Row3>
