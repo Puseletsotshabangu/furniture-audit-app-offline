@@ -815,6 +815,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
       <div style={{display:"flex",gap:0,marginBottom:0,overflowX:"auto"}}>
         {tabs.map((t,i)=><button key={i} onClick={()=>setTab(i)} style={tabStyle(i)}>{t}</button>)}
       </div>
+      <datalist id="dbe-furniture-datalist">{DBE_FURNITURE.map(v=><option key={v} value={v}/>)}<option value="Other"/></datalist>
       <div style={{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:"0 14px 14px 14px",padding:"1.5rem"}}>
         {tab===0&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>School details</h3>
@@ -884,7 +885,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                     </div>
                     <Row3>
                       <Field label="Category"><select style={sel} value={item.category} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,category:e.target.value}:it)}:r))}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field>
-                      <Field label="DBE Furniture type"><select style={sel} value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other</option></select></Field>
+                      <Field label="DBE Furniture type"><input style={inp} list="dbe-furniture-datalist" value={item.ftype} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,ftype:e.target.value}:it)}:r))} placeholder="Type to search DBE furniture types..."/></Field>
                       <Field label="Available"><input style={inp} type="number" value={item.available} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,available:e.target.value}:it)}:r))}/></Field>
                     </Row3>
                     {item.ftype==="Other"&&<Field label="Specify furniture type"><input style={inp} value={item.otherType||""} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:r.furnitureItems.map((it,y)=>y===j?{...it,otherType:e.target.value}:it)}:r))} placeholder="e.g. Computer, Printer, Whiteboard"/></Field>}
@@ -933,7 +934,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
           {repairRows.map((row,i)=>(
             <div key={i} style={{background:"#F9FAFB",borderRadius:10,padding:"1rem",marginBottom:"0.75rem",border:"0.5px solid #E5E7EB"}}>
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><p style={{fontWeight:500,fontSize:13,margin:0}}>Repair {i+1}</p>{repairRows.length>1&&<button onClick={()=>setRepairRows(p=>p.filter((_,x)=>x!==i))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}</div>
-              <Field label="DBE Furniture type"><select style={sel} value={row.ftype} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,ftype:e.target.value}:r))}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}</select></Field>
+              <Field label="DBE Furniture type"><input style={inp} list="dbe-furniture-datalist" value={row.ftype} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,ftype:e.target.value}:r))} placeholder="Type to search DBE furniture types..."/></Field>
               <Row3><Field label="Repair type"><select style={sel} value={row.repairType} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,repairType:e.target.value}:r))}>{["Minor","Major"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Quantity"><input style={inp} type="number" value={row.qty} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,qty:e.target.value}:r))}/></Field><Field label="Status"><select style={sel} value={row.status} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,status:e.target.value}:r))}>{["Pending","In Progress","Completed"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
               <Row2><Field label="Date allocated"><input style={inp} type="date" value={row.allocated} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,allocated:e.target.value}:r))}/></Field><Field label="Destination"><select style={sel} value={row.destination} onChange={e=>setRepairRows(p=>p.map((r,x)=>x===i?{...r,destination:e.target.value}:r))}>{["Warehouse","Labour Dept"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
             </div>
