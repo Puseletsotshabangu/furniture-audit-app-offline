@@ -1300,6 +1300,11 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
   const condFair=furniture.filter(f=>f.condition==="Fair").reduce((a,f)=>a+Number(f.available||0),0);
   const condPoor=furniture.filter(f=>f.condition==="Poor").reduce((a,f)=>a+Number(f.available||0),0);
   const condTotal=condGood+condFair+condPoor;
+  const furnShortageByCat=cat=>furniture.filter(f=>f.category===cat).reduce((a,f)=>a+Number(f.shortage||0),0);
+  const learnerFurnShortage=furnShortageByCat("Learner");
+  const teacherFurnShortage=furnShortageByCat("Teacher");
+  const adminFurnShortage=furnShortageByCat("Admin");
+  const totalFurnShortage=furniture.reduce((a,f)=>a+Number(f.shortage||0),0);
   const auditedIds=new Set(audits.map(a=>a.schoolId?.toString()));
   const auditsByYear={};
   audits.forEach(a=>{ const y=a.year||"Unknown"; auditsByYear[y]=(auditsByYear[y]||0)+1; });
@@ -1318,6 +1323,12 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
         <StatCard label="High risk schools"   value={riskCounts.High} sub="Urgent action needed" color="#DC2626"/>
         <StatCard label="Warehouse in stock"  value={inStock}         sub="Ready to dispatch"    color="#2563EB"/>
         <StatCard label="Repairs in progress" value={whProg}          sub="At warehouse"         color="#D97706"/>
+      </div>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:12,marginBottom:"1.25rem"}}>
+        <StatCard label="Learner furniture shortage" value={learnerFurnShortage} sub="Units short — Learner"      color="#DC2626"/>
+        <StatCard label="Teacher furniture shortage" value={teacherFurnShortage} sub="Units short — Teacher"      color="#D97706"/>
+        <StatCard label="Admin furniture shortage"   value={adminFurnShortage}   sub="Units short — Admin"        color="#2563EB"/>
+        <StatCard label="Total furniture shortage"   value={totalFurnShortage}   sub="All categories combined"   color="#7C3AED"/>
       </div>
       {/* Charts row 1 */}
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
