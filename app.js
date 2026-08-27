@@ -460,28 +460,77 @@ function ClassroomForm({schools,initial,onSave,onClose}) {
   );
 }
 function FurnitureForm({classrooms,schools,initial,onSave,onClose}) {
-  const normInitial = initial ? {id:initial.id,schoolId:initial.schoolId!=null?String(initial.schoolId):"",classroomId:initial.classroomId!=null?String(initial.classroomId):"",category:initial.category||"Learner",ftype:initial.ftype||"",spec:initial.spec||"",chairType:initial.chairType||"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:initial.available??"",damaged:initial.damaged??"",repairable:initial.repairable??"",shortage:initial.shortage??"",otherType:initial.otherType||"",otherQty:initial.otherQty??"",condition:initial.condition||"Good",auditDate:initial.auditDate||new Date().toISOString().slice(0,10),photoName:initial.photoName||"",photoData:initial.photoData||""} : null;
-  const [f,setF]=useState(normInitial||{schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",shortage:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
+  const emptyItem=()=>({category:"Learner",ftype:"",otherType:"",available:"",damaged:"",repairable:"",shortage:"",condition:"Good"});
+  const normInitial = initial ? {
+    id:initial.id,
+    schoolId:initial.schoolId!=null?String(initial.schoolId):"",
+    classroomId:initial.classroomId!=null?String(initial.classroomId):"",
+    spec:initial.spec||"",
+    chairType:initial.chairType||"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",
+    auditDate:initial.auditDate||new Date().toISOString().slice(0,10),
+    otherQty:initial.otherQty??"",
+    photoName:initial.photoName||"",
+    photoData:initial.photoData||"",
+    items:[{category:initial.category||"Learner",ftype:initial.ftype||"",otherType:initial.otherType||"",available:initial.available??"",damaged:initial.damaged??"",repairable:initial.repairable??"",shortage:initial.shortage??"",condition:initial.condition||"Good"}],
+  } : null;
+  const [f,setF]=useState(normInitial||{schoolId:"",classroomId:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",auditDate:new Date().toISOString().slice(0,10),otherQty:"",photoName:"",photoData:"",items:[emptyItem()]});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
+  const setItem=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,[field]:e.target.value}:it)}));
+  const addItem=()=>setF(p=>({...p,items:[...p.items,emptyItem()]}));
+  const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
   const filteredClassrooms=classrooms.filter(c=>!f.schoolId||c.schoolId.toString()===f.schoolId);
   useEffect(()=>{if(!f.schoolId)return;const cl=classrooms.find(c=>c.id.toString()===f.classroomId);if(cl&&cl.schoolId.toString()!==f.schoolId)setF(p=>({...p,classroomId:""}));},[f.schoolId]);
   const roomLabel=c=>{const sc=schools.find(x=>x.id===c.schoolId);return `${sc?.name||"?"} — Room ${c.room}`;};
   const handlePhoto=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>setF(p=>({...p,photoName:file.name,photoData:reader.result}));reader.readAsDataURL(file);};
-  const validate=d=>({schoolId:!d.schoolId?"School is required":"",classroomId:!d.classroomId?"Classroom is required":"",ftype:!d.ftype?"Furniture type is required":"",available:d.available===""?"Available quantity is required":""});
+  const validate=d=>({
+    schoolId:!d.schoolId?"School is required":"",
+    classroomId:!d.classroomId?"Classroom is required":"",
+    items:(!d.items||!d.items.length||!d.items.some(it=>it.ftype&&it.available!==""))?"At least one furniture type with an available quantity is required":"",
+  });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
-  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
+  const handleSave=()=>{
+    setTouched(true);
+    if(Object.values(validate(f)).some(Boolean))return;
+    const shared={schoolId:f.schoolId,classroomId:f.classroomId,spec:f.spec,chairType:f.chairType,auditDate:f.auditDate,otherQty:f.otherQty,photoName:f.photoName,photoData:f.photoData};
+    const validItems=f.items.filter(it=>it.ftype);
+    if(initial){
+      onSave({id:f.id,...shared,...(validItems[0]||f.items[0])});
+    } else {
+      onSave(validItems.map(it=>({id:uid(),...shared,...it})));
+    }
+  };
   return (
     <Modal title={initial?"Edit furniture":"Add furniture"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Classroom *"><select style={eS("classroomId")} value={f.classroomId} onChange={s("classroomId")}><option value="">Select</option>{filteredClassrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field></Row2>
-      <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
-      {f.ftype==="Other"&&<Field label="Specify type"><input style={inp} value={f.otherType} onChange={s("otherType")} placeholder="Describe item"/></Field>}
       <Row2><Field label="Audit date"><input style={inp} type="date" value={f.auditDate} onChange={s("auditDate")}/></Field><Field label="Specification"><input style={inp} value={f.spec} onChange={s("spec")} placeholder="e.g. Grade 4–6"/></Field></Row2>
-      <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Available *"><input style={eI("available")} type="number" value={f.available} onChange={s("available")}/></Field></Row2>
-      <Row3><Field label="Damaged"><input style={inp} type="number" value={f.damaged} onChange={s("damaged")}/></Field><Field label="Repairable"><input style={inp} type="number" value={f.repairable} onChange={s("repairable")}/></Field><Field label="Condition"><select style={sel} value={f.condition} onChange={s("condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
-      <Row2><Field label="Shortage (additional units needed)"><input style={inp} type="number" value={f.shortage} onChange={s("shortage")}/></Field><Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field></Row2>
+      <Row2><Field label="Chair type"><select style={sel} value={f.chairType} onChange={s("chairType")}>{["Penny 1 Wooden","Penny 1 Plastic","Penny 4 Wooden","Penny 4 Plastic","Utility (Steel Frame)","Lab Stool","Upholstered"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Other qty"><input style={inp} type="number" value={f.otherQty} onChange={s("otherQty")}/></Field></Row2>
+      <div style={{borderTop:"1px solid #E5E7EB",margin:"1rem 0 0.75rem",paddingTop:"0.75rem"}}>
+        <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Furniture types</p>
+        {f.items.map((item,i)=>(
+          <div key={i} style={{background:"#F9FAFB",borderRadius:8,padding:"0.75rem",marginBottom:"0.5rem",border:"0.5px solid #E5E7EB"}}>
+            {!initial&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Furniture type {i+1}</p>
+              {f.items.length>1&&<button onClick={()=>removeItem(i)} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
+            </div>}
+            <Row3>
+              <Field label="Category"><select style={sel} value={item.category} onChange={setItem(i,"category")}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field>
+              <Field label="DBE Furniture type *"><select style={sel} value={item.ftype} onChange={setItem(i,"ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field>
+              <Field label="Available *"><input style={inp} type="number" value={item.available} onChange={setItem(i,"available")}/></Field>
+            </Row3>
+            {item.ftype==="Other"&&<Field label="Specify type"><input style={inp} value={item.otherType} onChange={setItem(i,"otherType")} placeholder="Describe item"/></Field>}
+            <Row3>
+              <Field label="Damaged"><input style={inp} type="number" value={item.damaged} onChange={setItem(i,"damaged")}/></Field>
+              <Field label="Repairable"><input style={inp} type="number" value={item.repairable} onChange={setItem(i,"repairable")}/></Field>
+              <Field label="Condition"><select style={sel} value={item.condition} onChange={setItem(i,"condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
+            </Row3>
+            <Field label="Shortage (additional units needed)"><input style={inp} type="number" value={item.shortage} onChange={setItem(i,"shortage")}/></Field>
+          </div>
+        ))}
+        {!initial&&<button onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>}
+      </div>
       <Field label="Photo evidence">{f.photoData?<div style={{display:"flex",alignItems:"flex-start",gap:12,marginTop:4}}><a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="preview" style={{width:80,height:80,objectFit:"cover",borderRadius:8,border:"1px solid #D1D5DB",cursor:"pointer"}}/></a><div><p style={{fontSize:12,color:"#4B5563",margin:"0 0 6px"}}>{f.photoName}</p><button type="button" onClick={()=>setF(p=>({...p,photoName:"",photoData:""}))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer",padding:0}}>✕ Remove</button></div></div>:<label style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:4,padding:"7px 14px",borderRadius:8,border:"1.5px dashed #9CA3AF",background:"#F9FAFB",color:"#374151",fontSize:12,cursor:"pointer"}}>📷 Take / choose photo<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/></label>}</Field>
     </Modal>
   );
@@ -1495,6 +1544,14 @@ function App(){
   const openAddFurniture  = () => { setEditingFurniture(null); setModal("furniture"); };
   const openEditFurniture = f => { setEditingFurniture(f); setModal("furniture"); };
   const saveFurniture = data => {
+    if (Array.isArray(data)) {
+      // Adding new furniture: one record per furniture type entered in the form.
+      furnitureM.addMany(data);
+      setModal(null);
+      setEditingFurniture(null);
+      showToast(`✓ ${data.length} furniture record${data.length!==1?"s":""} added.`);
+      return;
+    }
     if (data.id != null) furnitureM.updateOne(data.id, data);
     else furnitureM.addOne(data);
     setModal(null);
