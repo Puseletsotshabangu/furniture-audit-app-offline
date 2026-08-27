@@ -441,21 +441,55 @@ function AuditForm({schools,onSave,onClose}) {
   );
 }
 function ClassroomForm({schools,initial,onSave,onClose}) {
-  const normInitial = initial ? {id:initial.id,schoolId:initial.schoolId!=null?String(initial.schoolId):"",room:initial.room||"",type:initial.type||"Classroom",grade:initial.grade||"",spec:initial.spec||"",learners:initial.learners??"",isMobile:initial.isMobile||"No",inUse:initial.inUse||"Yes",comments:initial.comments||""} : null;
-  const [f,setF]=useState(normInitial||{schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
+  const emptyItem=()=>({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
+  const normInitial = initial ? {
+    id:initial.id,
+    schoolId:initial.schoolId!=null?String(initial.schoolId):"",
+    items:[{room:initial.room||"",type:initial.type||"Classroom",grade:initial.grade||"",spec:initial.spec||"",learners:initial.learners??"",isMobile:initial.isMobile||"No",inUse:initial.inUse||"Yes",comments:initial.comments||""}],
+  } : null;
+  const [f,setF]=useState(normInitial||{schoolId:"",items:[emptyItem()]});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const validate=d=>({schoolId:!d.schoolId?"School is required":"",room:!d.room?.trim()?"Room number is required":""});
+  const setItem=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,[field]:e.target.value}:it)}));
+  const addItem=()=>setF(p=>({...p,items:[...p.items,emptyItem()]}));
+  const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
+  const validate=d=>({
+    schoolId:!d.schoolId?"School is required":"",
+    items:(!d.items||!d.items.length||!d.items.some(it=>it.room&&it.room.trim()))?"At least one room number is required":"",
+  });
   const errors=touched?validate(f):{};
   const eS=k=>touched&&errors[k]?{...sel,borderColor:"#EF4444",background:"#FFF5F5"}:sel;
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
-  const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave({...f,comments:f.inUse==="No"?f.comments:""});};
+  const handleSave=()=>{
+    setTouched(true);
+    if(Object.values(validate(f)).some(Boolean))return;
+    const validItems=f.items.filter(it=>it.room&&it.room.trim());
+    if(initial){
+      const it=validItems[0]||f.items[0];
+      onSave({id:f.id,schoolId:f.schoolId,...it,comments:it.inUse==="No"?it.comments:""});
+    } else {
+      onSave(validItems.map(it=>({id:uid(),schoolId:f.schoolId,...it,comments:it.inUse==="No"?it.comments:""})));
+    }
+  };
   return (
     <Modal title={initial?"Edit classroom":"Add classroom"} onClose={onClose} onSave={handleSave} errors={errors}>
-      <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Room number *"><input style={eI("room")} value={f.room} onChange={s("room")}/></Field></Row2>
-      <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
-      <Row3><Field label="Grade (R–12)"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
-      <Row2><Field label="In use?"><select style={sel} value={f.inUse} onChange={s("inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>{f.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={f.comments} onChange={s("comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}</Row2>
+      <Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field>
+      <div style={{borderTop:"1px solid #E5E7EB",margin:"1rem 0 0.75rem",paddingTop:"0.75rem"}}>
+        <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Rooms</p>
+        {f.items.map((item,i)=>(
+          <div key={i} style={{background:"#F9FAFB",borderRadius:8,padding:"0.75rem",marginBottom:"0.5rem",border:"0.5px solid #E5E7EB"}}>
+            {!initial&&<div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+              <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Room {i+1}</p>
+              {f.items.length>1&&<button onClick={()=>removeItem(i)} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
+            </div>}
+            <Row2><Field label="Room number *"><input style={touched&&errors.items&&!(item.room&&item.room.trim())?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp} value={item.room} onChange={setItem(i,"room")}/></Field><Field label="Room type"><select style={sel} value={item.type} onChange={setItem(i,"type")}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+            <Row3><Field label="Grade (R–12)"><input style={inp} value={item.grade} onChange={setItem(i,"grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={item.spec} onChange={setItem(i,"spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={item.learners} onChange={setItem(i,"learners")}/></Field></Row3>
+            <Row2><Field label="Is mobile?"><select style={sel} value={item.isMobile} onChange={setItem(i,"isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="In use?"><select style={sel} value={item.inUse} onChange={setItem(i,"inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+            {item.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={item.comments} onChange={setItem(i,"comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}
+          </div>
+        ))}
+        {!initial&&<button onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another room</button>}
+      </div>
     </Modal>
   );
 }
@@ -517,7 +551,7 @@ function FurnitureForm({classrooms,schools,initial,onSave,onClose}) {
             </div>}
             <Row3>
               <Field label="Category"><select style={sel} value={item.category} onChange={setItem(i,"category")}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field>
-              <Field label="DBE Furniture type *"><select style={sel} value={item.ftype} onChange={setItem(i,"ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field>
+              <Field label="DBE Furniture type *"><input style={inp} list="dbe-furniture-datalist-form" value={item.ftype} onChange={setItem(i,"ftype")} placeholder="Type to search DBE furniture types..."/></Field>
               <Field label="Available *"><input style={inp} type="number" value={item.available} onChange={setItem(i,"available")}/></Field>
             </Row3>
             {item.ftype==="Other"&&<Field label="Specify type"><input style={inp} value={item.otherType} onChange={setItem(i,"otherType")} placeholder="Describe item"/></Field>}
@@ -531,6 +565,7 @@ function FurnitureForm({classrooms,schools,initial,onSave,onClose}) {
         ))}
         {!initial&&<button onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>}
       </div>
+      <datalist id="dbe-furniture-datalist-form">{DBE_FURNITURE.map(v=><option key={v} value={v}/>)}<option value="Other"/></datalist>
       <Field label="Photo evidence">{f.photoData?<div style={{display:"flex",alignItems:"flex-start",gap:12,marginTop:4}}><a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="preview" style={{width:80,height:80,objectFit:"cover",borderRadius:8,border:"1px solid #D1D5DB",cursor:"pointer"}}/></a><div><p style={{fontSize:12,color:"#4B5563",margin:"0 0 6px"}}>{f.photoName}</p><button type="button" onClick={()=>setF(p=>({...p,photoName:"",photoData:""}))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer",padding:0}}>✕ Remove</button></div></div>:<label style={{display:"inline-flex",alignItems:"center",gap:6,marginTop:4,padding:"7px 14px",borderRadius:8,border:"1.5px dashed #9CA3AF",background:"#F9FAFB",color:"#374151",fontSize:12,cursor:"pointer"}}>📷 Take / choose photo<input type="file" accept="image/*" capture="environment" onChange={handlePhoto} style={{display:"none"}}/></label>}</Field>
     </Modal>
   );
@@ -1525,6 +1560,14 @@ function App(){
   const openAddClassroom  = () => { setEditingClassroom(null); setModal("classroom"); };
   const openEditClassroom = c => { setEditingClassroom(c); setModal("classroom"); };
   const saveClassroom = data => {
+    if (Array.isArray(data)) {
+      // Adding new classrooms: one record per room entered in the form.
+      classroomsM.addMany(data);
+      setModal(null);
+      setEditingClassroom(null);
+      showToast(`✓ ${data.length} classroom${data.length!==1?"s":""} added.`);
+      return;
+    }
     if (data.id != null) classroomsM.updateOne(data.id, data);
     else classroomsM.addOne(data);
     setModal(null);
