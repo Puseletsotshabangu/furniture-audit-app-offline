@@ -1217,6 +1217,9 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
   const condPoor=furniture.filter(f=>f.condition==="Poor").reduce((a,f)=>a+Number(f.available||0),0);
   const condTotal=condGood+condFair+condPoor;
   const auditedIds=new Set(audits.map(a=>a.schoolId?.toString()));
+  const auditsByYear={};
+  audits.forEach(a=>{ const y=a.year||"Unknown"; auditsByYear[y]=(auditsByYear[y]||0)+1; });
+  const auditYears=Object.keys(auditsByYear).sort((a,b)=>b.toString().localeCompare(a.toString()));
   return (
     <div>
       <SectionHeader title="Dashboard overview"/>
@@ -1256,6 +1259,12 @@ function Dashboard({schools,audits,furniture,repairs,warehouse}){
           <PieChart size={140} slices={[{label:"Sent for repair",value:whIn,color:"#7C3AED"},{label:"Completed",value:whDone,color:"#059669"},{label:"In progress",value:whProg,color:"#D97706"}]}/>
         </Card>
       </div>
+      {/* Audits per year */}
+      <Card style={{marginBottom:"1rem"}}>
+        <h3 style={{fontSize:14,fontWeight:600,margin:"0 0 1rem",color:"#111827"}}>Audits per year</h3>
+        {auditYears.length===0?<p style={{fontSize:13,color:"#9CA3AF",textAlign:"center",margin:0}}>No audits captured yet.</p>:
+          auditYears.map(y=><HorizBar key={y} label={y} value={auditsByYear[y]} max={Math.max(...Object.values(auditsByYear))} total={audits.length} color="#7C3AED"/>)}
+      </Card>
       {/* Audit completion tracker */}
       <Card style={{marginBottom:"1rem"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem"}}>
@@ -1582,15 +1591,34 @@ function App(){
         </div>
       </div>
     );
-    case "audits": return (
+    case "audits": {
+      const auditSummary = (() => {
+        const totals = {};
+        audits.forEach(a=>{
+          const key = `${a.schoolId}||${a.year}`;
+          if (!totals[key]) totals[key] = {schoolId:a.schoolId, year:a.year, count:0, dates:[]};
+          totals[key].count += 1;
+          if (a.date) totals[key].dates.push(a.date);
+        });
+        return Object.values(totals).sort((a,b)=> scName(a.schoolId).localeCompare(scName(b.schoolId)) || (Number(b.year||0)-Number(a.year||0)));
+      })();
+      return (
       <div>
         <SectionHeader title="Audits" onAdd={()=>setModal("audit")} extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.recommendations])}/>}/>
+        <Card style={{marginBottom:"1.5rem"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
+            <h3 style={{fontSize:14,fontWeight:600,margin:0,color:"#111827"}}>Number of audits per year, by school</h3>
+            <ExportBtn label="CSV" filename="audits_per_year_by_school.csv" cols={["School","Year","Number of Audits","Dates Captured"]} rows={auditSummary.map(r=>[scName(r.schoolId),r.year,r.count,r.dates.slice().sort().join(", ")])}/>
+          </div>
+          <DataTable cols={["School","Year","Number of Audits","Dates Captured"]} rows={auditSummary}
+            renderRow={r=>[scName(r.schoolId),r.year,r.count,<span style={{fontSize:12,color:"#6B7280"}}>{r.dates.slice().sort().join(", ")||"—"}</span>]}/>
+        </Card>
         <Card>
           <DataTable cols={["School","Year","Date","Risk","Overcapacity","Hall","Recommendations"]} rows={audits}
             renderRow={r=>[scName(r.schoolId),r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>,r.hallAvailable==="Yes"?<Badge val={r.hallCondition}/>:<span style={{fontSize:11,color:"#9CA3AF"}}>No hall</span>,<span style={{color:"#6B7280",fontSize:12}}>{r.recommendations}</span>]}/>
         </Card>
       </div>
-    );
+    );}
     case "classrooms": {
       const unassignedFurniture = furniture.filter(f=>!classrooms.find(c=>c.id==f.classroomId));
       const unassignedBySchool = {};
