@@ -440,8 +440,9 @@ function AuditForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-function ClassroomForm({schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
+function ClassroomForm({schools,initial,onSave,onClose}) {
+  const normInitial = initial ? {id:initial.id,schoolId:initial.schoolId!=null?String(initial.schoolId):"",room:initial.room||"",type:initial.type||"Classroom",grade:initial.grade||"",spec:initial.spec||"",learners:initial.learners??"",isMobile:initial.isMobile||"No",inUse:initial.inUse||"Yes",comments:initial.comments||""} : null;
+  const [f,setF]=useState(normInitial||{schoolId:"",room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const validate=d=>({schoolId:!d.schoolId?"School is required":"",room:!d.room?.trim()?"Room number is required":""});
@@ -450,7 +451,7 @@ function ClassroomForm({schools,onSave,onClose}) {
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave({...f,comments:f.inUse==="No"?f.comments:""});};
   return (
-    <Modal title="Add classroom" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title={initial?"Edit classroom":"Add classroom"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Room number *"><input style={eI("room")} value={f.room} onChange={s("room")}/></Field></Row2>
       <Row2><Field label="Room type"><select style={sel} value={f.type} onChange={s("type")}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Is mobile?"><select style={sel} value={f.isMobile} onChange={s("isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Grade (R–12)"><input style={inp} value={f.grade} onChange={s("grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={f.spec} onChange={s("spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={f.learners} onChange={s("learners")}/></Field></Row3>
@@ -458,8 +459,9 @@ function ClassroomForm({schools,onSave,onClose}) {
     </Modal>
   );
 }
-function FurnitureForm({classrooms,schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",shortage:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
+function FurnitureForm({classrooms,schools,initial,onSave,onClose}) {
+  const normInitial = initial ? {id:initial.id,schoolId:initial.schoolId!=null?String(initial.schoolId):"",classroomId:initial.classroomId!=null?String(initial.classroomId):"",category:initial.category||"Learner",ftype:initial.ftype||"",spec:initial.spec||"",chairType:initial.chairType||"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:initial.available??"",damaged:initial.damaged??"",repairable:initial.repairable??"",shortage:initial.shortage??"",otherType:initial.otherType||"",otherQty:initial.otherQty??"",condition:initial.condition||"Good",auditDate:initial.auditDate||new Date().toISOString().slice(0,10),photoName:initial.photoName||"",photoData:initial.photoData||""} : null;
+  const [f,setF]=useState(normInitial||{schoolId:"",classroomId:"",category:"Learner",ftype:"",spec:"",chairType:"Penny 1 Plastic Chair – Size 2 (Grade 1–3, seat height 310mm)",available:"",damaged:"",repairable:"",shortage:"",otherType:"",otherQty:"",condition:"Good",auditDate:new Date().toISOString().slice(0,10),photoName:"",photoData:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const filteredClassrooms=classrooms.filter(c=>!f.schoolId||c.schoolId.toString()===f.schoolId);
@@ -472,7 +474,7 @@ function FurnitureForm({classrooms,schools,onSave,onClose}) {
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="Add furniture" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title={initial?"Edit furniture":"Add furniture"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Classroom *"><select style={eS("classroomId")} value={f.classroomId} onChange={s("classroomId")}><option value="">Select</option>{filteredClassrooms.map(c=><option key={c.id} value={c.id}>{roomLabel(c)}</option>)}</select></Field></Row2>
       <Row2><Field label="Category"><select style={sel} value={f.category} onChange={s("category")}>{["Learner","Teacher","Admin","Specialised","Principal","Deputy Principal"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="DBE Furniture type *"><select style={eS("ftype")} value={f.ftype} onChange={s("ftype")}><option value="">Select...</option>{DBE_FURNITURE.map(v=><option key={v} value={v}>{v}</option>)}<option value="Other">Other (specify below)</option></select></Field></Row2>
       {f.ftype==="Other"&&<Field label="Specify type"><input style={inp} value={f.otherType} onChange={s("otherType")} placeholder="Describe item"/></Field>}
@@ -1367,6 +1369,8 @@ function App(){
   const [editingDistribution, setEditingDistribution] = useState(null);
   const [editingRepair, setEditingRepair] = useState(null);
   const [editingWarehouse, setEditingWarehouse] = useState(null);
+  const [editingClassroom, setEditingClassroom] = useState(null);
+  const [editingFurniture, setEditingFurniture] = useState(null);
   const add = mutate => data => { mutate.addOne(data); setModal(null); };
   const showToast = msg => { setToast(msg); setTimeout(()=>setToast(null),3000); };
   const openAddSchool  = () => { setEditingSchool(null); setModal("school"); };
@@ -1459,6 +1463,40 @@ function App(){
     schoolTransfersM.deleteMany(schoolTransfers.filter(t=>sameId(t.schoolId,sid)).map(t=>t.id));
     schoolsM.deleteOne(sid);
     showToast(`✓ "${school.name}" and all linked records deleted.`);
+  };
+  const openAddClassroom  = () => { setEditingClassroom(null); setModal("classroom"); };
+  const openEditClassroom = c => { setEditingClassroom(c); setModal("classroom"); };
+  const saveClassroom = data => {
+    if (data.id != null) classroomsM.updateOne(data.id, data);
+    else classroomsM.addOne(data);
+    setModal(null);
+    setEditingClassroom(null);
+    showToast(`✓ Classroom ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteClassroom = c => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete Room ${c.room} and all its linked furniture and condition records? This cannot be undone.`)) return;
+    const cid = c.id;
+    const linkedFurnitureIds = furniture.filter(f=>sameId(f.classroomId,cid)).map(f=>f.id);
+    repairsM.deleteMany(repairs.filter(r=>linkedFurnitureIds.some(fid=>sameId(fid,r.furnitureId))).map(r=>r.id));
+    conditionsM.deleteMany(conditions.filter(co=>sameId(co.classroomId,cid)).map(co=>co.id));
+    furnitureM.deleteMany(linkedFurnitureIds);
+    classroomsM.deleteOne(cid);
+    showToast(`✓ Room ${c.room} and its linked records deleted.`);
+  };
+  const openAddFurniture  = () => { setEditingFurniture(null); setModal("furniture"); };
+  const openEditFurniture = f => { setEditingFurniture(f); setModal("furniture"); };
+  const saveFurniture = data => {
+    if (data.id != null) furnitureM.updateOne(data.id, data);
+    else furnitureM.addOne(data);
+    setModal(null);
+    setEditingFurniture(null);
+    showToast(`✓ Furniture record ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteFurniture = f => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete this furniture record? This cannot be undone.`)) return;
+    repairsM.deleteMany(repairs.filter(r=>sameId(r.furnitureId,f.id)).map(r=>r.id));
+    furnitureM.deleteOne(f.id);
+    showToast(`✓ Furniture record deleted.`);
   };
   const restoreAll = data => {
     if(data.schools)      schoolsM.replaceAll(data.schools);
@@ -1568,9 +1606,9 @@ function App(){
       const notInUseCount = classrooms.filter(c=>c.inUse==="No").length;
       return (
       <div>
-        <SectionHeader title="Classrooms & Furniture" onAdd={()=>setModal("classroom")}
+        <SectionHeader title="Classrooms & Furniture" onAdd={openAddClassroom}
           extra={<>
-            <button onClick={()=>setModal("furniture")} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add furniture</button>
+            <button onClick={openAddFurniture} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add furniture</button>
             <ExportBtn label="CSV" filename="classrooms_and_furniture.csv" cols={combinedCols} rows={combinedRows}/>
           </>}/>
         <div style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:12,marginBottom:"1rem"}}>
@@ -1598,11 +1636,15 @@ function App(){
                   </div>
                   <div style={{display:"flex",gap:8,alignItems:"center"}}>
                     {items.length>0&&<span style={{fontSize:11,color:"#6B7280"}}>{avail} available{dmg>0?<span style={{color:"#DC2626"}}> · {dmg} damaged</span>:""}</span>}
+                    <button onClick={()=>openEditClassroom(c)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button>
+                    <button onClick={()=>deleteClassroom(c)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button>
                   </div>
                 </div>
                 {items.length===0?<p style={{fontSize:13,color:"#9CA3AF",margin:0}}>No furniture captured for this room yet.</p>:(
-                  <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition","Photo"]} rows={items}
-                    renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.damaged}</span>:f.damaged,f.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{f.repairable}</span>:f.repairable,Number(f.shortage||0)>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.shortage}</span>:(f.shortage||0),<Badge val={f.condition}/>,f.photoData?<a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="photo" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>]}/>
+                  <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition","Photo","Actions"]} rows={items}
+                    renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.damaged}</span>:f.damaged,f.repairable>0?<span style={{color:"#D97706",fontWeight:600}}>{f.repairable}</span>:f.repairable,Number(f.shortage||0)>0?<span style={{color:"#DC2626",fontWeight:600}}>{f.shortage}</span>:(f.shortage||0),<Badge val={f.condition}/>,f.photoData?<a href={f.photoData} target="_blank" rel="noreferrer"><img src={f.photoData} alt="photo" style={{width:32,height:32,objectFit:"cover",borderRadius:4,border:"1px solid #E5E7EB",cursor:"pointer"}}/></a>:<span style={{color:"#D1D5DB",fontSize:11}}>—</span>,
+                      <div style={{display:"flex",gap:6}}><button onClick={()=>openEditFurniture(f)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteFurniture(f)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
+                    ]}/>
                 )}
               </Card>
             );
@@ -1614,8 +1656,10 @@ function App(){
             {Object.entries(unassignedBySchool).map(([sid,items])=>(
               <Card key={sid}>
                 <p style={{fontWeight:600,fontSize:14,margin:"0 0 8px",color:"#111827"}}>{scName(sid)}</p>
-                <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition"]} rows={items}
-                  renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,<Badge val={f.condition}/>]}/>
+                <DataTable cols={["Category","Furniture Type","Available","Damaged","Repairable","Shortage","Condition","Actions"]} rows={items}
+                  renderRow={f=>[f.category,f.ftype==="Other"?f.otherType:f.ftype,f.available,f.damaged,f.repairable,f.shortage||0,<Badge val={f.condition}/>,
+                    <div style={{display:"flex",gap:6}}><button onClick={()=>openEditFurniture(f)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteFurniture(f)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
+                  ]}/>
               </Card>
             ))}
           </div>
@@ -1903,8 +1947,8 @@ function App(){
       {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"#111827",color:"#fff",padding:"10px 20px",borderRadius:10,fontSize:13,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 4px 12px rgba(0,0,0,0.2)"}}>{toast}</div>}
       {modal==="school"       && <SchoolForm        initial={editingSchool} onClose={()=>{setModal(null);setEditingSchool(null);}} onSave={saveSchool}/>}
       {modal==="audit"        && <AuditForm         schools={schools}            onClose={()=>setModal(null)} onSave={add(auditsM)}/>}
-      {modal==="classroom"    && <ClassroomForm     schools={schools}            onClose={()=>setModal(null)} onSave={add(classroomsM)}/>}
-      {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(furnitureM)}/>}
+      {modal==="classroom"    && <ClassroomForm     schools={schools} initial={editingClassroom} onClose={()=>{setModal(null);setEditingClassroom(null);}} onSave={saveClassroom}/>}
+      {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} initial={editingFurniture} onClose={()=>{setModal(null);setEditingFurniture(null);}} onSave={saveFurniture}/>}
       {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
       {modal==="repair"       && <RepairForm        schools={schools} initial={editingRepair} onClose={()=>{setModal(null);setEditingRepair(null);}} onSave={saveRepair}/>}
       {modal==="warehouse"    && <WarehouseForm     initial={editingWarehouse}  onClose={()=>{setModal(null);setEditingWarehouse(null);}} onSave={saveWarehouse}/>}
