@@ -90,6 +90,10 @@ const DBE_FURNITURE = [
 // ─────────────────────────────────────────────
 const NC_DISTRICTS = ["FRANCES BAARD","JOHN TAOLO GAETSEWE","NAMAKWA","PIXLEY-KA-SEME","ZF MGCAWU"];
 // ─────────────────────────────────────────────
+// ROOM TYPES (Classrooms & Furniture — room type auto-search)
+// ─────────────────────────────────────────────
+const ROOM_TYPES = ["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room","Clothing Store","Printing Room","Admin Office","Strong Room","Admin Kitchen","Staff Room","Bookstore","HOD Office","School Kitchen","Reception","Hall","Finance Office","Hospitality Restaurant Class","Waiting Room/Hall"];
+// ─────────────────────────────────────────────
 // EMIS SAMPLE
 // ─────────────────────────────────────────────
 const EMIS_SAMPLE = [
@@ -416,8 +420,30 @@ function SchoolForm({initial,onSave,onClose}) {
     </Modal>
   );
 }
-function AuditForm({schools,onSave,onClose}) {
-  const [f,setF]=useState({schoolId:"",year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
+function AuditForm({schools,initial,onSave,onClose}) {
+  const normInitial = initial ? {
+    id:initial.id,
+    schoolId:initial.schoolId!=null?String(initial.schoolId):"",
+    year:initial.year??new Date().getFullYear(),
+    date:initial.date||"",
+    risk:initial.risk||"Low",
+    capWith:initial.capWith??"",
+    capWithout:initial.capWithout??"",
+    overcapacity:initial.overcapacity||"No",
+    recommendations:initial.recommendations||"",
+    comments:initial.comments||"",
+    hallAvailable:initial.hallAvailable||"No",
+    hallCondition:initial.hallCondition||"Good",
+    hallCapacity:initial.hallCapacity??"",
+    hallUsage:initial.hallUsage||"",
+    hallFloor:initial.hallFloor||"Good",
+    hallRoof:initial.hallRoof||"Good",
+    hallElectricity:initial.hallElectricity||"Yes",
+    hallToilets:initial.hallToilets||"No",
+    hallIssues:initial.hallIssues||"",
+    hallNotes:initial.hallNotes||"",
+  } : null;
+  const [f,setF]=useState(normInitial||{schoolId:"",year:new Date().getFullYear(),date:"",risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const validate=d=>({schoolId:!d.schoolId?"School is required":"",date:!d.date?"Audit date is required":""});
@@ -426,7 +452,7 @@ function AuditForm({schools,onSave,onClose}) {
   const eI=k=>touched&&errors[k]?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp;
   const handleSave=()=>{setTouched(true);if(Object.values(validate(f)).some(Boolean))return;onSave(f);};
   return (
-    <Modal title="New audit" onClose={onClose} onSave={handleSave} errors={errors}>
+    <Modal title={initial?"Edit audit":"New audit"} onClose={onClose} onSave={handleSave} errors={errors}>
       <Row2><Field label="School *"><select style={eS("schoolId")} value={f.schoolId} onChange={s("schoolId")}><option value="">Select school</option>{schools.map(sc=><option key={sc.id} value={sc.id}>{sc.name}</option>)}</select></Field><Field label="Year"><input style={inp} type="number" value={f.year} onChange={s("year")}/></Field></Row2>
       <Row2><Field label="Date *"><input style={eI("date")} type="date" value={f.date} onChange={s("date")}/></Field><Field label="Risk level"><select style={sel} value={f.risk} onChange={s("risk")}>{["Low","Medium","High"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
       <Row3><Field label="Cap. with mobiles"><input style={inp} type="number" value={f.capWith} onChange={s("capWith")}/></Field><Field label="Cap. without mobiles"><input style={inp} type="number" value={f.capWithout} onChange={s("capWithout")}/></Field><Field label="Overcapacity"><select style={sel} value={f.overcapacity} onChange={s("overcapacity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
@@ -482,7 +508,7 @@ function ClassroomForm({schools,initial,onSave,onClose}) {
               <p style={{fontSize:12,fontWeight:500,margin:0,color:"#6B7280"}}>Room {i+1}</p>
               {f.items.length>1&&<button onClick={()=>removeItem(i)} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}
             </div>}
-            <Row2><Field label="Room number *"><input style={touched&&errors.items&&!(item.room&&item.room.trim())?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp} value={item.room} onChange={setItem(i,"room")}/></Field><Field label="Room type"><select style={sel} value={item.type} onChange={setItem(i,"type")}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room","Clothing Store","Printing Room","Admin Office","Strong Room","Admin Kitchen","Staff Room","Bookstore","HOD Office","School Kitchen","Reception","Hall","Finance Office","Hospitality Restaurant Class","Waiting Room/Hall"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+            <Row2><Field label="Room number *"><input style={touched&&errors.items&&!(item.room&&item.room.trim())?{...inp,borderColor:"#EF4444",background:"#FFF5F5"}:inp} value={item.room} onChange={setItem(i,"room")}/></Field><Field label="Room type"><input style={inp} list="room-type-datalist-classroom" value={item.type} onChange={setItem(i,"type")} placeholder="Type to search room types..."/></Field></Row2>
             <Row3><Field label="Grade (R–12)"><input style={inp} value={item.grade} onChange={setItem(i,"grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={item.spec} onChange={setItem(i,"spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={item.learners} onChange={setItem(i,"learners")}/></Field></Row3>
             <Row2><Field label="Is mobile?"><select style={sel} value={item.isMobile} onChange={setItem(i,"isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="In use?"><select style={sel} value={item.inUse} onChange={setItem(i,"inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
             {item.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={item.comments} onChange={setItem(i,"comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}
@@ -490,6 +516,7 @@ function ClassroomForm({schools,initial,onSave,onClose}) {
         ))}
         {!initial&&<button onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another room</button>}
       </div>
+      <datalist id="room-type-datalist-classroom">{ROOM_TYPES.map(v=><option key={v} value={v}/>)}</datalist>
     </Modal>
   );
 }
@@ -902,6 +929,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
         {tabs.map((t,i)=><button key={i} onClick={()=>setTab(i)} style={tabStyle(i)}>{t}</button>)}
       </div>
       <datalist id="dbe-furniture-datalist">{DBE_FURNITURE.map(v=><option key={v} value={v}/>)}<option value="Other"/></datalist>
+      <datalist id="room-type-datalist-capture">{ROOM_TYPES.map(v=><option key={v} value={v}/>)}</datalist>
       <div style={{background:"#fff",border:"0.5px solid #E0E7EF",borderRadius:"0 14px 14px 14px",padding:"1.5rem"}}>
         {tab===0&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>School details</h3>
@@ -949,7 +977,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
               <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><p style={{fontWeight:500,fontSize:13,margin:0,color:"#374151"}}>Room {i+1}</p>{clsRows.length>1&&<button onClick={()=>setClsRows(p=>p.filter((_,x)=>x!==i))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}</div>
               <Row3>
                 <Field label="Room number"><input style={inp} value={row.room} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,room:e.target.value}:r))}/></Field>
-                <Field label="Type"><select style={sel} value={row.type} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,type:e.target.value}:r))}>{["Classroom","Lab","Office","Storage","Science Laboratory","Library","Hospitality Room","Computer Lab","Tuck Shop","Consumer Room","Clothing Store","Printing Room","Admin Office","Strong Room","Admin Kitchen","Staff Room","Bookstore","HOD Office","School Kitchen","Reception","Hall","Finance Office","Hospitality Restaurant Class","Waiting Room/Hall"].map(v=><option key={v}>{v}</option>)}</select></Field>
+                <Field label="Type"><input style={inp} list="room-type-datalist-capture" value={row.type} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,type:e.target.value}:r))} placeholder="Type to search room types..."/></Field>
                 <Field label="Grade"><input style={inp} value={row.grade} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,grade:e.target.value}:r))}/></Field>
               </Row3>
               <Row3>
@@ -1470,6 +1498,7 @@ function App(){
   const [toast,          setToast]          = useState(null);
   const [transferProjectFilter, setTransferProjectFilter] = useState("All");
   const [editingSchool,  setEditingSchool]  = useState(null);
+  const [editingAudit, setEditingAudit] = useState(null);
   const [editingDistribution, setEditingDistribution] = useState(null);
   const [editingRepair, setEditingRepair] = useState(null);
   const [editingWarehouse, setEditingWarehouse] = useState(null);
@@ -1549,6 +1578,20 @@ function App(){
     showToast(`✓ "${data.name}" ${data.id != null ? "updated" : "added"}.`);
   };
   const sameId = (a,b) => a!=null && b!=null && a.toString()===b.toString();
+  const openAddAudit  = () => { setEditingAudit(null); setModal("audit"); };
+  const openEditAudit = a => { setEditingAudit(a); setModal("audit"); };
+  const saveAudit = data => {
+    if (data.id != null) auditsM.updateOne(data.id, data);
+    else auditsM.addOne(data);
+    setModal(null);
+    setEditingAudit(null);
+    showToast(`✓ Audit ${data.id != null ? "updated" : "added"}.`);
+  };
+  const deleteAudit = a => {
+    if (typeof window !== "undefined" && !window.confirm(`Delete this audit record for ${scName(a.schoolId)}? This cannot be undone.`)) return;
+    auditsM.deleteOne(a.id);
+    showToast(`✓ Audit record deleted.`);
+  };
   const deleteSchool = school => {
     if (typeof window !== "undefined" && !window.confirm(`Delete "${school.name}" and all its linked audits, classrooms, furniture, repairs, requests and other records? This cannot be undone.`)) return;
     const sid = school.id;
@@ -1715,7 +1758,7 @@ function App(){
       })();
       return (
       <div>
-        <SectionHeader title="Audits" onAdd={()=>setModal("audit")} extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.recommendations])}/>}/>
+        <SectionHeader title="Audits" onAdd={openAddAudit} extra={<ExportBtn label="CSV" filename="audits.csv" cols={["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Recommendations"]} rows={audits.map(a=>[scName(a.schoolId),a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.recommendations])}/>}/>
         <Card style={{marginBottom:"1.5rem"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"1rem"}}>
             <h3 style={{fontSize:14,fontWeight:600,margin:0,color:"#111827"}}>Number of audits per year, by school</h3>
@@ -1725,8 +1768,10 @@ function App(){
             renderRow={r=>[scName(r.schoolId),r.year,r.count,<span style={{fontSize:12,color:"#6B7280"}}>{r.dates.slice().sort().join(", ")||"—"}</span>]}/>
         </Card>
         <Card>
-          <DataTable cols={["School","Year","Date","Risk","Overcapacity","Hall","Recommendations"]} rows={audits}
-            renderRow={r=>[scName(r.schoolId),r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>,r.hallAvailable==="Yes"?<Badge val={r.hallCondition}/>:<span style={{fontSize:11,color:"#9CA3AF"}}>No hall</span>,<span style={{color:"#6B7280",fontSize:12}}>{r.recommendations}</span>]}/>
+          <DataTable cols={["School","Year","Date","Risk","Overcapacity","Hall","Recommendations","Actions"]} rows={audits}
+            renderRow={r=>[scName(r.schoolId),r.year,r.date,<Badge val={r.risk}/>,<Badge val={r.overcapacity}/>,r.hallAvailable==="Yes"?<Badge val={r.hallCondition}/>:<span style={{fontSize:11,color:"#9CA3AF"}}>No hall</span>,<span style={{color:"#6B7280",fontSize:12}}>{r.recommendations}</span>,
+              <div style={{display:"flex",gap:6}}><button onClick={()=>openEditAudit(r)} style={{fontSize:12,color:"#2563EB",background:"#EFF6FF",border:"0.5px solid #BFDBFE",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Edit</button><button onClick={()=>deleteAudit(r)} style={{fontSize:12,color:"#DC2626",background:"#FEF2F2",border:"0.5px solid #FECACA",borderRadius:6,padding:"3px 10px",cursor:"pointer"}}>Delete</button></div>
+            ]}/>
         </Card>
       </div>
     );}
@@ -2085,7 +2130,7 @@ function App(){
     <div style={{display:"flex",minHeight:"100vh",fontFamily:"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif",background:"#F3F6FB"}}>
       {toast&&<div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:"#111827",color:"#fff",padding:"10px 20px",borderRadius:10,fontSize:13,zIndex:200,whiteSpace:"nowrap",boxShadow:"0 4px 12px rgba(0,0,0,0.2)"}}>{toast}</div>}
       {modal==="school"       && <SchoolForm        initial={editingSchool} onClose={()=>{setModal(null);setEditingSchool(null);}} onSave={saveSchool}/>}
-      {modal==="audit"        && <AuditForm         schools={schools}            onClose={()=>setModal(null)} onSave={add(auditsM)}/>}
+      {modal==="audit"        && <AuditForm         schools={schools} initial={editingAudit} onClose={()=>{setModal(null);setEditingAudit(null);}} onSave={saveAudit}/>}
       {modal==="classroom"    && <ClassroomForm     schools={schools} initial={editingClassroom} onClose={()=>{setModal(null);setEditingClassroom(null);}} onSave={saveClassroom}/>}
       {modal==="furniture"    && <FurnitureForm     classrooms={classrooms} schools={schools} initial={editingFurniture} onClose={()=>{setModal(null);setEditingFurniture(null);}} onSave={saveFurniture}/>}
       {modal==="condition"    && <ConditionForm     classrooms={classrooms} schools={schools} onClose={()=>setModal(null)} onSave={add(conditionsM)}/>}
