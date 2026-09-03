@@ -60,7 +60,7 @@ const DBE_FURNITURE = [
   "Boardroom Table","Boardroom Chair","Filing Cabinet – Steel (2-Drawer)","Filing Cabinet – Steel (4-Drawer)","Lateral Filing Cabinet",
   "Safe (Small – Cash Box)","Safe (Medium – Fireproof)","Steel Stationery Cupboard (Admin)","Compactus / Mobile Shelving",
   "Waiting Area Bench (2-Seater)","Waiting Area Bench (3-Seater)","Staff Room Table","Staff Room Chair","Staff Room Couch / Sofa",
-  "Staff Locker (Single Door)","Staff Locker (Double Door)","Science Lab Table","Lab Stool","Computer Lab Table","Library Table","Library Chair",
+  "Staff Locker (Single Door)","Staff Locker (Double Door)","Science Lab Table","Lab Stool","Junior Lab Stool","Senior Lab Stool","Computer Lab Table","Library Table","Library Chair",
   "ECD Activity Table (Grade R)","ECD Chair (Grade R)","Multipurpose Table","Steel Shelf Unit","Storeroom Shelf","Display Cabinet","Notice Board","Whiteboard (Mobile)",
   // Science Laboratory (Science Lab Table & Lab Stool already listed above)
   "Science Lab Bench (with Sink)","Lab Demonstration Table (Teacher's)","Fume Cupboard","Chemical Storage Cabinet","Gas Bench Unit","Specimen/Apparatus Cabinet","Lab Safety Equipment Cabinet",
