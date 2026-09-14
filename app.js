@@ -467,7 +467,9 @@ function AuditForm({schools,initial,onSave,onClose}) {
   );
 }
 function ClassroomForm({schools,initial,onSave,onClose}) {
-  const emptyItem=()=>({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:""});
+  const emptyCondition=()=>({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",comments:""});
+  const emptyMobile=()=>({mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:""});
+  const emptyItem=()=>({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",condition:emptyCondition(),mobile:emptyMobile()});
   const normInitial = initial ? {
     id:initial.id,
     schoolId:initial.schoolId!=null?String(initial.schoolId):"",
@@ -477,6 +479,8 @@ function ClassroomForm({schools,initial,onSave,onClose}) {
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
   const setItem=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,[field]:e.target.value}:it)}));
+  const setItemCondition=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,condition:{...it.condition,[field]:e.target.value}}:it)}));
+  const setItemMobile=(i,field)=>e=>setF(p=>({...p,items:p.items.map((it,x)=>x===i?{...it,mobile:{...it.mobile,[field]:e.target.value}}:it)}));
   const addItem=()=>setF(p=>({...p,items:[...p.items,emptyItem()]}));
   const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
   const validate=d=>({
@@ -512,6 +516,18 @@ function ClassroomForm({schools,initial,onSave,onClose}) {
             <Row3><Field label="Grade (R–12)"><input style={inp} value={item.grade} onChange={setItem(i,"grade")}/></Field><Field label="Spec (e.g. 4E1)"><input style={inp} value={item.spec} onChange={setItem(i,"spec")}/></Field><Field label="Learner count"><input style={inp} type="number" value={item.learners} onChange={setItem(i,"learners")}/></Field></Row3>
             <Row2><Field label="Is mobile?"><select style={sel} value={item.isMobile} onChange={setItem(i,"isMobile")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="In use?"><select style={sel} value={item.inUse} onChange={setItem(i,"inUse")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
             {item.inUse==="No"&&<Field label="Comments (reason not in use)"><input style={inp} value={item.comments} onChange={setItem(i,"comments")} placeholder="e.g. Roof damage, being used for storage, awaiting repairs"/></Field>}
+            {!initial&&<div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
+              <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Room condition assessment</p>
+              <Row2><Field label="Flooring"><select style={sel} value={item.condition.flooring} onChange={setItemCondition(i,"flooring")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={item.condition.flooringIssues} onChange={setItemCondition(i,"flooringIssues")} placeholder="e.g. Cracks, Holes"/></Field></Row2>
+              <Row2><Field label="Windows"><select style={sel} value={item.condition.windows} onChange={setItemCondition(i,"windows")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={item.condition.windowIssues} onChange={setItemCondition(i,"windowIssues")} placeholder="e.g. Broken, Missing"/></Field></Row2>
+              <Row2><Field label="Locks"><select style={sel} value={item.condition.locks} onChange={setItemCondition(i,"locks")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={item.condition.electricity} onChange={setItemCondition(i,"electricity")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+              <Field label="Condition comments"><input style={inp} value={item.condition.comments} onChange={setItemCondition(i,"comments")}/></Field>
+              {item.isMobile==="Yes"&&<div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
+                <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mobile classroom assessment</p>
+                <Row3><Field label="Number of mobiles"><input style={inp} type="number" value={item.mobile.mobileCount} onChange={setItemMobile(i,"mobileCount")}/></Field><Field label="Overall condition"><select style={sel} value={item.mobile.condition} onChange={setItemMobile(i,"condition")}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={item.mobile.electricityAvail} onChange={setItemMobile(i,"electricityAvail")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
+                <Row3><Field label="Ablutions?"><select style={sel} value={item.mobile.ablutions} onChange={setItemMobile(i,"ablutions")}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Structural issues"><input style={inp} value={item.mobile.structuralIssues} onChange={setItemMobile(i,"structuralIssues")} placeholder="e.g. Roof leaks, floor damage"/></Field><Field label="Recommendation"><input style={inp} value={item.mobile.recommendation} onChange={setItemMobile(i,"recommendation")} placeholder="e.g. Repair, Replace, Monitor"/></Field></Row3>
+              </div>}
+            </div>}
           </div>
         ))}
         {!initial&&<button onClick={addItem} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another room</button>}
@@ -887,14 +903,14 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
   };
   const [audit,setAudit]=useState({year:new Date().getFullYear(),date:new Date().toISOString().slice(0,10),risk:"Low",capWith:"",capWithout:"",overcapacity:"No",recommendations:"",comments:"",hallAvailable:"No",hallCondition:"Good",hallCapacity:"",hallUsage:"",hallFloor:"Good",hallRoof:"Good",hallElectricity:"Yes",hallToilets:"No",hallIssues:"",hallNotes:""});
   const emptyFurnItem=()=>({ftype:"",otherType:"",category:"Learner",available:"",damaged:"",repairable:"",shortage:"",condition:"Good"});
-  const [clsRows,setClsRows]=useState([{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()]}]);
-  const [condRow,setCondRow]=useState({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
-  const emptyMobileItem=()=>({mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:""});
-  const [mobileRows,setMobileRows]=useState([emptyMobileItem()]);
+  const emptyRoomCondition=()=>({flooring:"Good",flooringIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",comments:""});
+  const emptyRoomMobile=()=>({mobileCount:"",condition:"Good",structuralIssues:"",electricityAvail:"Yes",ablutions:"Yes",recommendation:""});
+  const emptyClsRow=()=>({room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()],condition:emptyRoomCondition(),mobile:emptyRoomMobile()});
+  const [clsRows,setClsRows]=useState([emptyClsRow()]);
   const [repairRows,setRepairRows]=useState([{furnitureId:"",ftype:"",repairType:"Minor",destination:"Warehouse",qty:"",status:"Pending",allocated:"",completed:""}]);
   const sa=k=>e=>setAudit(p=>({...p,[k]:e.target.value}));
   const sc=k=>e=>setNewSchool(p=>({...p,[k]:e.target.value}));
-  const tabs=["1. School","2. Audit","3. Classrooms & Furniture","4. Mobile Assessment","5. Repairs"];
+  const tabs=["1. School","2. Audit","3. Classrooms & Furniture","4. Repairs"];
   const handleSaveAll=()=>{
     const schoolId=selectedSchoolId||uid();
     const school=selectedSchoolId?null:{...newSchool,id:schoolId};
@@ -902,10 +918,10 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
     const roomRows=clsRows.filter(r=>r.room);
     const classroomRecords=roomRows.map(r=>({id:uid(),schoolId,room:r.room,type:r.type,grade:r.grade,spec:r.spec,learners:r.learners,isMobile:r.isMobile,inUse:r.inUse||"Yes",comments:r.inUse==="No"?(r.comments||""):""}));
     const furnitureRecords=roomRows.flatMap((r,i)=>(r.furnitureItems||[]).filter(it=>it.ftype).map(it=>({id:uid(),schoolId,classroomId:classroomRecords[i]?.id||"",ftype:it.ftype,otherType:it.otherType||"",category:it.category,available:it.available,damaged:it.damaged,repairable:it.repairable,shortage:it.shortage||"",condition:it.condition,spec:r.spec,auditDate:audit.date,photoName:"",photoData:""})));
-    const condRecord=condRow.flooring?{...condRow,id:uid(),classroomId:classroomRecords[0]?.id||""}:null;
-    const mobileAuditRecords=mobileRows.filter(r=>r.mobileCount).map(r=>({...r,id:uid(),schoolId,auditDate:audit.date,auditedBy:"PY Tshabangu"}));
+    const conditionRecords=roomRows.map((r,i)=>({id:uid(),classroomId:classroomRecords[i]?.id||"",...r.condition,photos:[]}));
+    const mobileAuditRecords=roomRows.map((r,i)=>({r,classroomId:classroomRecords[i]?.id||""})).filter(x=>x.r.isMobile==="Yes").map(x=>({id:uid(),schoolId,classroomId:x.classroomId,mobileCount:x.r.mobile.mobileCount||1,condition:x.r.mobile.condition,structuralIssues:x.r.mobile.structuralIssues,electricityAvail:x.r.mobile.electricityAvail,ablutions:x.r.mobile.ablutions,recommendation:x.r.mobile.recommendation,auditDate:audit.date,auditedBy:"PY Tshabangu"}));
     const repairRecords=repairRows.filter(r=>r.furnitureId&&r.qty).map(r=>({...r,id:uid()}));
-    onSaveAll({school,audit:auditRecord,classrooms:classroomRecords,furniture:furnitureRecords,condition:condRecord,mobileAudit:mobileAuditRecords,repairs:repairRecords});
+    onSaveAll({school,audit:auditRecord,classrooms:classroomRecords,furniture:furnitureRecords,conditions:conditionRecords,mobileAudit:mobileAuditRecords,repairs:repairRecords});
     showToast("✓ School capture saved successfully.");
   };
   const tabStyle=i=>({padding:"10px 20px",borderRadius:"10px 10px 0 0",border:"0.5px solid #E0E7EF",borderBottom:tab===i?"none":"0.5px solid #E0E7EF",background:tab===i?"#fff":"#F3F6FB",color:tab===i?"#1e40af":"#6B7280",fontWeight:tab===i?600:400,cursor:"pointer",fontSize:13});
@@ -1013,37 +1029,23 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
                 ))}
                 <button onClick={()=>setClsRows(p=>p.map((r,x)=>x===i?{...r,furnitureItems:[...(r.furnitureItems||[]),emptyFurnItem()]}:r))} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another furniture type</button>
               </div>
+              <div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
+                <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Room condition assessment</p>
+                <Row2><Field label="Flooring"><select style={sel} value={row.condition.flooring} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,flooring:e.target.value}}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={row.condition.flooringIssues} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,flooringIssues:e.target.value}}:r))} placeholder="e.g. Cracks, Holes"/></Field></Row2>
+                <Row2><Field label="Windows"><select style={sel} value={row.condition.windows} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,windows:e.target.value}}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={row.condition.windowIssues} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,windowIssues:e.target.value}}:r))} placeholder="e.g. Broken, Missing"/></Field></Row2>
+                <Row2><Field label="Locks"><select style={sel} value={row.condition.locks} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,locks:e.target.value}}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={row.condition.electricity} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,electricity:e.target.value}}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row2>
+                <Field label="Condition comments"><input style={inp} value={row.condition.comments} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,condition:{...r.condition,comments:e.target.value}}:r))}/></Field>
+              </div>
+              {row.isMobile==="Yes"&&<div style={{borderTop:"1px solid #E5E7EB",margin:"0.75rem 0",paddingTop:"0.75rem"}}>
+                <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mobile classroom assessment</p>
+                <Row3><Field label="Number of mobiles"><input style={inp} type="number" value={row.mobile.mobileCount} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,mobileCount:e.target.value}}:r))}/></Field><Field label="Overall condition"><select style={sel} value={row.mobile.condition} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,condition:e.target.value}}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity?"><select style={sel} value={row.mobile.electricityAvail} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,electricityAvail:e.target.value}}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field></Row3>
+                <Row3><Field label="Ablutions?"><select style={sel} value={row.mobile.ablutions} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,ablutions:e.target.value}}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Structural issues"><input style={inp} value={row.mobile.structuralIssues} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,structuralIssues:e.target.value}}:r))} placeholder="e.g. Roof leaks, floor damage"/></Field><Field label="Recommendation"><input style={inp} value={row.mobile.recommendation} onChange={e=>setClsRows(p=>p.map((r,x)=>x===i?{...r,mobile:{...r.mobile,recommendation:e.target.value}}:r))} placeholder="e.g. Repair, Replace, Monitor"/></Field></Row3>
+              </div>}
             </div>
           ))}
-          <button onClick={()=>setClsRows(p=>[...p,{room:"",type:"Classroom",grade:"",spec:"",learners:"",isMobile:"No",inUse:"Yes",comments:"",furnitureItems:[emptyFurnItem()]}])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
+          <button onClick={()=>setClsRows(p=>[...p,emptyClsRow()])} style={{fontSize:13,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"6px 16px",cursor:"pointer"}}>+ Add another room</button>
         </div>}
         {tab===3&&<div>
-          <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Condition assessment</h3>
-          <Row2><Field label="Flooring"><select style={sel} value={condRow.flooring} onChange={e=>setCondRow(p=>({...p,flooring:e.target.value}))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Flooring issues"><input style={inp} value={condRow.flooringIssues} onChange={e=>setCondRow(p=>({...p,flooringIssues:e.target.value}))}/></Field></Row2>
-          <Row2><Field label="Windows"><select style={sel} value={condRow.windows} onChange={e=>setCondRow(p=>({...p,windows:e.target.value}))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Window issues"><input style={inp} value={condRow.windowIssues} onChange={e=>setCondRow(p=>({...p,windowIssues:e.target.value}))}/></Field></Row2>
-          <Row3><Field label="Locks"><select style={sel} value={condRow.locks} onChange={e=>setCondRow(p=>({...p,locks:e.target.value}))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Electricity"><select style={sel} value={condRow.electricity} onChange={e=>setCondRow(p=>({...p,electricity:e.target.value}))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field><Field label="Mobile condition"><input style={inp} value={condRow.mobile} onChange={e=>setCondRow(p=>({...p,mobile:e.target.value}))}/></Field></Row3>
-          <Field label="Comments"><textarea style={{...inp,minHeight:50,resize:"vertical"}} value={condRow.comments} onChange={e=>setCondRow(p=>({...p,comments:e.target.value}))}/></Field>
-          <div style={{borderTop:"1px solid #E5E7EB",margin:"1.25rem 0 1rem",paddingTop:"1rem"}}>
-            <p style={{fontSize:11,fontWeight:600,color:"#6B7280",margin:"0 0 0.5rem",textTransform:"uppercase",letterSpacing:"0.05em"}}>Mobile classrooms</p>
-            {mobileRows.map((row,i)=>(
-              <div key={i} style={{background:"#F9FAFB",borderRadius:10,padding:"1rem",marginBottom:"0.75rem",border:"0.5px solid #E5E7EB"}}>
-                <div style={{display:"flex",justifyContent:"space-between",marginBottom:8}}><p style={{fontWeight:500,fontSize:13,margin:0,color:"#374151"}}>Mobile classroom {i+1}</p>{mobileRows.length>1&&<button onClick={()=>setMobileRows(p=>p.filter((_,x)=>x!==i))} style={{fontSize:11,color:"#EF4444",background:"none",border:"none",cursor:"pointer"}}>Remove</button>}</div>
-                <Row3>
-                  <Field label="Number of mobiles"><input style={inp} type="number" value={row.mobileCount} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,mobileCount:e.target.value}:r))}/></Field>
-                  <Field label="Overall condition"><select style={sel} value={row.condition} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,condition:e.target.value}:r))}>{["Good","Fair","Poor"].map(v=><option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Electricity?"><select style={sel} value={row.electricityAvail} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,electricityAvail:e.target.value}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
-                </Row3>
-                <Row3>
-                  <Field label="Ablutions?"><select style={sel} value={row.ablutions} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,ablutions:e.target.value}:r))}>{["Yes","No"].map(v=><option key={v}>{v}</option>)}</select></Field>
-                  <Field label="Structural issues"><input style={inp} value={row.structuralIssues} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,structuralIssues:e.target.value}:r))} placeholder="e.g. Roof leaks, floor damage"/></Field>
-                  <Field label="Recommendation"><input style={inp} value={row.recommendation} onChange={e=>setMobileRows(p=>p.map((r,x)=>x===i?{...r,recommendation:e.target.value}:r))} placeholder="e.g. Repair, Replace, Monitor"/></Field>
-                </Row3>
-              </div>
-            ))}
-            <button onClick={()=>setMobileRows(p=>[...p,emptyMobileItem()])} style={{fontSize:12,color:"#2563EB",background:"none",border:"0.5px solid #BFDBFE",borderRadius:8,padding:"5px 14px",cursor:"pointer"}}>+ Add another mobile classroom</button>
-          </div>
-        </div>}
-        {tab===4&&<div>
           <h3 style={{fontSize:15,fontWeight:600,margin:"0 0 1rem"}}>Repairs</h3>
           {repairRows.map((row,i)=>(
             <div key={i} style={{background:"#F9FAFB",borderRadius:10,padding:"1rem",marginBottom:"0.75rem",border:"0.5px solid #E5E7EB"}}>
@@ -1057,7 +1059,7 @@ function SchoolCapturePage({schools,classrooms,furniture,conditions,repairs,onSa
         </div>}
         <div style={{display:"flex",justifyContent:"space-between",marginTop:"1.5rem",paddingTop:"1rem",borderTop:"0.5px solid #E5E7EB"}}>
           <button onClick={()=>setTab(t=>Math.max(0,t-1))} disabled={tab===0} style={{padding:"8px 20px",borderRadius:8,border:"0.5px solid #D1D5DB",background:"#fff",fontSize:13,cursor:tab===0?"not-allowed":"pointer",color:tab===0?"#9CA3AF":"#374151"}}>← Back</button>
-          {tab<4?<button onClick={()=>setTab(t=>t+1)} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Next →</button>:<button onClick={handleSaveAll} style={{padding:"8px 24px",borderRadius:8,border:"none",background:"#059669",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>✓ Save all</button>}
+          {tab<3?<button onClick={()=>setTab(t=>t+1)} style={{padding:"8px 20px",borderRadius:8,border:"none",background:"#2563EB",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>Next →</button>:<button onClick={handleSaveAll} style={{padding:"8px 24px",borderRadius:8,border:"none",background:"#059669",color:"#fff",fontSize:13,cursor:"pointer",fontWeight:600}}>✓ Save all</button>}
         </div>
       </div>
     </div>
@@ -1615,11 +1617,17 @@ function App(){
   const openEditClassroom = c => { setEditingClassroom(c); setModal("classroom"); };
   const saveClassroom = data => {
     if (Array.isArray(data)) {
-      // Adding new classrooms: one record per room entered in the form.
-      classroomsM.addMany(data);
+      // Adding new classrooms: one classroom record per room, plus its nested
+      // condition assessment and (when marked mobile) mobile classroom assessment.
+      const classroomRecords = data.map(d => ({id:d.id, schoolId:d.schoolId, room:d.room, type:d.type, grade:d.grade, spec:d.spec, learners:d.learners, isMobile:d.isMobile, inUse:d.inUse, comments:d.comments}));
+      const conditionRecords = data.filter(d => d.condition).map(d => ({id:uid(), classroomId:d.id, ...d.condition, photos:[]}));
+      const mobileRecords = data.filter(d => d.isMobile==="Yes" && d.mobile).map(d => ({id:uid(), schoolId:d.schoolId, classroomId:d.id, mobileCount:d.mobile.mobileCount||1, condition:d.mobile.condition, structuralIssues:d.mobile.structuralIssues, electricityAvail:d.mobile.electricityAvail, ablutions:d.mobile.ablutions, recommendation:d.mobile.recommendation, auditDate:new Date().toISOString().slice(0,10), auditedBy:"PY Tshabangu"}));
+      classroomsM.addMany(classroomRecords);
+      if (conditionRecords.length) conditionsM.addMany(conditionRecords);
+      if (mobileRecords.length) mobileAuditM.addMany(mobileRecords);
       setModal(null);
       setEditingClassroom(null);
-      showToast(`✓ ${data.length} classroom${data.length!==1?"s":""} added.`);
+      showToast(`✓ ${classroomRecords.length} classroom${classroomRecords.length!==1?"s":""} added.`);
       return;
     }
     if (data.id != null) classroomsM.updateOne(data.id, data);
@@ -1694,12 +1702,12 @@ function App(){
     showToast(`✓ "${emis.name}" imported.`);
     setActive("schools");
   };
-  const saveCaptureAll = ({school,audit,classrooms:cls,furniture:fu,condition,mobileAudit:mob,repairs:reps})=>{
+  const saveCaptureAll = ({school,audit,classrooms:cls,furniture:fu,conditions:conds,mobileAudit:mob,repairs:reps})=>{
     if(school) schoolsM.addOne(school);
     if(audit)  auditsM.addOne(audit);
     if(cls?.length)  classroomsM.addMany(cls);
     if(fu?.length)   furnitureM.addMany(fu);
-    if(condition)    conditionsM.addOne(condition);
+    if(conds?.length) conditionsM.addMany(conds);
     if(mob?.length)  mobileAuditM.addMany(mob);
     if(reps?.length) repairsM.addMany(reps);
   };
