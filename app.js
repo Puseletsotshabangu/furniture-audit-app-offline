@@ -559,7 +559,7 @@ function FurnitureForm({classrooms,schools,initial,onSave,onClose}) {
   const removeItem=i=>setF(p=>({...p,items:p.items.filter((_,x)=>x!==i)}));
   const filteredClassrooms=classrooms.filter(c=>!f.schoolId||c.schoolId.toString()===f.schoolId);
   useEffect(()=>{if(!f.schoolId)return;const cl=classrooms.find(c=>c.id.toString()===f.classroomId);if(cl&&cl.schoolId.toString()!==f.schoolId)setF(p=>({...p,classroomId:""}));},[f.schoolId]);
-  const roomLabel=c=>{const sc=schools.find(x=>x.id===c.schoolId);return `${sc?.name||"?"} — Room ${c.room}`;};
+  const roomLabel=c=>{const sc=schools.find(x=>x.id==c.schoolId);return `${sc?.name||"?"} — Room ${c.room}`;};
   const handlePhoto=e=>{const file=e.target.files[0];if(!file)return;const reader=new FileReader();reader.onload=()=>setF(p=>({...p,photoName:file.name,photoData:reader.result}));reader.readAsDataURL(file);};
   const validate=d=>({
     schoolId:!d.schoolId?"School is required":"",
@@ -618,7 +618,7 @@ function ConditionForm({classrooms,schools,onSave,onClose}) {
   const [f,setF]=useState({classroomId:"",flooring:"Good",flooringIssues:"",ceiling:"Good",ceilingIssues:"",windows:"Good",windowIssues:"",locks:"Good",electricity:"Yes",mobile:"N/A",comments:"",photos:[]});
   const [touched,setTouched]=useState(false);
   const s=k=>e=>setF(p=>({...p,[k]:e.target.value}));
-  const roomLabel=c=>{const sc=schools.find(x=>x.id===c.schoolId);return `${sc?.name||"?"} — Room ${c.room}`;};
+  const roomLabel=c=>{const sc=schools.find(x=>x.id==c.schoolId);return `${sc?.name||"?"} — Room ${c.room}`;};
   const handlePhotos=e=>{const files=Array.from(e.target.files).slice(0,3-f.photos.length);files.forEach(file=>{const reader=new FileReader();reader.onload=()=>setF(p=>({...p,photos:p.photos.length<3?[...p.photos,{name:file.name,data:reader.result}]:p.photos}));reader.readAsDataURL(file);});e.target.value="";};
   const validate=d=>({classroomId:!d.classroomId?"Classroom is required":""});
   const errors=touched?validate(f):{};
@@ -1240,17 +1240,41 @@ return(<div><SectionHeader title="EMIS School Database" extra={<ExportBtn label=
 // ─────────────────────────────────────────────
 // EXPORT PAGE (with backup + merge)
 // ─────────────────────────────────────────────
-function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,warehouse,storage,distribution,onRestore,onMerge}){
+function ExportPage({schools,audits,classrooms,furniture,conditions,repairs,warehouse,storage,distribution,mobileAudit,schoolRequests,adminTasks,schoolTransfers,uploads,learnerData,onRestore,onMerge}){
   const [restoreMsg,setRestoreMsg]=useState("");const [restoreError,setRestoreError]=useState("");const [confirmRestore,setConfirmRestore]=useState(null);
   const [mergeFile,setMergeFile]=useState(null);const [mergePreview,setMergePreview]=useState(null);const [mergeMsg,setMergeMsg]=useState("");const [mergeError,setMergeError]=useState("");
-  const saveBackup=()=>{const ts=new Date().toISOString().slice(0,16).replace("T","_").replace(/:/g,"-");const payload={_version:1,_saved:new Date().toISOString(),schools,audits,classrooms,furniture,conditions,repairs,warehouse,storage,distribution};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));a.download=`schoolaudit-backup-${ts}.json`;a.click();};
+  const saveBackup=()=>{const ts=new Date().toISOString().slice(0,16).replace("T","_").replace(/:/g,"-");const payload={_version:1,_saved:new Date().toISOString(),schools,audits,classrooms,furniture,conditions,repairs,warehouse,storage,distribution,mobileAudit,schoolRequests,adminTasks,schoolTransfers,uploads,learnerData};const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));a.download=`schoolaudit-backup-${ts}.json`;a.click();};
   const handleRestoreFile=e=>{setRestoreMsg("");setRestoreError("");setConfirmRestore(null);const file=e.target.files[0];if(!file)return;e.target.value="";const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(!data._version||!data.schools)throw new Error("Not a valid SchoolAudit backup.");setConfirmRestore(data);}catch(err){setRestoreError("❌ Could not read backup: "+err.message);}};reader.readAsText(file);};
   const doRestore=()=>{if(!confirmRestore)return;onRestore(confirmRestore);setConfirmRestore(null);setRestoreMsg(`✓ Restored — ${confirmRestore.schools?.length||0} schools, ${confirmRestore.audits?.length||0} audits.`);};
-  const computeMergePreview=incoming=>{const sections=[{key:"schools",local:schools},{key:"audits",local:audits},{key:"classrooms",local:classrooms},{key:"furniture",local:furniture},{key:"conditions",local:conditions},{key:"repairs",local:repairs},{key:"warehouse",local:warehouse},{key:"storage",local:storage},{key:"distribution",local:distribution}];return sections.map(({key,local})=>{const inc=incoming[key]||[];const localIds=new Set(local.map(r=>r.id));const localEmis=key==="schools"?new Set(local.map(r=>r.emis).filter(Boolean)):new Set();const added=inc.filter(r=>!localIds.has(r.id)&&!(key==="schools"&&r.emis&&localEmis.has(r.emis)));return{key,added:added.length,skipped:inc.length-added.length,newRecs:added};});};
+  const computeMergePreview=incoming=>{
+    const sections=[{key:"schools",local:schools},{key:"audits",local:audits},{key:"classrooms",local:classrooms},{key:"furniture",local:furniture},{key:"conditions",local:conditions},{key:"repairs",local:repairs},{key:"warehouse",local:warehouse},{key:"storage",local:storage},{key:"distribution",local:distribution},{key:"mobileAudit",local:mobileAudit},{key:"schoolRequests",local:schoolRequests},{key:"adminTasks",local:adminTasks},{key:"schoolTransfers",local:schoolTransfers},{key:"uploads",local:uploads},{key:"learnerData",local:learnerData}];
+    // Schools are deduped by EMIS as well as by id, so an incoming school that already
+    // exists locally (added independently on another desktop, so it has a different id)
+    // gets skipped rather than added. Every other record that references that school via
+    // schoolId — classrooms, audits, furniture, etc. — was captured against the INCOMING
+    // desktop's school id, not the local one, so without remapping those references would
+    // point at a school that was never added, leaving the record with no visible school
+    // name. Build incoming-id → local-id map for every school that's really a duplicate,
+    // and rewrite schoolId on every other incoming record before computing what's new.
+    const incomingSchools=incoming.schools||[];
+    const schoolIdMap={};
+    incomingSchools.forEach(s=>{
+      const localMatch=schools.find(ls=>ls.id==s.id||(s.emis&&ls.emis===s.emis));
+      if(localMatch&&localMatch.id!==s.id) schoolIdMap[s.id]=localMatch.id;
+    });
+    const remapSchoolId=r=>(r.schoolId!=null&&schoolIdMap[r.schoolId]!=null)?{...r,schoolId:schoolIdMap[r.schoolId]}:r;
+    return sections.map(({key,local})=>{
+      const inc=(incoming[key]||[]).map(key==="schools"?(r=>r):remapSchoolId);
+      const localIds=new Set(local.map(r=>r.id));
+      const localEmis=key==="schools"?new Set(local.map(r=>r.emis).filter(Boolean)):new Set();
+      const added=inc.filter(r=>!localIds.has(r.id)&&!(key==="schools"&&r.emis&&localEmis.has(r.emis)));
+      return{key,added:added.length,skipped:inc.length-added.length,newRecs:added};
+    });
+  };
   const handleMergeFile=e=>{setMergeMsg("");setMergeError("");setMergeFile(null);setMergePreview(null);const file=e.target.files[0];if(!file)return;e.target.value="";const reader=new FileReader();reader.onload=ev=>{try{const data=JSON.parse(ev.target.result);if(!data._version||!data.schools)throw new Error("Not a valid SchoolAudit backup.");setMergeFile({data,filename:file.name});setMergePreview(computeMergePreview(data));}catch(err){setMergeError("❌ Could not read file: "+err.message);}};reader.readAsText(file);};
   const doMerge=()=>{if(!mergeFile||!mergePreview)return;onMerge(mergePreview);const total=mergePreview.reduce((s,r)=>s+r.added,0);setMergeMsg(`✓ Merged ${total} new records from ${mergeFile.filename}.`);setMergeFile(null);setMergePreview(null);};
-  const SLABELS={schools:"Schools",audits:"Audits",classrooms:"Classrooms",furniture:"Furniture",conditions:"Conditions",repairs:"Repairs",warehouse:"Warehouse",storage:"Storage",distribution:"Distribution"};
-  const totalRecords=schools.length+audits.length+classrooms.length+furniture.length+conditions.length+repairs.length+warehouse.length+storage.length+distribution.length;
+  const SLABELS={schools:"Schools",audits:"Audits",classrooms:"Classrooms",furniture:"Furniture",conditions:"Conditions",repairs:"Repairs",warehouse:"Warehouse",storage:"Storage",distribution:"Distribution",mobileAudit:"Mobile Audit (KPA3)",schoolRequests:"School Requests",adminTasks:"Admin Tasks",schoolTransfers:"School Transfers",uploads:"EMIS Uploads",learnerData:"Learner Data"};
+  const totalRecords=schools.length+audits.length+classrooms.length+furniture.length+conditions.length+repairs.length+warehouse.length+storage.length+distribution.length+mobileAudit.length+schoolRequests.length+adminTasks.length+schoolTransfers.length+uploads.length+learnerData.length;
   const exports=[
     {label:"Schools",desc:"All audit school records",icon:"🏫",file:"schools.csv",cols:["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"],rows:schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])},
     {label:"Audits",desc:"All school audit records",icon:"📋",file:"audits.csv",cols:["School","Year","Date","Risk","Overcapacity","Hall Available","Hall Condition","Hall Capacity","Recommendations"],rows:audits.map(a=>{const sc=schools.find(s=>s.id==a.schoolId);return[sc?.name||"",a.year,a.date,a.risk,a.overcapacity,a.hallAvailable||"No",a.hallCondition||"",a.hallCapacity||"",a.recommendations];})},
@@ -1673,29 +1697,41 @@ function App(){
     showToast(`✓ Furniture record deleted.`);
   };
   const restoreAll = data => {
-    if(data.schools)      schoolsM.replaceAll(data.schools);
-    if(data.audits)       auditsM.replaceAll(data.audits);
-    if(data.classrooms)   classroomsM.replaceAll(data.classrooms);
-    if(data.furniture)    furnitureM.replaceAll(data.furniture);
-    if(data.conditions)   conditionsM.replaceAll(data.conditions);
-    if(data.repairs)      repairsM.replaceAll(data.repairs);
-    if(data.warehouse)    warehouseM.replaceAll(data.warehouse);
-    if(data.storage)      storageM.replaceAll(data.storage);
-    if(data.distribution) distributionM.replaceAll(data.distribution);
+    if(data.schools)         schoolsM.replaceAll(data.schools);
+    if(data.audits)          auditsM.replaceAll(data.audits);
+    if(data.classrooms)      classroomsM.replaceAll(data.classrooms);
+    if(data.furniture)       furnitureM.replaceAll(data.furniture);
+    if(data.conditions)      conditionsM.replaceAll(data.conditions);
+    if(data.repairs)         repairsM.replaceAll(data.repairs);
+    if(data.warehouse)       warehouseM.replaceAll(data.warehouse);
+    if(data.storage)         storageM.replaceAll(data.storage);
+    if(data.distribution)    distributionM.replaceAll(data.distribution);
+    if(data.mobileAudit)     mobileAuditM.replaceAll(data.mobileAudit);
+    if(data.schoolRequests)  schoolRequestsM.replaceAll(data.schoolRequests);
+    if(data.adminTasks)      adminTasksM.replaceAll(data.adminTasks);
+    if(data.schoolTransfers) schoolTransfersM.replaceAll(data.schoolTransfers);
+    if(data.uploads)         uploadsM.replaceAll(data.uploads);
+    if(data.learnerData)     learnerDataM.replaceAll(data.learnerData);
     showToast("✓ Backup restored successfully.");
   };
   const mergeAll = preview => {
     preview.forEach(({key,newRecs})=>{
       if(!newRecs||!newRecs.length) return;
-      if(key==="schools")      schoolsM.addMany(newRecs);
-      if(key==="audits")       auditsM.addMany(newRecs);
-      if(key==="classrooms")   classroomsM.addMany(newRecs);
-      if(key==="furniture")    furnitureM.addMany(newRecs);
-      if(key==="conditions")   conditionsM.addMany(newRecs);
-      if(key==="repairs")      repairsM.addMany(newRecs);
-      if(key==="warehouse")    warehouseM.addMany(newRecs);
-      if(key==="storage")      storageM.addMany(newRecs);
-      if(key==="distribution") distributionM.addMany(newRecs);
+      if(key==="schools")         schoolsM.addMany(newRecs);
+      if(key==="audits")          auditsM.addMany(newRecs);
+      if(key==="classrooms")      classroomsM.addMany(newRecs);
+      if(key==="furniture")       furnitureM.addMany(newRecs);
+      if(key==="conditions")      conditionsM.addMany(newRecs);
+      if(key==="repairs")         repairsM.addMany(newRecs);
+      if(key==="warehouse")       warehouseM.addMany(newRecs);
+      if(key==="storage")         storageM.addMany(newRecs);
+      if(key==="distribution")    distributionM.addMany(newRecs);
+      if(key==="mobileAudit")     mobileAuditM.addMany(newRecs);
+      if(key==="schoolRequests")  schoolRequestsM.addMany(newRecs);
+      if(key==="adminTasks")      adminTasksM.addMany(newRecs);
+      if(key==="schoolTransfers") schoolTransfersM.addMany(newRecs);
+      if(key==="uploads")         uploadsM.addMany(newRecs);
+      if(key==="learnerData")     learnerDataM.addMany(newRecs);
     });
     showToast(`✓ Merged ${preview.reduce((s,r)=>s+r.added,0)} new records.`);
   };
@@ -1725,7 +1761,7 @@ function App(){
     case "emis":      return <EmisPage onImport={importSchool} onDataLoaded={setEmisData}/>;
     case "capture":   return <SchoolCapturePage schools={schools} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} onSaveAll={saveCaptureAll} showToast={showToast} emisData={emisData}/>;
     case "furnsummary": return <FurnitureSummaryPage schools={schools} classrooms={classrooms} furniture={furniture}/>;
-    case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution} onRestore={restoreAll} onMerge={mergeAll}/>;
+    case "export":    return <ExportPage schools={schools} audits={audits} classrooms={classrooms} furniture={furniture} conditions={conditions} repairs={repairs} warehouse={warehouse} storage={storage} distribution={distribution} mobileAudit={mobileAudit} schoolRequests={schoolRequests} adminTasks={adminTasks} schoolTransfers={schoolTransfers} uploads={uploads} learnerData={learnerData} onRestore={restoreAll} onMerge={mergeAll}/>;
     case "schools": return (
       <div>
         <SectionHeader title="Audit Schools" onAdd={openAddSchool} extra={<ExportBtn label="CSV" filename="schools.csv" cols={["Name","EMIS","Province","District","Capacity","Enrolment","Teachers","Risk"]} rows={schools.map(s=>[s.name,s.emis,s.province,s.district,s.capacity,s.enrolment,s.teachers,s.risk])}/>}/>
